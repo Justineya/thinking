@@ -1,0 +1,5 @@
+shot,start,end,duration,video_asset,voice_role,voice_line,voice_speed,subtitle,sfx
+01,0:00,0:03,3s,shot01.png,噜妹,你再碰厨房试试！,1.18,嘴上说让他滚,冰箱门轻砰+BGM起
+02,0:03,0:07,4s,shot02.png,噜妹+噜噜,连牛排都能煎焦？！ / ……我本来可以的。,1.15/0.98,手上还在给他收拾烂摊子,BGM继续
+03,0:07,0:12,5s,shot03.png,噜妹画外,别乱翻过期的我清掉了。,1.0,无,冰箱开门+BGM骤停0.5s
+04,0:12,0:18,6s,shot04.png,噜妹,超市买一送一清库存而已别多想。,1.0,金句字幕14s起,温暖BGM收尾

@@ -73,7 +73,20 @@
         "lulu": ["ref_01", "lulu_01", "lulu_03"],
         "lumei": ["ref_03", "lumei_02", "lumei_04"]
       },
-      "status": "ready_for_production"
+      "status": "in_production",
+      "production": {
+        "folder": "制作/ep01/",
+        "keyframes": [
+          "制作/ep01/关键帧/shot01.png",
+          "制作/ep01/关键帧/shot02.png",
+          "制作/ep01/关键帧/shot03.png",
+          "制作/ep01/关键帧/shot04.png"
+        ],
+        "cover": "制作/ep01/关键帧/cover.png",
+        "guide": "制作/ep01/剪映组装单.md",
+        "subtitles": "制作/ep01/字幕.srt",
+        "voice_script": "制作/ep01/配音稿.txt"
+      }
     }
   }
 }
