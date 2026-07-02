@@ -10,6 +10,7 @@
 | **成片/ep01_..._v02.mp4** | 运镜版（Ken Burns 推拉，更接近视频感） |
 | build_video.py | `python3 build_video.py --motion kenburns` |
 | build_i2v_fal.py | 真·AI动画（需 `FAL_KEY`） |
+| **[可灵_prompt.md](可灵_prompt.md)** | **逐镜可灵 prompt，复制即用** |
 | [视频能力说明.md](视频能力说明.md) | 为什么不能默认出动画 + 三条解决方案 |
 
 ## 剪映精修版（发布推荐）
