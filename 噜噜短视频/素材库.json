@@ -1,7 +1,8 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "updated": "2026-07-02",
-  "visual_style": "水豚噜噜（对标竞品，非手册河马）",
+  "visual_style": "水豚噜噜（对标竞品）",
+  "image_source": "Cursor内置生图 → 角色延伸包/*.png",
   "voice_tool": "剪映文本朗读",
   "characters": {
     "lulu": {
@@ -11,31 +12,62 @@
       "voice_direction": "搞怪/阳光/稍憨 男声",
       "voice_id": "TBD_LULU_V1",
       "base_refs": {
-        "设定图": null,
-        "背面图": null,
-        "note": "待按形象规范.md 生成水豚参考图后填入 URL"
+        "lulu_00": {
+          "path": "角色延伸包/噜噜/lulu_00_基础设定图.png",
+          "approved": true
+        }
       },
       "extensions": {
-        "lulu_01": { "name": "心虚缩脖子", "approved": false, "url": null },
-        "lulu_02": { "name": "尴尬想弥补", "approved": false, "url": null },
-        "lulu_03": { "name": "憋不住小得意", "approved": false, "url": null }
+        "lulu_01": {
+          "name": "心虚缩脖子",
+          "path": "角色延伸包/噜噜/lulu_01_心虚缩脖子.png",
+          "approved": true
+        },
+        "lulu_02": {
+          "name": "尴尬想弥补",
+          "approved": false,
+          "path": null
+        },
+        "lulu_03": {
+          "name": "憋不住小得意",
+          "path": "角色延伸包/噜噜/lulu_03_憋不住小得意.png",
+          "approved": true
+        }
       }
     },
     "lumei": {
       "name": "噜妹",
       "species": "capybara",
-      "visual_note": "水豚女友、暖色系、略瘦、表情丰富",
+      "visual_note": "水豚女友、暖色系、略瘦、橘子发饰",
       "voice_direction": "甜美/可爱/生活日常 女声",
       "voice_id": "TBD_LUMEI_V1",
       "base_refs": {
-        "设定图": null,
-        "note": "待按形象规范.md 生成后填入 URL"
+        "lumei_00": {
+          "path": "角色延伸包/噜妹/lumei_00_基础设定图.png",
+          "approved": true
+        }
       },
       "extensions": {
-        "lumei_01": { "name": "元气日常", "approved": false, "url": null },
-        "lumei_02": { "name": "暴怒炸毛", "approved": false, "url": null },
-        "lumei_03": { "name": "被噎住心软", "approved": false, "url": null },
-        "lumei_04": { "name": "嘴硬关心", "approved": false, "url": null }
+        "lumei_01": {
+          "name": "元气日常",
+          "approved": false,
+          "path": null
+        },
+        "lumei_02": {
+          "name": "暴怒炸毛",
+          "path": "角色延伸包/噜妹/lumei_02_暴怒炸毛.png",
+          "approved": true
+        },
+        "lumei_03": {
+          "name": "被噎住心软",
+          "approved": false,
+          "path": null
+        },
+        "lumei_04": {
+          "name": "嘴硬关心",
+          "path": "角色延伸包/噜妹/lumei_04_嘴硬关心.png",
+          "approved": true
+        }
       }
     }
   },
@@ -43,7 +75,7 @@
     "scene_kitchen_01": {
       "name": "暖厨马卡龙",
       "url": "https://s.coze.cn/image/9mpvYTydboc/",
-      "note": "暖色调厨房背景，无角色，可与水豚角色合成"
+      "note": "暖色调厨房背景，无角色"
     },
     "scene_kitchen_02": {
       "name": "萌厨暖光图",
@@ -87,7 +119,7 @@
         "lulu": ["lulu_01", "lulu_03"],
         "lumei": ["lumei_02", "lumei_04"]
       },
-      "status": "script_v2_ready"
+      "status": "refs_ready"
     }
   }
 }
