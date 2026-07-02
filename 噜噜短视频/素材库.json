@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "updated": "2026-07-02",
+  "characters": {
+    "lulu": {
+      "name": "噜噜",
+      "base_refs": {
+        "设定图": "https://s.coze.cn/image/3-GUr6kMLi8/",
+        "三视图1": "https://s.coze.cn/image/F7qKmyVE3xU/",
+        "三视图2": "https://s.coze.cn/image/uI31lNjxAs4/"
+      },
+      "extensions": {
+        "lulu_01": { "name": "心虚缩脖子", "approved": false, "url": null },
+        "lulu_02": { "name": "尴尬想弥补", "approved": false, "url": null },
+        "lulu_03": { "name": "憋不住小得意", "approved": false, "url": null }
+      }
+    },
+    "lumei": {
+      "name": "噜妹",
+      "base_refs": {
+        "设定图": "https://s.coze.cn/image/tldJ2m-elUk/",
+        "三视图1": "https://s.coze.cn/image/F7qKmyVE3xU/",
+        "三视图2": "https://s.coze.cn/image/uI31lNjxAs4/"
+      },
+      "extensions": {
+        "lumei_01": { "name": "元气日常", "approved": false, "url": null },
+        "lumei_02": { "name": "暴怒炸毛", "approved": false, "url": null },
+        "lumei_03": { "name": "被噎住心软", "approved": false, "url": null },
+        "lumei_04": { "name": "嘴硬关心", "approved": false, "url": null }
+      }
+    }
+  },
+  "scenes": {
+    "scene_kitchen_01": {
+      "name": "暖厨马卡龙",
+      "url": "https://s.coze.cn/image/9mpvYTydboc/",
+      "note": "暖色调厨房，无角色"
+    },
+    "scene_kitchen_02": {
+      "name": "萌厨暖光图",
+      "url": "https://s.coze.cn/image/yFDSE6MV0eI/",
+      "note": "暖光厨房2，无角色"
+    },
+    "scene_living_01": {
+      "name": "暖居萌盒",
+      "url": "https://s.coze.cn/image/lVB-8qx0bD8/",
+      "note": "温馨客厅，无角色"
+    },
+    "scene_restaurant_01": {
+      "name": "暖橙餐厅",
+      "url": "https://s.coze.cn/image/H7ecqmNVKU/",
+      "note": "暖橙调餐厅，无角色"
+    },
+    "scene_night_living_01": {
+      "name": "夜客厅冷蓝暖黄",
+      "url": "https://s.coze.cn/image/7JR6OX98EkY/",
+      "note": "夜景客厅冷暖对比，无角色"
+    },
+    "scene_night_living_02": {
+      "name": "夜客厅暖光",
+      "url": "https://s.coze.cn/image/nTa87YsiYF8/",
+      "note": "夜客厅暖光，无角色"
+    },
+    "scene_night_living_03": {
+      "name": "夜客厅静景",
+      "url": "https://s.coze.cn/image/0k1qKtIx6Ik/",
+      "note": "夜客厅安静氛围，无角色"
+    }
+  },
+  "episodes": {
+    "ep01": {
+      "title": "她从来不会说对不起",
+      "scenes_used": ["scene_kitchen_01"],
+      "char_refs": {
+        "lulu": ["lulu_01", "lulu_03"],
+        "lumei": ["lumei_02", "lumei_04"]
+      },
+      "status": "script_ready"
+    }
+  }
+}
