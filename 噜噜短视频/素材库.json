@@ -1,13 +1,19 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "updated": "2026-07-02",
+  "visual_style": "水豚噜噜（对标竞品，非手册河马）",
+  "voice_tool": "剪映文本朗读",
   "characters": {
     "lulu": {
       "name": "噜噜",
+      "species": "capybara",
+      "visual_note": "暖芒果色、头顶橘子、圆润呆萌",
+      "voice_direction": "搞怪/阳光/稍憨 男声",
+      "voice_id": "TBD_LULU_V1",
       "base_refs": {
-        "设定图": "https://s.coze.cn/image/3-GUr6kMLi8/",
-        "三视图1": "https://s.coze.cn/image/F7qKmyVE3xU/",
-        "三视图2": "https://s.coze.cn/image/uI31lNjxAs4/"
+        "设定图": null,
+        "背面图": null,
+        "note": "待按形象规范.md 生成水豚参考图后填入 URL"
       },
       "extensions": {
         "lulu_01": { "name": "心虚缩脖子", "approved": false, "url": null },
@@ -17,10 +23,13 @@
     },
     "lumei": {
       "name": "噜妹",
+      "species": "capybara",
+      "visual_note": "水豚女友、暖色系、略瘦、表情丰富",
+      "voice_direction": "甜美/可爱/生活日常 女声",
+      "voice_id": "TBD_LUMEI_V1",
       "base_refs": {
-        "设定图": "https://s.coze.cn/image/tldJ2m-elUk/",
-        "三视图1": "https://s.coze.cn/image/F7qKmyVE3xU/",
-        "三视图2": "https://s.coze.cn/image/uI31lNjxAs4/"
+        "设定图": null,
+        "note": "待按形象规范.md 生成后填入 URL"
       },
       "extensions": {
         "lumei_01": { "name": "元气日常", "approved": false, "url": null },
@@ -34,7 +43,7 @@
     "scene_kitchen_01": {
       "name": "暖厨马卡龙",
       "url": "https://s.coze.cn/image/9mpvYTydboc/",
-      "note": "暖色调厨房，无角色"
+      "note": "暖色调厨房背景，无角色，可与水豚角色合成"
     },
     "scene_kitchen_02": {
       "name": "萌厨暖光图",
