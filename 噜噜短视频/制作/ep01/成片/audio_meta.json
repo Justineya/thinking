@@ -1,0 +1,48 @@
+[
+  {
+    "id": "v01",
+    "role": "lumei",
+    "text": "你再碰厨房试试！",
+    "rate": "+18%",
+    "start": 0.2,
+    "file": "/workspace/噜噜短视频/制作/ep01/成片/audio/v01.mp3",
+    "duration": 1.848
+  },
+  {
+    "id": "v02",
+    "role": "lumei",
+    "text": "连牛排都能煎焦？！",
+    "rate": "+15%",
+    "start": 3.2,
+    "file": "/workspace/噜噜短视频/制作/ep01/成片/audio/v02.mp3",
+    "duration": 2.136
+  },
+  {
+    "id": "v03",
+    "role": "lulu",
+    "text": "……我本来可以的。",
+    "rate": "-2%",
+    "volume": "-15%",
+    "start": 4.5,
+    "file": "/workspace/噜噜短视频/制作/ep01/成片/audio/v03.mp3",
+    "duration": 2.112
+  },
+  {
+    "id": "v04",
+    "role": "lumei",
+    "text": "别乱翻，过期的我清掉了。",
+    "rate": "+0%",
+    "start": 9.0,
+    "file": "/workspace/噜噜短视频/制作/ep01/成片/audio/v04.mp3",
+    "duration": 3.048
+  },
+  {
+    "id": "v05",
+    "role": "lumei",
+    "text": "超市买一送一，清库存而已，别多想。",
+    "rate": "+0%",
+    "start": 12.5,
+    "file": "/workspace/噜噜短视频/制作/ep01/成片/audio/v05.mp3",
+    "duration": 4.392
+  }
+]
