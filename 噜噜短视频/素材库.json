@@ -1,73 +1,35 @@
 {
-  "version": "1.2",
+  "version": "1.3",
   "updated": "2026-07-02",
-  "visual_style": "水豚噜噜（对标竞品）",
-  "image_source": "Cursor内置生图 → 角色延伸包/*.png",
+  "visual_style": "水豚噜噜 Q版3D（用户官方参考图为准）",
+  "image_source": "官方参考/用户原图 — 此前自动生成图已废弃",
   "voice_tool": "剪映文本朗读",
+  "official_refs": {
+    "lulu_main": "角色延伸包/官方参考/ref_01_噜噜_正面.png",
+    "lulu_alt": "角色延伸包/官方参考/ref_02_噜噜_变体.png",
+    "lumei_main": "角色延伸包/官方参考/ref_03_噜妹_正面.png",
+    "duo": "角色延伸包/官方参考/ref_04_双人_互动.png",
+    "status": "待用户放入原图文件"
+  },
   "characters": {
     "lulu": {
       "name": "噜噜",
-      "species": "capybara",
-      "visual_note": "暖芒果色、头顶橘子、圆润呆萌",
+      "locked_features": "明黄Q版3D水豚、橘色鼻头、头顶橘子、橘色短裤、大门牙",
       "voice_direction": "搞怪/阳光/稍憨 男声",
       "voice_id": "TBD_LULU_V1",
-      "base_refs": {
-        "lulu_00": {
-          "path": "角色延伸包/噜噜/lulu_00_基础设定图.png",
-          "approved": true
-        }
-      },
       "extensions": {
-        "lulu_01": {
-          "name": "心虚缩脖子",
-          "path": "角色延伸包/噜噜/lulu_01_心虚缩脖子.png",
-          "approved": true
-        },
-        "lulu_02": {
-          "name": "尴尬想弥补",
-          "approved": false,
-          "path": null
-        },
-        "lulu_03": {
-          "name": "憋不住小得意",
-          "path": "角色延伸包/噜噜/lulu_03_憋不住小得意.png",
-          "approved": true
-        }
+        "lulu_01": { "name": "心虚", "approved": false, "path": null, "note": "需基于 ref_01 生成" },
+        "lulu_03": { "name": "小得意", "approved": false, "path": null, "note": "需基于 ref_01 生成" }
       }
     },
     "lumei": {
       "name": "噜妹",
-      "species": "capybara",
-      "visual_note": "水豚女友、暖色系、略瘦、橘子发饰",
+      "locked_features": "明黄Q版3D、粉色大蝴蝶结、头顶橘子、粉色连衣裙",
       "voice_direction": "甜美/可爱/生活日常 女声",
       "voice_id": "TBD_LUMEI_V1",
-      "base_refs": {
-        "lumei_00": {
-          "path": "角色延伸包/噜妹/lumei_00_基础设定图.png",
-          "approved": true
-        }
-      },
       "extensions": {
-        "lumei_01": {
-          "name": "元气日常",
-          "approved": false,
-          "path": null
-        },
-        "lumei_02": {
-          "name": "暴怒炸毛",
-          "path": "角色延伸包/噜妹/lumei_02_暴怒炸毛.png",
-          "approved": true
-        },
-        "lumei_03": {
-          "name": "被噎住心软",
-          "approved": false,
-          "path": null
-        },
-        "lumei_04": {
-          "name": "嘴硬关心",
-          "path": "角色延伸包/噜妹/lumei_04_嘴硬关心.png",
-          "approved": true
-        }
+        "lumei_02": { "name": "暴怒", "approved": false, "path": null, "note": "需基于 ref_03 生成" },
+        "lumei_04": { "name": "嘴硬关心", "approved": false, "path": null, "note": "需基于 ref_03 生成" }
       }
     }
   },
@@ -75,37 +37,7 @@
     "scene_kitchen_01": {
       "name": "暖厨马卡龙",
       "url": "https://s.coze.cn/image/9mpvYTydboc/",
-      "note": "暖色调厨房背景，无角色"
-    },
-    "scene_kitchen_02": {
-      "name": "萌厨暖光图",
-      "url": "https://s.coze.cn/image/yFDSE6MV0eI/",
-      "note": "暖光厨房2，无角色"
-    },
-    "scene_living_01": {
-      "name": "暖居萌盒",
-      "url": "https://s.coze.cn/image/lVB-8qx0bD8/",
-      "note": "温馨客厅，无角色"
-    },
-    "scene_restaurant_01": {
-      "name": "暖橙餐厅",
-      "url": "https://s.coze.cn/image/H7ecqmNVKU/",
-      "note": "暖橙调餐厅，无角色"
-    },
-    "scene_night_living_01": {
-      "name": "夜客厅冷蓝暖黄",
-      "url": "https://s.coze.cn/image/7JR6OX98EkY/",
-      "note": "夜景客厅冷暖对比，无角色"
-    },
-    "scene_night_living_02": {
-      "name": "夜客厅暖光",
-      "url": "https://s.coze.cn/image/nTa87YsiYF8/",
-      "note": "夜客厅暖光，无角色"
-    },
-    "scene_night_living_03": {
-      "name": "夜客厅静景",
-      "url": "https://s.coze.cn/image/0k1qKtIx6Ik/",
-      "note": "夜客厅安静氛围，无角色"
+      "note": "背景无角色"
     }
   },
   "episodes": {
@@ -113,13 +45,8 @@
       "title": "她从来不会说对不起",
       "version": "v2",
       "duration": "18s",
-      "scenes_used": ["scene_kitchen_01"],
-      "props": ["旺仔牛奶", "煎焦牛排"],
-      "char_refs": {
-        "lulu": ["lulu_01", "lulu_03"],
-        "lumei": ["lumei_02", "lumei_04"]
-      },
-      "status": "refs_ready"
+      "char_refs": { "lulu": ["ref_01"], "lumei": ["ref_03"] },
+      "status": "awaiting_official_ref_images"
     }
   }
 }
