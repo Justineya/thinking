@@ -6,10 +6,11 @@
 
 | 文件 | 说明 |
 |------|------|
-| **成片/ep01_她从来不会说对不起_v01.mp4** | 18s 预览成片（关键帧 + AI 配音 + 字幕） |
-| build_video.py | 一键重生成：`python3 build_video.py` |
-
-> **能力说明**：云端可出「静帧幻灯片 + 配音」预览版；角色动起来、口型、BGM 精修需剪映或图生视频工具。
+| **成片/ep01_..._v01.mp4** | 静帧版 |
+| **成片/ep01_..._v02.mp4** | 运镜版（Ken Burns 推拉，更接近视频感） |
+| build_video.py | `python3 build_video.py --motion kenburns` |
+| build_i2v_fal.py | 真·AI动画（需 `FAL_KEY`） |
+| [视频能力说明.md](视频能力说明.md) | 为什么不能默认出动画 + 三条解决方案 |
 
 ## 剪映精修版（发布推荐）
 

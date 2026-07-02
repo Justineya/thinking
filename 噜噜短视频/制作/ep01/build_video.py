@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""ep01 自动成片脚本 — 关键帧 + edge-tts 配音 + 字幕烧录"""
+"""ep01 自动成片 — 关键帧 + 配音 + 字幕。支持静帧/运镜两种模式。"""
+import argparse
 import asyncio
 import json
-import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -27,10 +27,10 @@ LINES = [
 ]
 
 SHOTS = [
-    {"img": "shot01.png", "dur": 3.0},
-    {"img": "shot02.png", "dur": 4.0},
-    {"img": "shot03.png", "dur": 5.0},
-    {"img": "shot04.png", "dur": 6.0},
+    {"img": "shot01.png", "dur": 3.0, "motion": "zoom_in"},
+    {"img": "shot02.png", "dur": 4.0, "motion": "pan_right"},
+    {"img": "shot03.png", "dur": 5.0, "motion": "zoom_in_slow"},
+    {"img": "shot04.png", "dur": 6.0, "motion": "zoom_out"},
 ]
 
 SUBS = [
@@ -82,16 +82,40 @@ def run(cmd, **kw):
     subprocess.run(cmd, check=True, **kw)
 
 
-def build_video_segments(tmp):
+def motion_filter(shot):
+    """Ken Burns 运镜 — 无 API 时的轻量「动起来」方案"""
+    fps = 30
+    d = int(shot["dur"] * fps)
+    base = f"scale=8000:-1,zoompan=s={W}x{H}:fps={fps}:d={d}"
+    m = shot.get("motion", "zoom_in")
+    if m == "zoom_in":
+        z = f"z='min(1.0+0.002*on,1.25)'"
+    elif m == "zoom_in_slow":
+        z = f"z='min(1.0+0.001*on,1.15)'"
+    elif m == "zoom_out":
+        z = f"z='max(1.25-0.001*on,1.0)'"
+    elif m == "pan_right":
+        z = "z=1.15"
+        x = f"x='(iw-iw/zoom)*on/{d}'"
+        return f"{base}:{z}:{x}:y='(ih-ih/zoom)/2'"
+    else:
+        z = "z=1.1"
+    return f"{base}:{z}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+
+
+def build_video_segments(tmp, motion="static"):
     segs = []
-    vf = (
-        f"scale={W}:{H}:force_original_aspect_ratio=decrease,"
-        f"pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color=0xFFF5E6,"
-        f"fps=30,format=yuv420p"
-    )
     for i, shot in enumerate(SHOTS):
         inp = KEYFRAMES / shot["img"]
         seg = tmp / f"seg{i:02d}.mp4"
+        if motion == "kenburns":
+            vf = motion_filter(shot) + ",format=yuv420p"
+        else:
+            vf = (
+                f"scale={W}:{H}:force_original_aspect_ratio=decrease,"
+                f"pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color=0xFFF5E6,"
+                f"fps=30,format=yuv420p"
+            )
         run([
             "ffmpeg", "-y", "-loop", "1", "-i", str(inp),
             "-t", str(shot["dur"]),
@@ -179,18 +203,25 @@ def mux(video, audio, ass, out_path):
 
 
 async def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--motion", choices=["static", "kenburns"], default="kenburns")
+    parser.add_argument("--version", default="v02")
+    args = parser.parse_args()
+
     OUT.mkdir(parents=True, exist_ok=True)
+    suffix = args.version if args.version else ("v02" if args.motion == "kenburns" else "v01")
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
+        print(f"=== 模式: {args.motion} → {suffix} ===")
         print("=== 1/4 生成配音 ===")
         meta = await gen_tts()
         print("=== 2/4 合成画面 ===")
-        video = build_video_segments(tmp)
+        video = build_video_segments(tmp, motion=args.motion)
         print("=== 3/4 混音 ===")
         audio = build_audio_track(meta, tmp)
         ass = build_ass(tmp)
         print("=== 4/4 导出成片 ===")
-        out = OUT / "ep01_她从来不会说对不起_v01.mp4"
+        out = OUT / f"ep01_她从来不会说对不起_{suffix}.mp4"
         mux(video, audio, ass, out)
         print(f"\n✅ 成片: {out}")
 
