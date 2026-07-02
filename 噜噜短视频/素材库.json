@@ -73,7 +73,7 @@
       "version": "v2",
       "duration": "18s",
       "scenes_used": ["scene_kitchen_01"],
-      "props": ["旺仔牛奶", "煎焦荷包蛋"],
+      "props": ["旺仔牛奶", "煎焦牛排"],
       "char_refs": {
         "lulu": ["lulu_01", "lulu_03"],
         "lumei": ["lumei_02", "lumei_04"]
