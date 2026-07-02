@@ -1,5 +1,5 @@
 {
-  "version": "1.3",
+  "version": "1.4",
   "updated": "2026-07-02",
   "visual_style": "水豚噜噜 Q版3D（用户官方参考图为准）",
   "image_source": "官方参考/用户原图 — 此前自动生成图已废弃",
@@ -9,7 +9,7 @@
     "lulu_alt": "角色延伸包/官方参考/ref_02_噜噜_变体.png",
     "lumei_main": "角色延伸包/官方参考/ref_03_噜妹_正面.png",
     "duo": "角色延伸包/官方参考/ref_04_双人_互动.png",
-    "status": "待用户放入原图文件"
+    "status": "approved"
   },
   "characters": {
     "lulu": {
@@ -18,8 +18,18 @@
       "voice_direction": "搞怪/阳光/稍憨 男声",
       "voice_id": "TBD_LULU_V1",
       "extensions": {
-        "lulu_01": { "name": "心虚", "approved": false, "path": null, "note": "需基于 ref_01 生成" },
-        "lulu_03": { "name": "小得意", "approved": false, "path": null, "note": "需基于 ref_01 生成" }
+        "lulu_01": {
+          "name": "心虚",
+          "approved": true,
+          "path": "角色延伸包/噜噜/lulu_01_心虚.png",
+          "ref": "ref_01_噜噜_正面.png"
+        },
+        "lulu_03": {
+          "name": "小得意",
+          "approved": true,
+          "path": "角色延伸包/噜噜/lulu_03_小得意.png",
+          "ref": "ref_01_噜噜_正面.png"
+        }
       }
     },
     "lumei": {
@@ -28,8 +38,18 @@
       "voice_direction": "甜美/可爱/生活日常 女声",
       "voice_id": "TBD_LUMEI_V1",
       "extensions": {
-        "lumei_02": { "name": "暴怒", "approved": false, "path": null, "note": "需基于 ref_03 生成" },
-        "lumei_04": { "name": "嘴硬关心", "approved": false, "path": null, "note": "需基于 ref_03 生成" }
+        "lumei_02": {
+          "name": "暴怒",
+          "approved": true,
+          "path": "角色延伸包/噜妹/lumei_02_暴怒.png",
+          "ref": "ref_03_噜妹_正面.png"
+        },
+        "lumei_04": {
+          "name": "嘴硬关心",
+          "approved": true,
+          "path": "角色延伸包/噜妹/lumei_04_嘴硬关心.png",
+          "ref": "ref_03_噜妹_正面.png"
+        }
       }
     }
   },
@@ -45,8 +65,11 @@
       "title": "她从来不会说对不起",
       "version": "v2",
       "duration": "18s",
-      "char_refs": { "lulu": ["ref_01"], "lumei": ["ref_03"] },
-      "status": "awaiting_official_ref_images"
+      "char_refs": {
+        "lulu": ["ref_01", "lulu_01", "lulu_03"],
+        "lumei": ["ref_03", "lumei_02", "lumei_04"]
+      },
+      "status": "ready_for_production"
     }
   }
 }
