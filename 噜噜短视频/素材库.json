@@ -1,9 +1,11 @@
 {
-  "version": "1.4",
+  "version": "1.5",
   "updated": "2026-07-02",
   "visual_style": "水豚噜噜 Q版3D（用户官方参考图为准）",
   "image_source": "官方参考/用户原图 — 此前自动生成图已废弃",
   "voice_tool": "剪映文本朗读",
+  "voice_combo": "A",
+  "voice_locked": true,
   "official_refs": {
     "lulu_main": "角色延伸包/官方参考/ref_01_噜噜_正面.png",
     "lulu_alt": "角色延伸包/官方参考/ref_02_噜噜_变体.png",
@@ -16,7 +18,8 @@
       "name": "噜噜",
       "locked_features": "明黄Q版3D水豚、橘色鼻头、头顶橘子、橘色短裤、大门牙",
       "voice_direction": "搞怪/阳光/稍憨 男声",
-      "voice_id": "TBD_LULU_V1",
+      "voice_id": "LULU_V1_A",
+      "voice_jianying": "阳光男孩（备选：趣味男声）",
       "extensions": {
         "lulu_01": {
           "name": "心虚",
@@ -36,7 +39,8 @@
       "name": "噜妹",
       "locked_features": "明黄Q版3D、粉色大蝴蝶结、头顶橘子、粉色连衣裙",
       "voice_direction": "甜美/可爱/生活日常 女声",
-      "voice_id": "TBD_LUMEI_V1",
+      "voice_id": "LUMEI_V1_A",
+      "voice_jianying": "甜美女声（备选：元气少女）",
       "extensions": {
         "lumei_02": {
           "name": "暴怒",
