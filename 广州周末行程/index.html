@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>广州周末 · 两人吃逛行程</title>
+  <style>
+    :root {
+      --ink: #1c2b2a;
+      --ink-soft: #3d524f;
+      --jade: #2f6f66;
+      --jade-deep: #1e4f49;
+      --mist: #e8f0ee;
+      --foam: #f5f8f6;
+      --brass: #b08d57;
+      --brass-soft: #d4bc8e;
+      --coral: #c45c48;
+      --line: rgba(28, 43, 42, 0.12);
+      --shadow: 0 18px 50px rgba(30, 79, 73, 0.1);
+      --radius: 18px;
+      --max: 1080px;
+      --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+              "Microsoft YaHei", "Noto Sans SC", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(176, 141, 87, 0.18), transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, rgba(47, 111, 102, 0.16), transparent 55%),
+        linear-gradient(180deg, #f7faf8 0%, #eef4f1 40%, #f8f6f1 100%);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    a { color: var(--jade-deep); }
+
+    .wrap {
+      width: min(100% - 2rem, var(--max));
+      margin-inline: auto;
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      min-height: 92vh;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      color: #f7faf8;
+      isolation: isolate;
+    }
+
+    .hero__bg {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(120deg, rgba(14, 36, 34, 0.72), rgba(30, 79, 73, 0.45) 45%, rgba(20, 28, 32, 0.55)),
+        url("images/huacheng-night.jpg") center 30%/cover;
+      transform: scale(1.04);
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+
+    .hero__veil {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(180deg, transparent 35%, rgba(12, 28, 27, 0.88) 100%),
+        radial-gradient(circle at 80% 20%, rgba(176, 141, 87, 0.25), transparent 40%);
+    }
+
+    .hero__content {
+      padding: 4.5rem 0 3.2rem;
+      max-width: 720px;
+    }
+
+    .hero__brand {
+      font-family: var(--font);
+      font-size: clamp(2.6rem, 8vw, 4.2rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      margin-bottom: 0.85rem;
+      animation: rise 0.9s ease both;
+    }
+
+    .hero__lead {
+      font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+      color: rgba(247, 250, 248, 0.9);
+      max-width: 34ch;
+      margin-bottom: 1.6rem;
+      animation: rise 0.9s ease 0.12s both;
+    }
+
+    .hero__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem 0.7rem;
+      animation: rise 0.9s ease 0.22s both;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.85rem;
+      border: 1px solid rgba(247, 250, 248, 0.28);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      border-radius: 999px;
+      font-size: 0.86rem;
+      color: #f3f7f5;
+    }
+
+    .hero__scroll {
+      margin-top: 2.4rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    /* Sections */
+    section {
+      padding: 4.2rem 0 1rem;
+    }
+
+    .section-head {
+      display: grid;
+      gap: 0.55rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .eyebrow {
+      color: var(--jade);
+      font-weight: 600;
+      font-size: 0.84rem;
+      letter-spacing: 0.14em;
+    }
+
+    h2 {
+      font-family: var(--font);
+      font-size: clamp(1.55rem, 3.5vw, 2rem);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--ink);
+    }
+
+    .section-head p {
+      color: var(--ink-soft);
+      max-width: 52ch;
+    }
+
+    /* Plan switcher */
+    .plans {
+      display: grid;
+      gap: 0.9rem;
+      grid-template-columns: repeat(3, 1fr);
+      margin-bottom: 1.8rem;
+    }
+
+    .plan-btn {
+      text-align: left;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.15rem;
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+      color: inherit;
+      font: inherit;
+    }
+
+    .plan-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(47, 111, 102, 0.35);
+    }
+
+    .plan-btn.is-active {
+      background: linear-gradient(160deg, #214f49, #2f6f66);
+      color: #f5faf8;
+      border-color: transparent;
+      box-shadow: var(--shadow);
+    }
+
+    .plan-btn strong {
+      display: block;
+      font-size: 1.05rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .plan-btn span {
+      display: block;
+      font-size: 0.86rem;
+      opacity: 0.82;
+      line-height: 1.45;
+    }
+
+    .plan-btn .tag {
+      display: inline-block;
+      margin-top: 0.7rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      background: rgba(176, 141, 87, 0.18);
+      color: #8a6a35;
+    }
+
+    .plan-btn.is-active .tag {
+      background: rgba(255, 255, 255, 0.16);
+      color: #f3e7cf;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 1.1rem;
+    }
+
+    .day {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 4px);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(28, 43, 42, 0.04);
+    }
+
+    .day__head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 1.25rem 1.35rem;
+      background:
+        linear-gradient(120deg, rgba(47, 111, 102, 0.1), rgba(176, 141, 87, 0.08));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .day__head h3 {
+      font-family: var(--font);
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .day__head p {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    .slots {
+      display: grid;
+      gap: 0;
+    }
+
+    .slot {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 1rem;
+      padding: 1.2rem 1.35rem;
+      border-top: 1px solid var(--line);
+      align-items: start;
+    }
+
+    .slot:first-child { border-top: 0; }
+
+    .slot__time {
+      font-weight: 700;
+      color: var(--jade-deep);
+      font-size: 0.95rem;
+      padding-top: 0.15rem;
+    }
+
+    .slot__body h4 {
+      font-size: 1.05rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .slot__body p {
+      color: var(--ink-soft);
+      font-size: 0.94rem;
+    }
+
+    .slot__body .hint {
+      margin-top: 0.55rem;
+      font-size: 0.86rem;
+      color: var(--coral);
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.7rem;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      padding: 0.28rem 0.6rem;
+      border-radius: 8px;
+      background: var(--mist);
+      color: var(--jade-deep);
+      border: 1px solid rgba(47, 111, 102, 0.12);
+    }
+
+    .pill.food { background: #f8efe4; color: #8a4f2a; border-color: rgba(196, 92, 72, 0.12); }
+    .pill.taxi { background: #eef2f8; color: #3d5470; border-color: rgba(61, 84, 112, 0.12); }
+
+    .alt {
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.85rem;
+      border-left: 3px solid var(--brass);
+      background: rgba(176, 141, 87, 0.08);
+      border-radius: 0 10px 10px 0;
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+    }
+
+    .alt strong { color: var(--ink); }
+
+    /* Media cards */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      grid-column: span 4;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 28px rgba(28, 43, 42, 0.05);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover { transform: translateY(-4px); }
+
+    .card--wide { grid-column: span 8; }
+    .card--tall { grid-column: span 4; }
+
+    .card__media {
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card--wide .card__media { aspect-ratio: 21 / 10; }
+
+    .card__media img {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.7s ease;
+    }
+
+    .card:hover .card__media img { transform: scale(1.05); }
+
+    .badge {
+      position: absolute;
+      left: 0.85rem;
+      top: 0.85rem;
+      background: rgba(28, 43, 42, 0.78);
+      color: #f7faf8;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.55rem;
+      border-radius: 7px;
+      letter-spacing: 0.04em;
+    }
+
+    .card__body {
+      padding: 1.1rem 1.15rem 1.25rem;
+      display: grid;
+      gap: 0.45rem;
+      flex: 1;
+    }
+
+    .card__body h3 {
+      font-family: var(--font);
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .card__body p {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    .must {
+      margin-top: 0.35rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .must li {
+      list-style: none;
+      position: relative;
+      padding-left: 1rem;
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+
+    .must li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 0.4rem;
+      height: 0.4rem;
+      border-radius: 50%;
+      background: var(--brass);
+    }
+
+    /* Restaurants */
+    .resto-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .resto {
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr;
+      gap: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 28px rgba(28, 43, 42, 0.05);
+    }
+
+    .resto__media {
+      min-height: 240px;
+      position: relative;
+    }
+
+    .resto__media img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+    }
+
+    .resto__body {
+      padding: 1.35rem 1.4rem;
+      display: grid;
+      gap: 0.55rem;
+      align-content: start;
+    }
+
+    .resto__body h3 {
+      font-family: var(--font);
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .pick {
+      margin-top: 0.3rem;
+      padding: 0.8rem 0.9rem;
+      border-radius: 12px;
+      background: linear-gradient(120deg, rgba(47, 111, 102, 0.08), rgba(176, 141, 87, 0.1));
+      font-size: 0.9rem;
+    }
+
+    .pick strong { color: var(--jade-deep); }
+
+    /* Tips */
+    .tips {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .tip {
+      padding: 1.15rem;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid var(--line);
+    }
+
+    .tip h3 {
+      font-size: 1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .tip p {
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+    }
+
+    footer {
+      padding: 2rem 0 3rem;
+      color: var(--ink-soft);
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    .plan-note {
+      margin-bottom: 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      background: rgba(47, 111, 102, 0.08);
+      border: 1px solid rgba(47, 111, 102, 0.12);
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    .plan-note strong { color: var(--jade-deep); }
+
+    .hidden-plan { display: none !important; }
+
+    @keyframes drift {
+      from { transform: scale(1.04) translate3d(0, 0, 0); }
+      to { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.45; transform: translateY(0); }
+      50% { opacity: 0.9; transform: translateY(4px); }
+    }
+
+    @media (max-width: 900px) {
+      .hero { min-height: 88vh; }
+      .hero__content { padding: 3.2rem 0 2.4rem; }
+      .plans { grid-template-columns: 1fr; }
+      .gallery { grid-template-columns: 1fr; }
+      .card, .card--wide, .card--tall { grid-column: span 1; }
+      .resto { grid-template-columns: 1fr; }
+      .resto__media { min-height: 200px; aspect-ratio: 16/9; }
+      .tips { grid-template-columns: 1fr; }
+      .slot { grid-template-columns: 78px 1fr; gap: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="hero__veil" aria-hidden="true"></div>
+    <div class="wrap hero__content">
+      <p class="eyebrow" style="color: var(--brass-soft);">两人 · 第一次 · 天河体育中心附近</p>
+      <h1 class="hero__brand">广州周末</h1>
+      <p class="hero__lead">周五晚到，周日灵活返程。以吃逛为主，打车串联，走路慢慢看。</p>
+      <div class="hero__meta">
+        <span class="chip">周五 20:00+ 抵达</span>
+        <span class="chip">住天河体育中心</span>
+        <span class="chip">出行：打车为主</span>
+        <span class="chip">偏好：吃 · 逛</span>
+      </div>
+      <p class="hero__scroll">下滑看时间表</p>
+    </div>
+  </header>
+
+  <main>
+    <section id="timeline">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">TIMELINE</p>
+          <h2>行程时间表</h2>
+          <p>先选一个方案，下方时间表会切换。三套都围绕老婆选的餐厅，只是正餐与节奏不同。</p>
+        </div>
+
+        <div class="plans" role="tablist" aria-label="行程方案">
+          <button class="plan-btn is-active" data-plan="a" role="tab" aria-selected="true">
+            <strong>方案 A · 稳妥吃逛</strong>
+            <span>早茶 + 西关街巷 + 沙面，正餐留给惠食佳。</span>
+            <em class="tag">推荐首选</em>
+          </button>
+          <button class="plan-btn" data-plan="b" role="tab" aria-selected="false">
+            <strong>方案 B · 吃货加强</strong>
+            <span>大同早茶开场，晚上上侨美食家，街边小吃插空。</span>
+            <em class="tag">多吃两顿</em>
+          </button>
+          <button class="plan-btn" data-plan="c" role="tab" aria-selected="false">
+            <strong>方案 C · 夜景慢游</strong>
+            <span>白天轻一点，把精力留给花城与珠江夜色。</span>
+            <em class="tag">少赶路</em>
+          </button>
+        </div>
+
+        <p class="plan-note" id="planNote"><strong>当前：方案 A</strong> — 第一次来广州最顺：不赶、好吃、能拍到老城与江景。</p>
+
+        <!-- Plan A -->
+        <div class="timeline" data-plan-panel="a">
+          <article class="day">
+            <div class="day__head">
+              <div>
+                <h3>周五 · 抵达夜</h3>
+                <p>只做一件事：安顿 + 一顿舒服的晚饭</p>
+              </div>
+              <p>预计 20:00 后到酒店</p>
+            </div>
+            <div class="slots">
+              <div class="slot">
+                <div class="slot__time">20:30</div>
+                <div class="slot__body">
+                  <h4>入住天河体育中心附近</h4>
+                  <p>放下行李、洗把脸换鞋。周五不跑老城区，把体力留给周六。</p>
+                  <div class="pills">
+                    <span class="pill taxi">打车直达酒店</span>
+                  </div>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">21:20</div>
+                <div class="slot__body">
+                  <h4>方案可选：天河简餐 或 花城夜景</h4>
+                  <p><strong>轻松：</strong>天河城 / 正佳 / 太古汇附近吃煲仔饭、云吞面或粤菜简餐，逛 30 分钟回酒店。</p>
+                  <p style="margin-top:0.4rem"><strong>想开场：</strong>打车去花城广场 / 海心沙散步看灯，附近解决晚饭。</p>
+                  <div class="alt"><strong>备选餐厅：</strong>若体力很好且订到位置，可尝试惠食佳晚市；否则留给周六。</div>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">23:00</div>
+                <div class="slot__body">
+                  <h4>回酒店休息</h4>
+                  <p>明天早茶要精神。睡前确认周六餐厅预约与打车预估时间。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="day">
+            <div class="day__head">
+              <div>
+                <h3>周六 · 吃逛主场</h3>
+                <p>西关街巷 + 沙面 + 一顿正经粤菜</p>
+              </div>
+              <p>全天打车串联</p>
+            </div>
+            <div class="slots">
+              <div class="slot">
+                <div class="slot__time">09:00</div>
+                <div class="slot__body">
+                  <h4>早茶（茶楼任选，或大同酒家）</h4>
+                  <p>两人点 5–6 笼即可：虾饺、烧卖、叉烧包、肠粉、流沙包、凤爪，再加一壶茶。</p>
+                  <div class="pills">
+                    <span class="pill food">必点：虾饺 / 烧卖 / 肠粉</span>
+                    <span class="pill taxi">酒店打车直达</span>
+                  </div>
+                  <p class="hint">热门店建议提前预约；迟到就近找口碑茶楼也完全成立。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">10:45</div>
+                <div class="slot__body">
+                  <h4>永庆坊（必逛）</h4>
+                  <p>慢慢走西关巷子、拍照、进小店。上下九可贴边走一段，人太多就撤。</p>
+                  <div class="pills">
+                    <span class="pill">必玩：骑楼街拍 / 小店闲逛</span>
+                    <span class="pill food">可加：双皮奶 / 糖水</span>
+                  </div>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">13:00</div>
+                <div class="slot__body">
+                  <h4>惠食佳 · 正餐（老婆精选 · 优先）</h4>
+                  <p>黑珍珠粤菜，稳、正宗，适合作为「广州第一顿正经菜」。若订不到午市，改晚市，中午沙面附近简餐。</p>
+                  <div class="pills">
+                    <span class="pill food">必点见下方餐厅卡</span>
+                    <span class="pill taxi">永庆坊打车前往</span>
+                  </div>
+                  <div class="alt"><strong>替换：</strong>更想精致仪式感 → 换成侨美食家；惠食佳改周日或放弃。</div>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">15:00</div>
+                <div class="slot__body">
+                  <h4>沙面（必逛）</h4>
+                  <p>树荫、洋房、江边散步。可顺路看石室圣心大教堂外观。累了就找家咖啡/甜品坐着。</p>
+                  <div class="pills">
+                    <span class="pill">必玩：江边慢走 / 建筑拍照</span>
+                  </div>
+                  <div class="alt"><strong>可选加站：</strong>去沙面前若还有 45 分钟，可进陈家祠看木雕砖雕。</div>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">17:30</div>
+                <div class="slot__body">
+                  <h4>回天河歇一会</h4>
+                  <p>回酒店洗澡休息。夏天这样安排最舒服，晚上再出动。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">19:30</div>
+                <div class="slot__body">
+                  <h4>花城广场夜景 + 小吃夜宵</h4>
+                  <p>看灯、散步、拍广州塔外观。正餐已在中午解决，晚上吃牛杂、肠粉、糖水即可。</p>
+                  <div class="pills">
+                    <span class="pill">必玩：花城夜景</span>
+                    <span class="pill food">夜宵：牛杂 / 糖水</span>
+                  </div>
+                  <div class="alt"><strong>升级：</strong>想坐船就订珠江夜游；周五没看夜景的话，这晚优先。</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="day">
+            <div class="day__head">
+              <div>
+                <h3>周日 · 灵活返程</h3>
+                <p>按离开时间裁剪，不硬塞景点</p>
+              </div>
+              <p>返程时间待定</p>
+            </div>
+            <div class="slots">
+              <div class="slot">
+                <div class="slot__time">午前走</div>
+                <div class="slot__body">
+                  <h4>酒店附近早餐 → 直接返程</h4>
+                  <p>肠粉 / 粥粉面解决，打车去车站或机场。高峰多留 20 分钟。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">午后走</div>
+                <div class="slot__body">
+                  <h4>早茶或云吞面 + 花城白天逛</h4>
+                  <p>想打卡再上广州塔（看排队决定）。午饭在珠江新城 / 天河解决后出发。</p>
+                  <div class="pills">
+                    <span class="pill">可选：省博 / 广州塔</span>
+                  </div>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">晚间走</div>
+                <div class="slot__body">
+                  <h4>下午慢慢逛天河或北京路一段</h4>
+                  <p>太古汇坐着喝东西杀时间，或北京路走一截吃小吃，傍晚再走。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Plan B -->
+        <div class="timeline hidden-plan" data-plan-panel="b">
+          <article class="day">
+            <div class="day__head">
+              <div>
+                <h3>周五 · 抵达夜</h3>
+                <p>先吃开口，不碰正餐名额</p>
+              </div>
+              <p>预计 20:00 后到酒店</p>
+            </div>
+            <div class="slots">
+              <div class="slot">
+                <div class="slot__time">20:30</div>
+                <div class="slot__body">
+                  <h4>入住 → 天河夜宵开口</h4>
+                  <p>烧腊简餐 / 云吞面 / 牛杂，吃到 8 分饱。把惠食佳、侨美食家都留给状态最好的时候。</p>
+                  <div class="pills">
+                    <span class="pill food">开口：云吞面 + 糖水</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="day">
+            <div class="day__head">
+              <div>
+                <h3>周六 · 吃货加强</h3>
+                <p>大同早茶 + 街巷小吃 + 晚上侨美食家</p>
+              </div>
+              <p>正餐拉满</p>
+            </div>
+            <div class="slots">
+              <div class="slot">
+                <div class="slot__time">09:00</div>
+                <div class="slot__body">
+                  <h4>大同酒家 · 早茶（老婆精选）</h4>
+                  <p>老字号酒楼氛围，适合体验「广州早茶该有的热闹」。点传统点心，别点太满，晚上还有正餐。</p>
+                  <div class="pills">
+                    <span class="pill food">必点：虾饺、叉烧包、肠粉、蛋挞</span>
+                  </div>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">11:00</div>
+                <div class="slot__body">
+                  <h4>永庆坊慢逛 + 路边补甜</h4>
+                  <p>以逛街为主。遇到双皮奶、姜撞奶、牛杂可以小份分享，为晚上留胃。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">13:30</div>
+                <div class="slot__body">
+                  <h4>沙面散步（轻午餐）</h4>
+                  <p>沙面咖啡或简餐垫一下即可。想看陈家祠就插在去沙面的路上，限时 40–50 分钟。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">15:30</div>
+                <div class="slot__body">
+                  <h4>回酒店休息</h4>
+                  <p>吃货日最重要的是午休，晚上才能好好吃。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">18:30</div>
+                <div class="slot__body">
+                  <h4>侨美食家 · 正餐（老婆精选）</h4>
+                  <p>偏精致的粤菜体验，适合当「仪式感那一顿」。两人点硬菜别超过 3 道，加一道时蔬和例汤。</p>
+                  <div class="pills">
+                    <span class="pill food">必点见下方餐厅卡</span>
+                    <span class="pill taxi">预留堵车时间</span>
+                  </div>
+                  <div class="alt"><strong>备选：</strong>订不到侨美食家 → 改惠食佳晚市，逻辑不变。</div>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">20:30</div>
+                <div class="slot__body">
+                  <h4>饭后花城散步消食</h4>
+                  <p>不强制夜游。走一走看灯，想吃甜再来份双皮奶收尾。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="day">
+            <div class="day__head">
+              <div>
+                <h3>周日 · 灵活返程</h3>
+                <p>若还有空档，补惠食佳午市</p>
+              </div>
+              <p>返程时间待定</p>
+            </div>
+            <div class="slots">
+              <div class="slot">
+                <div class="slot__time">有空档</div>
+                <div class="slot__body">
+                  <h4>惠食佳午市补票</h4>
+                  <p>方案 B 把精致正餐放在周六晚；若周日下午才走，可把惠食佳排进午市，形成「早茶大同 + 正餐两黑珍珠」。</p>
+                  <p class="hint">注意：两天三顿正经粤菜会腻，胃和预算都要留余地。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">要赶路</div>
+                <div class="slot__body">
+                  <h4>天河简餐直接返程</h4>
+                  <p>不要为了第三家餐厅误车。广州值得下次再来。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Plan C -->
+        <div class="timeline hidden-plan" data-plan-panel="c">
+          <article class="day">
+            <div class="day__head">
+              <div>
+                <h3>周五 · 抵达夜</h3>
+                <p>直接去花城，把夜景先拿到手</p>
+              </div>
+              <p>预计 20:00 后到酒店</p>
+            </div>
+            <div class="slots">
+              <div class="slot">
+                <div class="slot__time">20:40</div>
+                <div class="slot__body">
+                  <h4>入住放下行李 → 花城广场</h4>
+                  <p>打车去花城 / 海心沙看灯，广州塔外观打卡。附近吃一顿不重的晚饭。</p>
+                  <div class="pills">
+                    <span class="pill">必玩：花城夜景首刷</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="day">
+            <div class="day__head">
+              <div>
+                <h3>周六 · 夜景慢游</h3>
+                <p>白天只留永庆坊 + 沙面，正餐惠食佳，晚上可上船</p>
+              </div>
+              <p>少赶路、多停顿</p>
+            </div>
+            <div class="slots">
+              <div class="slot">
+                <div class="slot__time">09:30</div>
+                <div class="slot__body">
+                  <h4>晚一点的早茶</h4>
+                  <p>睡饱再吃。大同酒家或天河茶楼都行，节奏放慢。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">11:30</div>
+                <div class="slot__body">
+                  <h4>永庆坊（短逛）</h4>
+                  <p>控制在 75 分钟内，拍几张喜欢的街景就走，不钻上下九深处。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">13:00</div>
+                <div class="slot__body">
+                  <h4>惠食佳 或 侨美食家</h4>
+                  <p>两家黑珍珠二选一当午市正餐。吃完直接去沙面消化。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">15:00</div>
+                <div class="slot__body">
+                  <h4>沙面慢走 + 提前回酒店</h4>
+                  <p>为晚上夜游留体力。不排陈家祠也可以。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">19:00</div>
+                <div class="slot__body">
+                  <h4>珠江夜游（本方案亮点）</h4>
+                  <p>提前网上订票。上船看两岸灯光，比只在岸上看更完整。结束后天河吃糖水收尾。</p>
+                  <div class="pills">
+                    <span class="pill">必玩：珠江夜游</span>
+                    <span class="pill taxi">码头来回打车</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="day">
+            <div class="day__head">
+              <div>
+                <h3>周日 · 灵活返程</h3>
+                <p>白天补一个轻松点</p>
+              </div>
+              <p>返程时间待定</p>
+            </div>
+            <div class="slots">
+              <div class="slot">
+                <div class="slot__time">有半天</div>
+                <div class="slot__body">
+                  <h4>广州塔上塔 或 省博</h4>
+                  <p>天气好上塔；想吹空调逛展选省博。都在花城一带，住天河打车很近。</p>
+                </div>
+              </div>
+              <div class="slot">
+                <div class="slot__time">时间紧</div>
+                <div class="slot__body">
+                  <h4>天河商圈坐一坐 → 返程</h4>
+                  <p>不新增景点，保住旅途结尾的舒服感。</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="sights">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">MUST SEE</p>
+          <h2>景点必玩</h2>
+          <p>第一次来，这四个点足够。每个只抓一件「必做的小事」，别贪多。</p>
+        </div>
+
+        <div class="gallery">
+          <article class="card card--wide">
+            <div class="card__media">
+              <span class="badge">夜景首选</span>
+              <img src="images/huacheng-night.jpg" alt="广州花城广场与广州塔夜景" />
+            </div>
+            <div class="card__body">
+              <h3>花城广场 / 广州塔</h3>
+              <p>现代广州的门面。住天河最方便，周五或周六晚去一次就够。</p>
+              <ul class="must">
+                <li>必玩：沿花城大道走到能看见广州塔的位置拍一张双人照</li>
+                <li>必玩：海心沙方向走一段，感受江风与灯光</li>
+                <li>可选：上塔（周日有空再决定，看云层和排队）</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card__media">
+              <span class="badge">老城氛围</span>
+              <img src="images/yongqingfang.jpg" alt="永庆坊西关街巷" />
+            </div>
+            <div class="card__body">
+              <h3>永庆坊</h3>
+              <p>改造后的西关，好逛好拍，第一次不会迷路崩溃。</p>
+              <ul class="must">
+                <li>必玩：沿主街慢慢走完，进 1–2 家小店</li>
+                <li>必玩：找一段骑楼或砖墙拍生活感照片</li>
+                <li>可选：上下九只走边缘，不硬撑</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card__media">
+              <span class="badge">散步胜地</span>
+              <img src="images/shamian.jpg" alt="沙面岛历史建筑与林荫道" />
+            </div>
+            <div class="card__body">
+              <h3>沙面</h3>
+              <p>树多、建筑美、适合两个人并肩走，不需要攻略。</p>
+              <ul class="must">
+                <li>必玩：沿岛外圈走半圈以上</li>
+                <li>必玩：找长椅或咖啡馆坐 20 分钟</li>
+                <li>可选：石室圣心大教堂外观</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card__media">
+              <span class="badge">可选夜游</span>
+              <img src="images/pearl-river-night.jpg" alt="珠江夜色与城市灯光" />
+            </div>
+            <div class="card__body">
+              <h3>珠江夜游</h3>
+              <p>适合方案 C。提前订夜场，看两岸灯带即可，不必纠结哪条船。</p>
+              <ul class="must">
+                <li>必玩：选夜场，码头来回打车</li>
+                <li>必玩：上船看花城与广州塔一带灯光</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card__media">
+              <span class="badge">建筑加分</span>
+              <img src="images/chen-clan.jpg" alt="陈家祠建筑与木雕" />
+            </div>
+            <div class="card__body">
+              <h3>陈家祠</h3>
+              <p>插在永庆坊去沙面的路上最顺，限时 40–60 分钟。</p>
+              <ul class="must">
+                <li>必玩：进门看中轴建筑与木雕砖雕</li>
+                <li>可选：时间紧就外观拍照后走人</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="food">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">MUST ORDER</p>
+          <h2>餐厅必点</h2>
+          <p>老婆选的三家都对。建议：黑珍珠正餐二选一为主，大同更适合早茶/午市。</p>
+        </div>
+
+        <div class="resto-grid">
+          <article class="resto">
+            <div class="resto__media">
+              <img src="images/roast-goose.jpg" alt="广州粤菜烧鹅" />
+            </div>
+            <div class="resto__body">
+              <div class="meta-row">
+                <span class="pill">黑珍珠</span>
+                <span class="pill food">优先正餐</span>
+              </div>
+              <h3>惠食佳</h3>
+              <p>稳、正宗、适合当广州第一顿正经粤菜。方案 A / C 首选。</p>
+              <ul class="must">
+                <li>必点：脆皮乳鸽（或招牌鸽类）</li>
+                <li>必点：时令海鲜或避风塘风格炒菜（以当日菜单为准）</li>
+                <li>必点：一例老火汤 + 一道清淡时蔬</li>
+                <li>可加：经典粤式小炒 / 煲仔类，两人总菜量控制在 3–4 道</li>
+              </ul>
+              <div class="pick"><strong>怎么排：</strong>周六午市或晚市订一顿即可；与侨美食家二选一，不必两顿都上。</div>
+            </div>
+          </article>
+
+          <article class="resto">
+            <div class="resto__media">
+              <img src="images/cantonese-dish.jpg" alt="粤菜糯米鸡等菜品" />
+            </div>
+            <div class="resto__body">
+              <div class="meta-row">
+                <span class="pill">黑珍珠</span>
+                <span class="pill food">仪式感正餐</span>
+              </div>
+              <h3>侨美食家</h3>
+              <p>更偏精致与安静，适合想吃得讲究一点的晚上。方案 B 主打。</p>
+              <ul class="must">
+                <li>必点：招牌招牌菜 / 厨师推荐（到店先问今日必点）</li>
+                <li>必点：一只禽类或烧腊类硬菜</li>
+                <li>必点：一道汤、一道青菜，平衡油润</li>
+                <li>可加：点心或甜品收尾，但若中午已早茶则少点淀粉</li>
+              </ul>
+              <div class="pick"><strong>怎么排：</strong>当「升级替代」用；订到就周六晚吃，订不到回流惠食佳。</div>
+            </div>
+          </article>
+
+          <article class="resto">
+            <div class="resto__media">
+              <img src="images/dim-sum.jpg" alt="粤式早茶点心" />
+            </div>
+            <div class="resto__body">
+              <div class="meta-row">
+                <span class="pill">老字号氛围</span>
+                <span class="pill food">早茶更合适</span>
+              </div>
+              <h3>大同酒家</h3>
+              <p>传统酒楼感强，热闹、经典，周五晚到不建议硬赶，留给早茶最好。</p>
+              <ul class="must">
+                <li>必点：虾饺、烧卖、叉烧包</li>
+                <li>必点：肠粉（或鸳鸯肠粉）</li>
+                <li>必点：蛋挞 / 流沙包，甜咸搭配</li>
+                <li>可加：凤爪、排骨，两人点到微撑就停</li>
+              </ul>
+              <div class="pick"><strong>怎么排：</strong>方案 B 周六早茶首选；方案 A 也可拿它当早茶店，正餐仍留给黑珍珠。</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">STREET FOOD</p>
+          <h2>街头补完清单</h2>
+          <p>正餐之外，用这些把「广州味道」补齐。遇到就吃，排太久就换下一家。</p>
+        </div>
+        <div class="gallery">
+          <article class="card">
+            <div class="card__media">
+              <img src="images/siu-mei.jpg" alt="烧腊与街头餐食" />
+            </div>
+            <div class="card__body">
+              <h3>咸口</h3>
+              <ul class="must">
+                <li>牛杂</li>
+                <li>煲仔饭</li>
+                <li>云吞面</li>
+                <li>烧腊简餐</li>
+              </ul>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card__media">
+              <img src="images/dim-sum-2.jpg" alt="茶点与甜品" />
+            </div>
+            <div class="card__body">
+              <h3>甜口</h3>
+              <ul class="must">
+                <li>双皮奶</li>
+                <li>姜撞奶</li>
+                <li>杨枝甘露 / 糖水</li>
+              </ul>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card__media">
+              <img src="images/shangxiajiu.jpg" alt="上下九步行街氛围" />
+            </div>
+            <div class="card__body">
+              <h3>吃逛原则</h3>
+              <ul class="must">
+                <li>正餐 1–2 顿粤菜就够</li>
+                <li>排队超 30 分钟换店</li>
+                <li>段与段之间打车，街区内走路</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">NOTES</p>
+          <h2>出门前记一下</h2>
+        </div>
+        <div class="tips">
+          <div class="tip">
+            <h3>预约</h3>
+            <p>惠食佳 / 侨美食家周末难订，尽快定一顿。大同早茶尽量订或早到。</p>
+          </div>
+          <div class="tip">
+            <h3>打车</h3>
+            <p>高德 / 滴滴即可。永庆坊 → 沙面很近；去花城预留高峰缓冲。</p>
+          </div>
+          <div class="tip">
+            <h3>天气与穿着</h3>
+            <p>薄外套防空调，折叠伞，舒适走路鞋。室内外温差大。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      广州周末吃逛行程 · 两人版 · 可按方案切换时间表<br />
+      <span style="opacity:.75">配图来自 Wikimedia Commons（广州实景 / 粤菜），仅供行程参考</span>
+    </div>
+  </footer>
+
+  <script>
+    const buttons = document.querySelectorAll(".plan-btn");
+    const panels = document.querySelectorAll("[data-plan-panel]");
+    const note = document.getElementById("planNote");
+    const notes = {
+      a: "<strong>当前：方案 A</strong> — 第一次来广州最顺：不赶、好吃、能拍到老城与江景。",
+      b: "<strong>当前：方案 B</strong> — 大同早茶开场，晚上冲侨美食家；街头小吃只点小份。",
+      c: "<strong>当前：方案 C</strong> — 白天轻装，把精力留给花城与珠江夜游。"
+    };
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const plan = btn.dataset.plan;
+        buttons.forEach((b) => {
+          b.classList.toggle("is-active", b === btn);
+          b.setAttribute("aria-selected", b === btn ? "true" : "false");
+        });
+        panels.forEach((panel) => {
+          panel.classList.toggle("hidden-plan", panel.dataset.planPanel !== plan);
+        });
+        note.innerHTML = notes[plan];
+      });
+    });
+  </script>
+</body>
+</html>
