@@ -69,7 +69,7 @@
       z-index: -2;
       background:
         linear-gradient(120deg, rgba(14, 36, 34, 0.72), rgba(30, 79, 73, 0.45) 45%, rgba(20, 28, 32, 0.55)),
-        url("https://images.unsplash.com/photo-1753172201568-b28dc578ad57?auto=format&fit=crop&w=1800&q=80") center/cover;
+        url("images/huacheng-night.jpg") center 30%/cover;
       transform: scale(1.04);
       animation: drift 18s ease-in-out infinite alternate;
     }
@@ -549,6 +549,8 @@
     }
 
     @media (max-width: 900px) {
+      .hero { min-height: 88vh; }
+      .hero__content { padding: 3.2rem 0 2.4rem; }
       .plans { grid-template-columns: 1fr; }
       .gallery { grid-template-columns: 1fr; }
       .card, .card--wide, .card--tall { grid-column: span 1; }
@@ -990,7 +992,7 @@
           <article class="card card--wide">
             <div class="card__media">
               <span class="badge">夜景首选</span>
-              <img src="https://images.unsplash.com/photo-1563090162-6b4c2a20d658?auto=format&fit=crop&w=1400&q=80" alt="广州花城广场与广州塔夜景" />
+              <img src="images/huacheng-night.jpg" alt="广州花城广场与广州塔夜景" />
             </div>
             <div class="card__body">
               <h3>花城广场 / 广州塔</h3>
@@ -1006,7 +1008,7 @@
           <article class="card">
             <div class="card__media">
               <span class="badge">老城氛围</span>
-              <img src="https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=900&q=80" alt="广州西关街巷氛围" />
+              <img src="images/yongqingfang.jpg" alt="永庆坊西关街巷" />
             </div>
             <div class="card__body">
               <h3>永庆坊</h3>
@@ -1022,7 +1024,7 @@
           <article class="card">
             <div class="card__media">
               <span class="badge">散步胜地</span>
-              <img src="https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?auto=format&fit=crop&w=900&q=80" alt="林荫道与历史建筑" />
+              <img src="images/shamian.jpg" alt="沙面岛历史建筑与林荫道" />
             </div>
             <div class="card__body">
               <h3>沙面</h3>
@@ -1035,17 +1037,32 @@
             </div>
           </article>
 
-          <article class="card card--wide">
+          <article class="card">
             <div class="card__media">
-              <span class="badge">可选加分</span>
-              <img src="https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1400&q=80" alt="珠江夜色与城市灯光" />
+              <span class="badge">可选夜游</span>
+              <img src="images/pearl-river-night.jpg" alt="珠江夜色与城市灯光" />
             </div>
             <div class="card__body">
-              <h3>珠江夜游 · 陈家祠</h3>
-              <p>时间多再加。夜游适合方案 C；陈家祠适合插在永庆坊去沙面的路上。</p>
+              <h3>珠江夜游</h3>
+              <p>适合方案 C。提前订夜场，看两岸灯带即可，不必纠结哪条船。</p>
               <ul class="must">
-                <li>珠江夜游必玩：选夜场，提前订票，看两岸灯带即可，不必纠结哪条船</li>
-                <li>陈家祠必玩：进门看中轴建筑与木雕，1 小时内结束</li>
+                <li>必玩：选夜场，码头来回打车</li>
+                <li>必玩：上船看花城与广州塔一带灯光</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card__media">
+              <span class="badge">建筑加分</span>
+              <img src="images/chen-clan.jpg" alt="陈家祠建筑与木雕" />
+            </div>
+            <div class="card__body">
+              <h3>陈家祠</h3>
+              <p>插在永庆坊去沙面的路上最顺，限时 40–60 分钟。</p>
+              <ul class="must">
+                <li>必玩：进门看中轴建筑与木雕砖雕</li>
+                <li>可选：时间紧就外观拍照后走人</li>
               </ul>
             </div>
           </article>
@@ -1064,7 +1081,7 @@
         <div class="resto-grid">
           <article class="resto">
             <div class="resto__media">
-              <img src="https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=1000&q=80" alt="精致粤菜菜品" />
+              <img src="images/roast-goose.jpg" alt="广州粤菜烧鹅" />
             </div>
             <div class="resto__body">
               <div class="meta-row">
@@ -1085,7 +1102,7 @@
 
           <article class="resto">
             <div class="resto__media">
-              <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1000&q=80" alt="精致餐厅用餐氛围" />
+              <img src="images/cantonese-dish.jpg" alt="粤菜糯米鸡等菜品" />
             </div>
             <div class="resto__body">
               <div class="meta-row">
@@ -1106,7 +1123,7 @@
 
           <article class="resto">
             <div class="resto__media">
-              <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1000&q=80" alt="早茶点心虾饺烧卖" />
+              <img src="images/dim-sum.jpg" alt="粤式早茶点心" />
             </div>
             <div class="resto__body">
               <div class="meta-row">
@@ -1138,7 +1155,7 @@
         <div class="gallery">
           <article class="card">
             <div class="card__media">
-              <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=80" alt="汤面与街头餐食" />
+              <img src="images/siu-mei.jpg" alt="烧腊与街头餐食" />
             </div>
             <div class="card__body">
               <h3>咸口</h3>
@@ -1152,7 +1169,7 @@
           </article>
           <article class="card">
             <div class="card__media">
-              <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=900&q=80" alt="糖水甜品" />
+              <img src="images/dim-sum-2.jpg" alt="茶点与甜品" />
             </div>
             <div class="card__body">
               <h3>甜口</h3>
@@ -1165,7 +1182,7 @@
           </article>
           <article class="card">
             <div class="card__media">
-              <img src="https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=900&q=80" alt="两人手持饮品散步" />
+              <img src="images/shangxiajiu.jpg" alt="上下九步行街氛围" />
             </div>
             <div class="card__body">
               <h3>吃逛原则</h3>
@@ -1205,7 +1222,10 @@
   </main>
 
   <footer>
-    <div class="wrap">广州周末吃逛行程 · 两人版 · 可按方案切换时间表</div>
+    <div class="wrap">
+      广州周末吃逛行程 · 两人版 · 可按方案切换时间表<br />
+      <span style="opacity:.75">配图来自 Wikimedia Commons（广州实景 / 粤菜），仅供行程参考</span>
+    </div>
   </footer>
 
   <script>
