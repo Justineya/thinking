@@ -11,7 +11,7 @@ cd ti15-analyzer/web
 python3 -m http.server 4173
 ```
 
-浏览器访问 http://localhost:4173
+浏览器访问 http://localhost:4173/analysis.html 看逐场分析。
 
 首十杀推导（需本机出网）：
 
@@ -21,7 +21,7 @@ python3 ti15-analyzer/scripts/f10k.py 8948533452
 
 ## 数据
 
+- [web/analysis.html](web/analysis.html) — **逐场分析（主入口）**
 - [PRODUCT.md](PRODUCT.md) — 产品理解
-- [data/playoffs.json](data/playoffs.json) — 八强与 8/20 对阵
-- [data/scope.json](data/scope.json) — 80 局进 / 29 局丢
-- [data/polymarket-playoffs.json](data/polymarket-playoffs.json) — 四场 BO3 市场快照
+- [data/games.json](data/games.json) — 80 局结构化四镜头
+- [web/data/bundle.json](web/data/bundle.json) — 网页用的队伍画像 + 四场预览

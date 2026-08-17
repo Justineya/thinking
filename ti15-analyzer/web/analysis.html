@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TI15 逐场分析 · 八强 80 局</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <header class="topbar">
+    <div class="brand">
+      <span class="aegis">TI15</span>
+      <span>逐场分析</span>
+    </div>
+    <nav>
+      <a href="./index.html">设计</a>
+      <a href="./analysis.html">逐场</a>
+    </nav>
+    <div class="status">80 局 · 盯中单与中辅 · F10K</div>
+  </header>
+  <main>
+    <section class="hero">
+      <p class="kicker">只做八强的 TI15 场次</p>
+      <h1>每局四镜头：BP、节奏与攻防、第10杀（看中单）、中辅联动。</h1>
+      <p class="lede">
+        80 局全部有解析。F10K 定义为第 10 个英雄击杀归属，不是先到 10 杀。
+        中辅驱动 = 该队中单 + 两个辅助在前 10 杀里合计至少 3 刀。没有助攻日志，同框团只统计两边都出过击杀的团。
+      </p>
+    </section>
+    <div class="filters" id="filters"></div>
+    <div id="app">加载数据…</div>
+  </main>
+  <footer>
+    <p>数据：OpenDota league 19719 · 市场：Polymarket 8/17 快照 · 非投注建议</p>
+  </footer>
+  <script src="./analysis.js"></script>
+</body>
+</html>
