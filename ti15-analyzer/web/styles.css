@@ -337,10 +337,58 @@ code { color: var(--gold); font-size: 0.92em; }
 .go-card { border-color: rgba(63, 107, 74, 0.7); }
 .compare .card b { color: var(--gold); }
 
+.calc-block { margin-bottom: 32px; }
+.calc-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 16px;
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+.calc-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--mute);
+  letter-spacing: 0.04em;
+}
+.calc-form input,
+.calc-form select {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  color: var(--paper);
+  font: inherit;
+  font-size: 15px;
+}
+.calc-btn {
+  align-self: end;
+  padding: 11px 18px;
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+}
+.calc-btn:hover { filter: brightness(1.05); }
+.calc-result {
+  border: 1px solid var(--line);
+  padding: 16px 18px;
+  background: rgba(28, 26, 22, 0.8);
+}
+.calc-result.empty { color: var(--mute); }
+.calc-result h3 { margin: 0 0 12px; font-size: 18px; }
+.calc-both { margin-top: 18px; }
+.calc-both h3 { font-size: 16px; margin: 0 0 8px; }
+
 footer { text-align: center; color: var(--mute); padding: 24px; border-top: 1px solid var(--line); font-size: 13px; }
 
 @media (max-width: 860px) {
-  .grid-2, .ia, .matches, .phases, .hero-meta, .stat-row, .compare, .lenses, .draft, .stake-stats { grid-template-columns: 1fr; }
+  .grid-2, .ia, .matches, .phases, .hero-meta, .stat-row, .compare, .lenses, .draft, .stake-stats, .calc-form { grid-template-columns: 1fr; }
   nav { display: none; }
   .status { display: none; }
 }

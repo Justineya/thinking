@@ -5524,8 +5524,34 @@
     ],
     "boldRule": "大胆 = 同一张正期望票下到大约两倍（½Kelly，单票上限 8%）。IW / VISION 先到10杀点估计已是负期望，大胆也是 0。不因为大胆就把 54% 当成 65%。",
     "lowSeStillMinus": true,
+    "evRule": {
+      "headline": "不只能投高概率方。看的是 p×赔率 有没有大于 1，不是谁模型概率更高。",
+      "formula": "每注期望 = 模型 p × 你拿到的赔率 − 1。大于 0 才有优势；Kelly 只对这种票算注码。",
+      "favoriteTrap": "热门方概率高，但低保 1.70 常让 p×赔率<1（例如模型 57%×1.70=0.97）。这不是「该买热门」。",
+      "underdogOk": "冷门方概率低，若盘口给够高（例如模型 42% 要赔率≥2.38），一样可以是正期望。",
+      "bothSides": "同一局通常只有一边（或两边都没有）正期望。用计算器分别填两边的真实赔率试。",
+      "example": "VISION F10K 模型约 58%/42%。1.70 买 VISION 点估计亏；若 BoomBoys 给到 2.50，42%×2.50=1.05 才转正。"
+    },
+    "calculatorProfiles": [
+      {
+        "id": "稳健",
+        "fraction": 0.25,
+        "cap": 0.05
+      },
+      {
+        "id": "大胆",
+        "fraction": 0.5,
+        "cap": 0.08
+      },
+      {
+        "id": "过猛",
+        "fraction": 1.0,
+        "cap": 0.15
+      }
+    ],
     "rules": [
       "不是固定 100。也不是每把都下当前本金的 10%。10% 接近全Kelly，概率是估出来的，会过度下注。",
+      "不是「只买热门」。买哪边只看 p×赔率−1 是否为正；冷门赔够高一样可以下。",
       "每一把单独算优势。优势不同，分数不同。没优势就 0。大胆不把负期望变成正期望。",
       "注码 = 当前本金 × 这一把的分数Kelly。赢了本金变大，下一把金额变大；输了变小。分数不因为刚赢了就加大。",
       "同一天四场按开赛顺序：一场 G1 先到10杀结算完，再用新本金算下一场。",
@@ -5550,6 +5576,26 @@
         "modelP": 0.503,
         "sample": "模型样本 TI 16 + EWC 13（有效 21.8）· 先到10杀 56%",
         "note": "模型只有约 54%。低保 1.70 时 p×赔率<1，期望为负——低保不等于该下。",
+        "teamA": "Iron Wing",
+        "teamB": "Team Spirit",
+        "pF10A": 0.503,
+        "pF10B": 0.497,
+        "sides": [
+          {
+            "side": "A",
+            "team": "Iron Wing",
+            "label": "Iron Wing 先到 10 杀",
+            "modelP": 0.503,
+            "breakEvenOdds": 1.99
+          },
+          {
+            "side": "B",
+            "team": "Team Spirit",
+            "label": "Team Spirit 先到 10 杀",
+            "modelP": 0.497,
+            "breakEvenOdds": 2.01
+          }
+        ],
         "breakEvenOdds": 1.99,
         "grid": [
           {
@@ -5745,7 +5791,54 @@
           "needNFor10pp": 97,
           "haveVsNeed5": "20/385",
           "verdict": "点估计已是负期望。再大胆也不能下。"
-        }
+        },
+        "bothAt170": [
+          {
+            "side": "A",
+            "team": "Iron Wing",
+            "label": "Iron Wing 先到 10 杀",
+            "modelP": 0.503,
+            "breakEvenOdds": 1.99,
+            "evPerYuan": -0.1449,
+            "atDefault": {
+              "odds": 1.7,
+              "fullKelly": 0.0,
+              "quarterKelly": 0.0,
+              "kellyUsed": 0.0,
+              "fraction": 0.25,
+              "evPerYuan": -0.1449,
+              "stake": 0,
+              "pctOfBank": 0.0,
+              "ifWin": 1000,
+              "ifLose": 1000,
+              "evYuan": -0.0,
+              "action": "空仓"
+            }
+          },
+          {
+            "side": "B",
+            "team": "Team Spirit",
+            "label": "Team Spirit 先到 10 杀",
+            "modelP": 0.497,
+            "breakEvenOdds": 2.01,
+            "evPerYuan": -0.1551,
+            "atDefault": {
+              "odds": 1.7,
+              "fullKelly": 0.0,
+              "quarterKelly": 0.0,
+              "kellyUsed": 0.0,
+              "fraction": 0.25,
+              "evPerYuan": -0.1551,
+              "stake": 0,
+              "pctOfBank": 0.0,
+              "ifWin": 1000,
+              "ifLose": 1000,
+              "evYuan": -0.0,
+              "action": "空仓"
+            }
+          }
+        ],
+        "evSideNote": "低保 1.7：两边点估计都是负期望，应空仓"
       },
       {
         "id": "ubqf2",
@@ -5757,6 +5850,26 @@
         "modelP": 0.578,
         "sample": "模型样本 TI 10 + EWC 19（有效 18.5）· 先到10杀 69%",
         "note": "系列可以是低保：EWC 决赛 3-1、瑞士 2-0。先到10杀不是。瑞士第二局 BoomBoys 先到10杀、VISION 仍赢图。",
+        "teamA": "TEAM VISION",
+        "teamB": "BoomBoys",
+        "pF10A": 0.578,
+        "pF10B": 0.422,
+        "sides": [
+          {
+            "side": "A",
+            "team": "TEAM VISION",
+            "label": "TEAM VISION 先到 10 杀",
+            "modelP": 0.578,
+            "breakEvenOdds": 1.73
+          },
+          {
+            "side": "B",
+            "team": "BoomBoys",
+            "label": "BoomBoys 先到 10 杀",
+            "modelP": 0.422,
+            "breakEvenOdds": 2.37
+          }
+        ],
         "breakEvenOdds": 1.73,
         "grid": [
           {
@@ -5952,7 +6065,54 @@
           "needNFor10pp": 94,
           "haveVsNeed5": "18/375",
           "verdict": "点估计已是负期望。再大胆也不能下。"
-        }
+        },
+        "bothAt170": [
+          {
+            "side": "A",
+            "team": "TEAM VISION",
+            "label": "TEAM VISION 先到 10 杀",
+            "modelP": 0.578,
+            "breakEvenOdds": 1.73,
+            "evPerYuan": -0.0174,
+            "atDefault": {
+              "odds": 1.7,
+              "fullKelly": 0.0,
+              "quarterKelly": 0.0,
+              "kellyUsed": 0.0,
+              "fraction": 0.25,
+              "evPerYuan": -0.0174,
+              "stake": 0,
+              "pctOfBank": 0.0,
+              "ifWin": 1000,
+              "ifLose": 1000,
+              "evYuan": -0.0,
+              "action": "空仓"
+            }
+          },
+          {
+            "side": "B",
+            "team": "BoomBoys",
+            "label": "BoomBoys 先到 10 杀",
+            "modelP": 0.422,
+            "breakEvenOdds": 2.37,
+            "evPerYuan": -0.2826,
+            "atDefault": {
+              "odds": 1.7,
+              "fullKelly": 0.0,
+              "quarterKelly": 0.0,
+              "kellyUsed": 0.0,
+              "fraction": 0.25,
+              "evPerYuan": -0.2826,
+              "stake": 0,
+              "pctOfBank": 0.0,
+              "ifWin": 1000,
+              "ifLose": 1000,
+              "evYuan": -0.0,
+              "action": "空仓"
+            }
+          }
+        ],
+        "evSideNote": "低保 1.7：两边点估计都是负期望，应空仓"
       },
       {
         "id": "ubqf3",
@@ -5964,6 +6124,26 @@
         "modelP": 0.568,
         "sample": "模型样本 TI 14 + EWC 16（有效 21.2）· 先到10杀 60%",
         "note": "四场里最站得住的10杀低保。本届先到10杀率八强最高。",
+        "teamA": "Team Liquid",
+        "teamB": "Team Yandex",
+        "pF10A": 0.568,
+        "pF10B": 0.432,
+        "sides": [
+          {
+            "side": "A",
+            "team": "Team Liquid",
+            "label": "Team Liquid 先到 10 杀",
+            "modelP": 0.568,
+            "breakEvenOdds": 1.76
+          },
+          {
+            "side": "B",
+            "team": "Team Yandex",
+            "label": "Team Yandex 先到 10 杀",
+            "modelP": 0.432,
+            "breakEvenOdds": 2.31
+          }
+        ],
         "breakEvenOdds": 1.76,
         "grid": [
           {
@@ -6159,7 +6339,54 @@
           "needNFor10pp": 95,
           "haveVsNeed5": "21/378",
           "verdict": "点估计已是负期望。再大胆也不能下。"
-        }
+        },
+        "bothAt170": [
+          {
+            "side": "A",
+            "team": "Team Liquid",
+            "label": "Team Liquid 先到 10 杀",
+            "modelP": 0.568,
+            "breakEvenOdds": 1.76,
+            "evPerYuan": -0.0344,
+            "atDefault": {
+              "odds": 1.7,
+              "fullKelly": 0.0,
+              "quarterKelly": 0.0,
+              "kellyUsed": 0.0,
+              "fraction": 0.25,
+              "evPerYuan": -0.0344,
+              "stake": 0,
+              "pctOfBank": 0.0,
+              "ifWin": 1000,
+              "ifLose": 1000,
+              "evYuan": -0.0,
+              "action": "空仓"
+            }
+          },
+          {
+            "side": "B",
+            "team": "Team Yandex",
+            "label": "Team Yandex 先到 10 杀",
+            "modelP": 0.432,
+            "breakEvenOdds": 2.31,
+            "evPerYuan": -0.2656,
+            "atDefault": {
+              "odds": 1.7,
+              "fullKelly": 0.0,
+              "quarterKelly": 0.0,
+              "kellyUsed": 0.0,
+              "fraction": 0.25,
+              "evPerYuan": -0.2656,
+              "stake": 0,
+              "pctOfBank": 0.0,
+              "ifWin": 1000,
+              "ifLose": 1000,
+              "evYuan": -0.0,
+              "action": "空仓"
+            }
+          }
+        ],
+        "evSideNote": "低保 1.7：两边点估计都是负期望，应空仓"
       },
       {
         "id": "ubqf4",
@@ -6171,6 +6398,26 @@
         "modelP": 0.614,
         "sample": "模型样本 TI 17 + EWC 12（有效 22.4）· 先到10杀 63%",
         "note": "NGX 赢图不靠堆前10人头。先到10杀跟 Falcons，不要跟 NGX 系列混为一谈。NGX 只有 10 局，这条的误差最大。",
+        "teamA": "Nigma Galaxy",
+        "teamB": "Team Falcons",
+        "pF10A": 0.386,
+        "pF10B": 0.614,
+        "sides": [
+          {
+            "side": "A",
+            "team": "Nigma Galaxy",
+            "label": "Nigma Galaxy 先到 10 杀",
+            "modelP": 0.386,
+            "breakEvenOdds": 2.59
+          },
+          {
+            "side": "B",
+            "team": "Team Falcons",
+            "label": "Team Falcons 先到 10 杀",
+            "modelP": 0.614,
+            "breakEvenOdds": 1.63
+          }
+        ],
         "breakEvenOdds": 1.63,
         "grid": [
           {
@@ -6366,7 +6613,54 @@
           "needNFor10pp": 92,
           "haveVsNeed5": "15/365",
           "verdict": "点估计有优势，但真 p 只要低 1 个标准误就变负期望。样本撑不住把这张票当稳的。"
-        }
+        },
+        "bothAt170": [
+          {
+            "side": "A",
+            "team": "Nigma Galaxy",
+            "label": "Nigma Galaxy 先到 10 杀",
+            "modelP": 0.386,
+            "breakEvenOdds": 2.59,
+            "evPerYuan": -0.3438,
+            "atDefault": {
+              "odds": 1.7,
+              "fullKelly": 0.0,
+              "quarterKelly": 0.0,
+              "kellyUsed": 0.0,
+              "fraction": 0.25,
+              "evPerYuan": -0.3438,
+              "stake": 0,
+              "pctOfBank": 0.0,
+              "ifWin": 1000,
+              "ifLose": 1000,
+              "evYuan": -0.0,
+              "action": "空仓"
+            }
+          },
+          {
+            "side": "B",
+            "team": "Team Falcons",
+            "label": "Team Falcons 先到 10 杀",
+            "modelP": 0.614,
+            "breakEvenOdds": 1.63,
+            "evPerYuan": 0.0438,
+            "atDefault": {
+              "odds": 1.7,
+              "fullKelly": 0.0626,
+              "quarterKelly": 0.0156,
+              "kellyUsed": 0.0156,
+              "fraction": 0.25,
+              "evPerYuan": 0.0438,
+              "stake": 16,
+              "pctOfBank": 1.6,
+              "ifWin": 1011.2,
+              "ifLose": 984,
+              "evYuan": 0.7,
+              "action": "下"
+            }
+          }
+        ],
+        "evSideNote": "低保 1.7：Team Falcons 点估计有正期望"
       }
     ],
     "profiles": {

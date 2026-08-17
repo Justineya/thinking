@@ -408,6 +408,17 @@ def build_bankroll(known: list[dict], teams: dict) -> dict:
         key = "pF10A" if side == "A" else "pF10B"
         return float(g1.get(key) or sim.get(key) or 0.5)
 
+    def g1_f10_both(sim_id: str) -> tuple[float, float]:
+        sim = by_id.get(sim_id) or {}
+        g1 = (sim.get("maps") or [{}])[0]
+        pa = float(g1.get("pF10A") or sim.get("pF10A") or 0.5)
+        pb = float(g1.get("pF10B") or sim.get("pF10B") or 0.5)
+        return pa, pb
+
+    def matchup_teams(sim_id: str) -> tuple[str, str]:
+        sim = by_id.get(sim_id) or {}
+        return sim.get("teamA") or "", sim.get("teamB") or ""
+
     def sample_line(name: str) -> str:
         t = teams.get(name) or {}
         n_ti = t.get("gamesTi") or 0
@@ -464,6 +475,30 @@ def build_bankroll(known: list[dict], teams: dict) -> dict:
         },
     ]
     for p in picks:
+        pa, pb = g1_f10_both(p["id"])
+        ta, tb = matchup_teams(p["id"])
+        if ta:
+            p["teamA"] = ta
+        if tb:
+            p["teamB"] = tb
+        p["pF10A"] = round(pa, 3)
+        p["pF10B"] = round(pb, 3)
+        p["sides"] = [
+            {
+                "side": "A",
+                "team": ta or p.get("team"),
+                "label": f"{ta or p.get('team')} 先到 10 杀",
+                "modelP": round(pa, 3),
+                "breakEvenOdds": break_even_odds(pa),
+            },
+            {
+                "side": "B",
+                "team": tb or p.get("opp"),
+                "label": f"{tb or p.get('opp')} 先到 10 杀",
+                "modelP": round(pb, 3),
+                "breakEvenOdds": break_even_odds(pb),
+            },
+        ]
         p["modelP"] = round(p["modelP"], 3)
         p["breakEvenOdds"] = break_even_odds(p["modelP"])
         p["grid"] = grid_for(p["modelP"], BANKROLL0)
@@ -471,6 +506,20 @@ def build_bankroll(known: list[dict], teams: dict) -> dict:
         p["atBold"] = ticket(p["modelP"], DEFAULT_LOW_ODDS, BANKROLL0, 0.50, 0.08)
         p["atFull"] = ticket(p["modelP"], DEFAULT_LOW_ODDS, BANKROLL0, 1.00, 0.15)
         p["uncertainty"] = uncertainty_for(p, teams)
+        p["bothAt170"] = [
+            {
+                **s,
+                "evPerYuan": round(s["modelP"] * DEFAULT_LOW_ODDS - 1, 4),
+                "atDefault": ticket(s["modelP"], DEFAULT_LOW_ODDS, BANKROLL0),
+            }
+            for s in p["sides"]
+        ]
+        plus = [x for x in p["bothAt170"] if x["evPerYuan"] > 0]
+        p["evSideNote"] = (
+            f"低保 {DEFAULT_LOW_ODDS}：{' / '.join(x['team'] for x in plus)} 点估计有正期望"
+            if plus
+            else f"低保 {DEFAULT_LOW_ODDS}：两边点估计都是负期望，应空仓"
+        )
 
     profiles = {k: profile_block(picks, v) for k, v in PROFILES.items()}
     any_plus_if_low = any(p["uncertainty"]["plusEvIfLow"] for p in picks)
@@ -497,8 +546,22 @@ def build_bankroll(known: list[dict], teams: dict) -> dict:
         ],
         "boldRule": "大胆 = 同一张正期望票下到大约两倍（½Kelly，单票上限 8%）。IW / VISION 先到10杀点估计已是负期望，大胆也是 0。不因为大胆就把 54% 当成 65%。",
         "lowSeStillMinus": not any_plus_if_low,
+        "evRule": {
+            "headline": "不只能投高概率方。看的是 p×赔率 有没有大于 1，不是谁模型概率更高。",
+            "formula": "每注期望 = 模型 p × 你拿到的赔率 − 1。大于 0 才有优势；Kelly 只对这种票算注码。",
+            "favoriteTrap": "热门方概率高，但低保 1.70 常让 p×赔率<1（例如模型 57%×1.70=0.97）。这不是「该买热门」。",
+            "underdogOk": "冷门方概率低，若盘口给够高（例如模型 42% 要赔率≥2.38），一样可以是正期望。",
+            "bothSides": "同一局通常只有一边（或两边都没有）正期望。用计算器分别填两边的真实赔率试。",
+            "example": "VISION F10K 模型约 58%/42%。1.70 买 VISION 点估计亏；若 BoomBoys 给到 2.50，42%×2.50=1.05 才转正。",
+        },
+        "calculatorProfiles": [
+            {"id": "稳健", "fraction": 0.25, "cap": 0.05},
+            {"id": "大胆", "fraction": 0.50, "cap": 0.08},
+            {"id": "过猛", "fraction": 1.00, "cap": 0.15},
+        ],
         "rules": [
             "不是固定 100。也不是每把都下当前本金的 10%。10% 接近全Kelly，概率是估出来的，会过度下注。",
+            "不是「只买热门」。买哪边只看 p×赔率−1 是否为正；冷门赔够高一样可以下。",
             "每一把单独算优势。优势不同，分数不同。没优势就 0。大胆不把负期望变成正期望。",
             "注码 = 当前本金 × 这一把的分数Kelly。赢了本金变大，下一把金额变大；输了变小。分数不因为刚赢了就加大。",
             "同一天四场按开赛顺序：一场 G1 先到10杀结算完，再用新本金算下一场。",

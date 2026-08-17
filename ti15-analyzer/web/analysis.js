@@ -272,6 +272,157 @@ function actionCell(action) {
   return `<span class="${klass}">${action || "—"}</span>`;
 }
 
+const STAKE_PROFILES = {
+  稳健: { fraction: 0.25, cap: 0.05 },
+  大胆: { fraction: 0.5, cap: 0.08 },
+  过猛: { fraction: 1, cap: 0.15 },
+};
+const STAKE_MIN = 8;
+
+function fullKelly(p, odds) {
+  if (odds <= 1 || p <= 0 || p >= 1) return 0;
+  const edge = p * odds - 1;
+  return Math.max(0, edge / (odds - 1));
+}
+
+function sizedKelly(p, odds, fraction, cap) {
+  return Math.min(cap, fullKelly(p, odds) * fraction);
+}
+
+function breakEvenOdds(p) {
+  if (p <= 0) return 99;
+  return Math.round((1 / p) * 100) / 100;
+}
+
+function calcTicket(p, odds, bankroll, profileId) {
+  const prof = STAKE_PROFILES[profileId] || STAKE_PROFILES["稳健"];
+  const fk = fullKelly(p, odds);
+  const qk = sizedKelly(p, odds, prof.fraction, prof.cap);
+  const evPerYuan = p * odds - 1;
+  let stake = Math.round(bankroll * qk);
+  let action = "下";
+  if (qk <= 0 || evPerYuan <= 0) {
+    action = "空仓";
+    stake = 0;
+  } else if (stake < STAKE_MIN) {
+    action = "优势太薄，空仓";
+    stake = 0;
+  }
+  return {
+    p,
+    odds,
+    fullKelly: fk,
+    kellyUsed: qk,
+    evPerYuan,
+    stake,
+    pctOfBank: bankroll ? (100 * stake) / bankroll : 0,
+    ifWin: stake ? bankroll + stake * (odds - 1) : bankroll,
+    ifLose: stake ? bankroll - stake : bankroll,
+    evYuan: stake * evPerYuan,
+    action,
+    breakEven: breakEvenOdds(p),
+  };
+}
+
+function renderStakeCalculator(br) {
+  const picks = br.picks || [];
+  const matchOpts = picks
+    .map((p, i) => `<option value="${i}">${p.when} · ${p.teamA || p.team} vs ${p.teamB || p.opp}</option>`)
+    .join("");
+  const profOpts = (br.calculatorProfiles || Object.keys(STAKE_PROFILES).map((id) => ({ id })))
+    .map((pr) => `<option value="${pr.id}">${pr.id}</option>`)
+    .join("");
+  const ev = br.evRule || {};
+  return `<section class="series-block calc-block" id="stake-calc">
+    <div class="series-head"><h2>注码计算器</h2><div class="poly">填本金 · 选场次 · 填真实赔率 · 点计算</div></div>
+    <p class="insight">${ev.headline || "不只能投高概率方，看 p×赔率 是否大于 1。"}</p>
+    <p class="section-lead">${ev.formula || ""} ${ev.favoriteTrap || ""} ${ev.underdogOk || ""}</p>
+    <form class="calc-form" id="calc-form">
+      <label>本金（元）<input type="number" id="calc-bank" min="1" step="1" value="${br.start || 1000}"></label>
+      <label>场次<select id="calc-match">${matchOpts}</select></label>
+      <label>买哪边<select id="calc-side"></select></label>
+      <label>赔率<input type="number" id="calc-odds" min="1.01" step="0.01" value="${(br.defaultOdds || 1.7).toFixed(2)}"></label>
+      <label>风格<select id="calc-profile">${profOpts}</select></label>
+      <button type="submit" class="calc-btn">计算</button>
+    </form>
+    <div id="calc-result" class="calc-result empty">选好场次和赔率后点「计算」。</div>
+    <div id="calc-both" class="calc-both"></div>
+    <p class="foot-note">${ev.bothSides || ""} ${ev.example || ""}</p>
+  </section>`;
+}
+
+function wireStakeCalculator(br) {
+  const form = document.getElementById("calc-form");
+  const matchEl = document.getElementById("calc-match");
+  const sideEl = document.getElementById("calc-side");
+  if (!form || !matchEl || !sideEl) return;
+
+  const picks = br.picks || [];
+
+  const fillSides = () => {
+    const pick = picks[Number(matchEl.value)] || picks[0];
+    if (!pick) return;
+    sideEl.innerHTML = (pick.sides || [])
+      .map((s, i) => `<option value="${i}">${s.label} · 模型 ${pct(s.modelP)} · 盈亏平衡 ${s.breakEvenOdds}</option>`)
+      .join("");
+  };
+
+  fillSides();
+  matchEl.addEventListener("change", fillSides);
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const bank = Number(document.getElementById("calc-bank").value);
+    const odds = Number(document.getElementById("calc-odds").value);
+    const profile = document.getElementById("calc-profile").value;
+    const pick = picks[Number(matchEl.value)] || picks[0];
+    const side = (pick?.sides || [])[Number(sideEl.value)] || pick?.sides?.[0];
+    const resultEl = document.getElementById("calc-result");
+    const bothEl = document.getElementById("calc-both");
+    if (!pick || !side || !bank || bank <= 0 || !odds || odds <= 1) {
+      resultEl.className = "calc-result warn";
+      resultEl.innerHTML = "请填有效本金和赔率（>1）。";
+      bothEl.innerHTML = "";
+      return;
+    }
+    const t = calcTicket(side.modelP, odds, bank, profile);
+    const evPct = Math.round(t.evPerYuan * 1000) / 10;
+    resultEl.className = `calc-result ${t.stake ? "go-card" : "warn"}`;
+    resultEl.innerHTML = `<h3>${pick.when} · ${side.label}</h3>
+      <div class="stat-row stake-stats">
+        <div><b>${actionCell(t.action)}</b><span>动作 · ${profile}</span></div>
+        <div><b>${yuan(t.stake)}</b><span>建议注码（${pct1(t.pctOfBank)}）</span></div>
+        <div><b class="${t.evPerYuan >= 0 ? "y" : "n"}">${evPct >= 0 ? "+" : ""}${evPct}%</b><span>每元期望</span></div>
+        <div><b>${yuan(t.evYuan)}</b><span>这注期望收益</span></div>
+      </div>
+      <p>模型 p = <b>${pct(side.modelP)}</b> · 赔率 <b>${odds.toFixed(2)}</b> · 盈亏平衡 <b>${t.breakEven}</b></p>
+      <p>全Kelly ${pct1(100 * t.fullKelly)} · 实下分数 ${pct1(100 * t.kellyUsed)} · 赢到 ${yuan(t.ifWin)} · 输到 ${yuan(t.ifLose)}</p>
+      <p class="note">${t.stake ? "正期望才出注码；负期望任何风格都是 0。" : t.evPerYuan <= 0 ? "p×赔率 < 1，这边不应下（不管是不是热门）。" : "优势太薄（低于最低注码门槛），建议空仓。"}</p>`;
+
+    const bothRows = (pick.sides || [])
+      .map((s) => {
+        const x = calcTicket(s.modelP, odds, bank, profile);
+        const edge = Math.round(x.evPerYuan * 1000) / 10;
+        const fav = s.side === side.side ? " ← 你选的" : "";
+        return `<tr>
+          <td>${s.label}${fav}</td>
+          <td>${pct(s.modelP)}</td>
+          <td>${s.breakEvenOdds}</td>
+          <td class="${x.evPerYuan >= 0 ? "y" : "n"}">${edge >= 0 ? "+" : ""}${edge}%</td>
+          <td><b>${yuan(x.stake)}</b></td>
+          <td>${actionCell(x.action)}</td>
+        </tr>`;
+      })
+      .join("");
+    bothEl.innerHTML = `<h3>同一赔率 ${odds.toFixed(2)} 下 · 两边各算一遍</h3>
+      <p class="section-lead">热门和冷门用同一个赔率框只是方便对比——实盘请填你实际能拿到的价格。通常只有一边（或都没有）正期望。</p>
+      <table class="src-table compact">
+        <thead><tr><th>方向</th><th>模型 p</th><th>盈亏平衡</th><th>期望/元</th><th>注码</th><th>动作</th></tr></thead>
+        <tbody>${bothRows}</tbody>
+      </table>`;
+  });
+}
+
 function forkBox(title, node, tone) {
   if (!node) return `<div class="card"><h3>${title}</h3><p class="note">后面没有要下的票。</p></div>`;
   return `<div class="card ${tone || ""}">
@@ -394,7 +545,26 @@ function renderStake(data) {
   const boldResize = br.resizeBoldAt170 || {};
   const bFirst = boldResize.first || {};
   const bWin = boldResize.ifWin || {};
-  return `<section class="series-block">
+  const evRule = br.evRule || {};
+  const bothSideRows = (br.picks || [])
+    .map((p) => {
+      const rows = (p.bothAt170 || p.sides || [])
+        .map((s) => {
+          const ev = s.evPerYuan != null ? s.evPerYuan : s.modelP * br.defaultOdds - 1;
+          const t = s.atDefault || {};
+          return `<tr>
+            <td>${p.when}<br><span class="note">${s.label || s.team}</span></td>
+            <td>${pct(s.modelP)}</td>
+            <td>${s.breakEvenOdds}</td>
+            <td class="${ev >= 0 ? "y" : "n"}">${ev >= 0 ? "+" : ""}${Math.round(ev * 1000) / 10}%</td>
+            <td>${actionCell(t.action || (ev > 0 ? "下" : "空仓"))} ${t.stake ? yuan(t.stake) : ""}</td>
+          </tr>`;
+        })
+        .join("");
+      return rows;
+    })
+    .join("");
+  return `${renderStakeCalculator(br)}<section class="series-block">
     <div class="series-head"><h2>注码：赚了下一把下多少</h2><div class="poly">本金 ${yuan(br.start)} · 低保按 ${br.defaultOdds.toFixed(2)}</div></div>
     <div class="decide">
       <p class="kicker">先回答这个问题</p>
@@ -431,7 +601,13 @@ function renderStake(data) {
       <thead><tr><th>场次</th><th>模型 p</th><th>期望/元</th><th>固定 100</th><th>稳健 ¼</th><th>大胆 ½</th><th>过猛 全</th></tr></thead>
       <tbody>${compareRows}</tbody>
     </table>
-    <p class="foot-note">${resize.whyNot100 || ""} ${resize.whyNot10pct || ""} 先到10杀 Polymarket 没有盘，表里赔率按常见低保 1.70；你拿到真实赔率后看每张票下面的赔率表。</p>
+    <p class="foot-note">${resize.whyNot100 || ""} ${resize.whyNot10pct || ""} 先到10杀 Polymarket 没有盘，表里赔率按常见低保 1.70；你拿到真实赔率后看每张票下面的赔率表，或用上面的计算器。</p>
+    <h3>低保 ${br.defaultOdds.toFixed(2)} · 两边各算期望（不只能买热门）</h3>
+    <p class="section-lead">${evRule.favoriteTrap || ""} ${evRule.underdogOk || ""}</p>
+    <table class="src-table compact">
+      <thead><tr><th>场次 / 方向</th><th>模型 p</th><th>盈亏平衡</th><th>期望/元</th><th>¼Kelly @1000</th></tr></thead>
+      <tbody>${bothSideRows}</tbody>
+    </table>
     <h3>8/20 按开赛顺序走</h3>
     <ol class="engine">${walk}</ol>
     <h3>若开赛前就要一次下完</h3>
@@ -535,6 +711,7 @@ function render(data, mode) {
 
   if (mode === "stake") {
     app.innerHTML = renderStake(data) + renderEwc(data);
+    wireStakeCalculator(data.simulations?.bankroll || {});
     return;
   }
   if (mode === "bracket") {
