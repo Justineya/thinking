@@ -115,9 +115,9 @@ function setup(data) {
   paint();
 }
 
-fetch("./data/bundle.json")
-  .then((r) => r.json())
-  .then(setup)
-  .catch((err) => {
-    document.getElementById("app").textContent = "无法加载 bundle.json，请从 web/ 目录启动本地服务。 " + err;
-  });
+if (window.TI15_DATA) {
+  setup(window.TI15_DATA);
+} else {
+  document.getElementById("app").innerHTML =
+    "数据文件没加载到。请直接打开 <code>ti15-analyzer/web/analysis.html</code>，不要打开 GitHub 的源码预览页。";
+}

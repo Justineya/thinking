@@ -138,8 +138,46 @@ def main() -> None:
     }
     out = ROOT / "web" / "data" / "bundle.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(bundle, ensure_ascii=False))
+    payload = json.dumps(bundle, ensure_ascii=False)
+    out.write_text(payload)
+    js_path = ROOT / "web" / "data.js"
+    js_path.write_text("window.TI15_DATA = " + payload + ";\n")
+    css = (ROOT / "web" / "styles.css").read_text()
+    app_js = (ROOT / "web" / "analysis.js").read_text()
+    standalone = f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TI15 逐场分析 · 八强 80 局</title>
+  <style>{css}</style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <header class="topbar">
+    <div class="brand"><span class="aegis">TI15</span><span>逐场分析</span></div>
+    <div class="status">80 局 · 先到10杀 · 盯中单中辅</div>
+  </header>
+  <main>
+    <section class="hero">
+      <p class="kicker">只做八强的 TI15 场次</p>
+      <h1>每局四镜头：BP、节奏与攻防、谁先到 10 杀（看中单）、中辅联动。</h1>
+      <p class="lede">F10K = 哪支队伍先获得 10 次英雄击杀，不是全局第 10 刀的收刀人。中辅驱动 = 先到 10 杀时中单+双辅合计至少 3 刀。</p>
+    </section>
+    <div class="filters" id="filters"></div>
+    <div id="app">加载数据…</div>
+  </main>
+  <footer><p>数据：OpenDota league 19719 · 市场：Polymarket 8/17 快照 · 非投注建议</p></footer>
+  <script>window.TI15_DATA = {payload};</script>
+  <script>{app_js}</script>
+</body>
+</html>
+"""
+    stand_path = ROOT / "web" / "standalone.html"
+    stand_path.write_text(standalone)
     print("wrote", out, "bytes", out.stat().st_size)
+    print("wrote", js_path, "bytes", js_path.stat().st_size)
+    print("wrote", stand_path, "bytes", stand_path.stat().st_size)
 
 
 if __name__ == "__main__":
