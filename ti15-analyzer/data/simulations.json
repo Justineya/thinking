@@ -6,7 +6,8 @@
     "bp": "按本届 80 局里各队实际选禁频率走 7.41 队长模式，每局 5 次",
     "win": "本届队胜率 + 这套阵容英雄在该队/样本里的收缩胜率 + 有限 H2H",
     "f10k": "本届先到10杀率 + 阵容英雄的先到10杀倾向",
-    "roi": "买 Polymarket YES：期望回报率 = 模型概率/市场价格 - 1"
+    "roi": "买 Polymarket YES：期望回报率 = 模型概率/市场价格 - 1",
+    "stake": "¼Kelly × 当前本金，不是固定100，也不是固定10%"
   },
   "known": [
     {
@@ -5495,5 +5496,1001 @@
         "plan": "这系列没有达到小注门槛的正期望格，建议空仓，只看模拟。"
       }
     }
-  ]
+  ],
+  "bankroll": {
+    "start": 1000,
+    "method": "quarter-kelly-on-current-bankroll",
+    "kellyFraction": 0.25,
+    "cap": 0.05,
+    "minStake": 8,
+    "defaultOdds": 1.7,
+    "formula": "全Kelly f* = (p×赔率 − 1) / (赔率 − 1)；实下注码 = 当前本金 × min(5%, 0.25×f*)",
+    "question": "赚了下一把还是下 100，还是下 10%？",
+    "answer": "都不是。下一把 = 结算后的本金 × 下一把自己的¼Kelly。赢了本金变大，金额可以略升；分数由下一把优势决定，不因为刚赢了就改成 10%。",
+    "rules": [
+      "不是固定 100。也不是每把都下当前本金的 10%。10% 接近全Kelly，概率是估出来的，会过度下注。",
+      "每一把单独算优势。优势不同，分数不同。没优势就 0。",
+      "注码 = 当前本金 × 这一把的 ¼Kelly（单票上限 5%）。赢了本金变大，下一把金额变大；输了变小。分数不因为刚赢了就加大。",
+      "同一天四场按开赛顺序：一场 G1 先到10杀结算完，再用新本金算下一场。不要用同一笔 1000 同时按四场各 10% 去重仓。",
+      "若开赛前就要一次下完：先各算 ¼Kelly，合计超过本金 10% 就同比例压缩。",
+      "绝不输了加码翻本（马丁）。那是负期望下的破产策略。"
+    ],
+    "whyQuarter": [
+      "Kelly 公式在 p 和赔率已知、可重复独立下注时，最大化对数财富增长。",
+      "这里的 p 来自本届约 20 局/队，标准误大约 8–11 个百分点，不是已知真值。",
+      "Thorp 的做法：估计概率时用 1/4 Kelly。全Kelly在估高 10 个点时会过度下注，长期增长反而更差。",
+      "单票再加硬顶 5%，避免某一场「模型很满」把本金一次押进去。"
+    ],
+    "picks": [
+      {
+        "id": "ubqf1",
+        "when": "8/20 10:00 G1",
+        "alias": "1win / Iron Wing",
+        "pick": "Iron Wing 先到 10 杀",
+        "modelP": 0.542,
+        "sample": "本届 9/16 先到10杀（56%）",
+        "note": "模型只有约 54%。低保 1.70 时 p×赔率<1，期望为负——低保不等于该下。",
+        "breakEvenOdds": 1.85,
+        "grid": [
+          {
+            "odds": 1.55,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.1599,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.6,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.1328,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.65,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.1057,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.7,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.0786,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.75,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.0515,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.8,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.0244,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.85,
+            "fullKelly": 0.0032,
+            "quarterKelly": 0.0008,
+            "evPerYuan": 0.0027,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": 0.0,
+            "action": "优势太薄，空仓"
+          },
+          {
+            "odds": 1.9,
+            "fullKelly": 0.0331,
+            "quarterKelly": 0.0083,
+            "evPerYuan": 0.0298,
+            "stake": 8,
+            "pctOfBank": 0.8,
+            "ifWin": 1007.2,
+            "ifLose": 992,
+            "evYuan": 0.2,
+            "action": "下"
+          },
+          {
+            "odds": 2.0,
+            "fullKelly": 0.084,
+            "quarterKelly": 0.021,
+            "evPerYuan": 0.084,
+            "stake": 21,
+            "pctOfBank": 2.1,
+            "ifWin": 1021.0,
+            "ifLose": 979,
+            "evYuan": 1.8,
+            "action": "下"
+          }
+        ],
+        "atDefault": {
+          "odds": 1.7,
+          "fullKelly": 0.0,
+          "quarterKelly": 0.0,
+          "evPerYuan": -0.0786,
+          "stake": 0,
+          "pctOfBank": 0.0,
+          "ifWin": 1000,
+          "ifLose": 1000,
+          "evYuan": -0.0,
+          "action": "空仓"
+        }
+      },
+      {
+        "id": "ubqf2",
+        "when": "8/20 13:00 G1",
+        "alias": "PAVI / TEAM VISION",
+        "pick": "TEAM VISION 先到 10 杀",
+        "modelP": 0.558,
+        "sample": "本届 6/10 先到10杀（60%）",
+        "note": "系列可以是低保，先到10杀不是。瑞士第二局 BoomBoys 先到10杀、VISION 仍赢图。",
+        "breakEvenOdds": 1.79,
+        "grid": [
+          {
+            "odds": 1.55,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.1351,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.6,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.1072,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.65,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.0793,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.7,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.0514,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.75,
+            "fullKelly": 0.0,
+            "quarterKelly": 0.0,
+            "evPerYuan": -0.0235,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": -0.0,
+            "action": "空仓"
+          },
+          {
+            "odds": 1.8,
+            "fullKelly": 0.0055,
+            "quarterKelly": 0.0014,
+            "evPerYuan": 0.0044,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": 0.0,
+            "action": "优势太薄，空仓"
+          },
+          {
+            "odds": 1.85,
+            "fullKelly": 0.038,
+            "quarterKelly": 0.0095,
+            "evPerYuan": 0.0323,
+            "stake": 10,
+            "pctOfBank": 1.0,
+            "ifWin": 1008.5,
+            "ifLose": 990,
+            "evYuan": 0.3,
+            "action": "下"
+          },
+          {
+            "odds": 1.9,
+            "fullKelly": 0.0669,
+            "quarterKelly": 0.0167,
+            "evPerYuan": 0.0602,
+            "stake": 17,
+            "pctOfBank": 1.7,
+            "ifWin": 1015.3,
+            "ifLose": 983,
+            "evYuan": 1.0,
+            "action": "下"
+          },
+          {
+            "odds": 2.0,
+            "fullKelly": 0.116,
+            "quarterKelly": 0.029,
+            "evPerYuan": 0.116,
+            "stake": 29,
+            "pctOfBank": 2.9,
+            "ifWin": 1029.0,
+            "ifLose": 971,
+            "evYuan": 3.4,
+            "action": "下"
+          }
+        ],
+        "atDefault": {
+          "odds": 1.7,
+          "fullKelly": 0.0,
+          "quarterKelly": 0.0,
+          "evPerYuan": -0.0514,
+          "stake": 0,
+          "pctOfBank": 0.0,
+          "ifWin": 1000,
+          "ifLose": 1000,
+          "evYuan": -0.0,
+          "action": "空仓"
+        }
+      },
+      {
+        "id": "ubqf3",
+        "when": "8/20 16:00 G1",
+        "alias": "液体 / Team Liquid",
+        "pick": "Team Liquid 先到 10 杀",
+        "modelP": 0.652,
+        "sample": "本届 10/14 先到10杀（71%）",
+        "note": "四场里最站得住的10杀低保。本届先到10杀率八强最高。",
+        "breakEvenOdds": 1.53,
+        "grid": [
+          {
+            "odds": 1.55,
+            "fullKelly": 0.0193,
+            "quarterKelly": 0.0048,
+            "evPerYuan": 0.0106,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": 0.0,
+            "action": "优势太薄，空仓"
+          },
+          {
+            "odds": 1.6,
+            "fullKelly": 0.072,
+            "quarterKelly": 0.018,
+            "evPerYuan": 0.0432,
+            "stake": 18,
+            "pctOfBank": 1.8,
+            "ifWin": 1010.8,
+            "ifLose": 982,
+            "evYuan": 0.8,
+            "action": "下"
+          },
+          {
+            "odds": 1.65,
+            "fullKelly": 0.1166,
+            "quarterKelly": 0.0292,
+            "evPerYuan": 0.0758,
+            "stake": 29,
+            "pctOfBank": 2.9,
+            "ifWin": 1018.9,
+            "ifLose": 971,
+            "evYuan": 2.2,
+            "action": "下"
+          },
+          {
+            "odds": 1.7,
+            "fullKelly": 0.1549,
+            "quarterKelly": 0.0387,
+            "evPerYuan": 0.1084,
+            "stake": 39,
+            "pctOfBank": 3.9,
+            "ifWin": 1027.3,
+            "ifLose": 961,
+            "evYuan": 4.2,
+            "action": "下"
+          },
+          {
+            "odds": 1.75,
+            "fullKelly": 0.188,
+            "quarterKelly": 0.047,
+            "evPerYuan": 0.141,
+            "stake": 47,
+            "pctOfBank": 4.7,
+            "ifWin": 1035.2,
+            "ifLose": 953,
+            "evYuan": 6.6,
+            "action": "下"
+          },
+          {
+            "odds": 1.8,
+            "fullKelly": 0.217,
+            "quarterKelly": 0.05,
+            "evPerYuan": 0.1736,
+            "stake": 50,
+            "pctOfBank": 5.0,
+            "ifWin": 1040.0,
+            "ifLose": 950,
+            "evYuan": 8.7,
+            "action": "下"
+          },
+          {
+            "odds": 1.85,
+            "fullKelly": 0.2426,
+            "quarterKelly": 0.05,
+            "evPerYuan": 0.2062,
+            "stake": 50,
+            "pctOfBank": 5.0,
+            "ifWin": 1042.5,
+            "ifLose": 950,
+            "evYuan": 10.3,
+            "action": "下"
+          },
+          {
+            "odds": 1.9,
+            "fullKelly": 0.2653,
+            "quarterKelly": 0.05,
+            "evPerYuan": 0.2388,
+            "stake": 50,
+            "pctOfBank": 5.0,
+            "ifWin": 1045.0,
+            "ifLose": 950,
+            "evYuan": 11.9,
+            "action": "下"
+          },
+          {
+            "odds": 2.0,
+            "fullKelly": 0.304,
+            "quarterKelly": 0.05,
+            "evPerYuan": 0.304,
+            "stake": 50,
+            "pctOfBank": 5.0,
+            "ifWin": 1050.0,
+            "ifLose": 950,
+            "evYuan": 15.2,
+            "action": "下"
+          }
+        ],
+        "atDefault": {
+          "odds": 1.7,
+          "fullKelly": 0.1549,
+          "quarterKelly": 0.0387,
+          "evPerYuan": 0.1084,
+          "stake": 39,
+          "pctOfBank": 3.9,
+          "ifWin": 1027.3,
+          "ifLose": 961,
+          "evYuan": 4.2,
+          "action": "下"
+        }
+      },
+      {
+        "id": "ubqf4",
+        "when": "8/20 19:00 G1",
+        "alias": "Falcons",
+        "pick": "Team Falcons 先到 10 杀",
+        "modelP": 0.649,
+        "sample": "本届 10/17 先到10杀（59%）",
+        "note": "NGX 赢图不靠堆前10人头。先到10杀跟 Falcons，不要跟 NGX 系列混为一谈。",
+        "breakEvenOdds": 1.54,
+        "grid": [
+          {
+            "odds": 1.55,
+            "fullKelly": 0.0108,
+            "quarterKelly": 0.0027,
+            "evPerYuan": 0.006,
+            "stake": 0,
+            "pctOfBank": 0.0,
+            "ifWin": 1000,
+            "ifLose": 1000,
+            "evYuan": 0.0,
+            "action": "优势太薄，空仓"
+          },
+          {
+            "odds": 1.6,
+            "fullKelly": 0.064,
+            "quarterKelly": 0.016,
+            "evPerYuan": 0.0384,
+            "stake": 16,
+            "pctOfBank": 1.6,
+            "ifWin": 1009.6,
+            "ifLose": 984,
+            "evYuan": 0.6,
+            "action": "下"
+          },
+          {
+            "odds": 1.65,
+            "fullKelly": 0.109,
+            "quarterKelly": 0.0273,
+            "evPerYuan": 0.0709,
+            "stake": 27,
+            "pctOfBank": 2.7,
+            "ifWin": 1017.5,
+            "ifLose": 973,
+            "evYuan": 1.9,
+            "action": "下"
+          },
+          {
+            "odds": 1.7,
+            "fullKelly": 0.1476,
+            "quarterKelly": 0.0369,
+            "evPerYuan": 0.1033,
+            "stake": 37,
+            "pctOfBank": 3.7,
+            "ifWin": 1025.9,
+            "ifLose": 963,
+            "evYuan": 3.8,
+            "action": "下"
+          },
+          {
+            "odds": 1.75,
+            "fullKelly": 0.181,
+            "quarterKelly": 0.0453,
+            "evPerYuan": 0.1358,
+            "stake": 45,
+            "pctOfBank": 4.5,
+            "ifWin": 1033.8,
+            "ifLose": 955,
+            "evYuan": 6.1,
+            "action": "下"
+          },
+          {
+            "odds": 1.8,
+            "fullKelly": 0.2103,
+            "quarterKelly": 0.05,
+            "evPerYuan": 0.1682,
+            "stake": 50,
+            "pctOfBank": 5.0,
+            "ifWin": 1040.0,
+            "ifLose": 950,
+            "evYuan": 8.4,
+            "action": "下"
+          },
+          {
+            "odds": 1.85,
+            "fullKelly": 0.2361,
+            "quarterKelly": 0.05,
+            "evPerYuan": 0.2006,
+            "stake": 50,
+            "pctOfBank": 5.0,
+            "ifWin": 1042.5,
+            "ifLose": 950,
+            "evYuan": 10.0,
+            "action": "下"
+          },
+          {
+            "odds": 1.9,
+            "fullKelly": 0.259,
+            "quarterKelly": 0.05,
+            "evPerYuan": 0.2331,
+            "stake": 50,
+            "pctOfBank": 5.0,
+            "ifWin": 1045.0,
+            "ifLose": 950,
+            "evYuan": 11.7,
+            "action": "下"
+          },
+          {
+            "odds": 2.0,
+            "fullKelly": 0.298,
+            "quarterKelly": 0.05,
+            "evPerYuan": 0.298,
+            "stake": 50,
+            "pctOfBank": 5.0,
+            "ifWin": 1050.0,
+            "ifLose": 950,
+            "evYuan": 14.9,
+            "action": "下"
+          }
+        ],
+        "atDefault": {
+          "odds": 1.7,
+          "fullKelly": 0.1476,
+          "quarterKelly": 0.0369,
+          "evPerYuan": 0.1033,
+          "stake": 37,
+          "pctOfBank": 3.7,
+          "ifWin": 1025.9,
+          "ifLose": 963,
+          "evYuan": 3.8,
+          "action": "下"
+        }
+      }
+    ],
+    "compareAt170": [
+      {
+        "pick": "Iron Wing 先到 10 杀",
+        "when": "8/20 10:00 G1",
+        "modelP": 0.542,
+        "breakEvenOdds": 1.85,
+        "edgePerYuan": -0.0786,
+        "fixed100": 100,
+        "fixed100Ev": -7.9,
+        "pct10": 100,
+        "pct10Ev": -7.9,
+        "qKelly": 0,
+        "qKellyEv": -0.0,
+        "qKellyPct": 0.0,
+        "fullKellyPct": 0.0,
+        "action": "空仓"
+      },
+      {
+        "pick": "TEAM VISION 先到 10 杀",
+        "when": "8/20 13:00 G1",
+        "modelP": 0.558,
+        "breakEvenOdds": 1.79,
+        "edgePerYuan": -0.0514,
+        "fixed100": 100,
+        "fixed100Ev": -5.1,
+        "pct10": 100,
+        "pct10Ev": -5.1,
+        "qKelly": 0,
+        "qKellyEv": -0.0,
+        "qKellyPct": 0.0,
+        "fullKellyPct": 0.0,
+        "action": "空仓"
+      },
+      {
+        "pick": "Team Liquid 先到 10 杀",
+        "when": "8/20 16:00 G1",
+        "modelP": 0.652,
+        "breakEvenOdds": 1.53,
+        "edgePerYuan": 0.1084,
+        "fixed100": 100,
+        "fixed100Ev": 10.8,
+        "pct10": 100,
+        "pct10Ev": 10.8,
+        "qKelly": 39,
+        "qKellyEv": 4.2,
+        "qKellyPct": 3.9,
+        "fullKellyPct": 15.49,
+        "action": "下"
+      },
+      {
+        "pick": "Team Falcons 先到 10 杀",
+        "when": "8/20 19:00 G1",
+        "modelP": 0.649,
+        "breakEvenOdds": 1.54,
+        "edgePerYuan": 0.1033,
+        "fixed100": 100,
+        "fixed100Ev": 10.3,
+        "pct10": 100,
+        "pct10Ev": 10.3,
+        "qKelly": 37,
+        "qKellyEv": 3.8,
+        "qKellyPct": 3.7,
+        "fullKellyPct": 14.76,
+        "action": "下"
+      }
+    ],
+    "resizeAt170": {
+      "question": "赚了下一把还是下 100，还是下 10%？",
+      "answer": "都不是。下一把 = 结算后的本金 × 下一把自己的¼Kelly。赢了只是本金变大，分数不因为刚赢了就加大。",
+      "odds": 1.7,
+      "first": {
+        "pick": "Team Liquid 先到 10 杀",
+        "when": "8/20 16:00 G1",
+        "modelP": 0.652,
+        "bank": 1000,
+        "stake": 39,
+        "pctOfBank": 3.9,
+        "quarterKelly": 0.0387,
+        "fullKelly": 0.1549,
+        "ifWin": 1027.3,
+        "ifLose": 961
+      },
+      "ifWin": {
+        "bank": 1027.3,
+        "next": "Team Falcons 先到 10 杀",
+        "stake": 38,
+        "pctOfBank": 3.7,
+        "naiveFixed100": 100,
+        "naive10pct": 103
+      },
+      "ifLose": {
+        "bank": 961,
+        "next": "Team Falcons 先到 10 杀",
+        "stake": 35,
+        "pctOfBank": 3.64,
+        "naiveFixed100": 100,
+        "naive10pct": 96
+      },
+      "sameFractionAfterWin": true,
+      "whyNot100": "固定 100 不看优势：负期望也会下 100，优势大的也只下 100。",
+      "whyNot10pct": "本金 10% 在低保 1.70、p≈65% 时接近全Kelly（全Kelly约 15%）。p 是从约 20 局估的，全Kelly会过度下注。"
+    },
+    "sequentialAt170": {
+      "odds": 1.7,
+      "start": 1000,
+      "steps": [
+        {
+          "id": "ubqf1",
+          "when": "8/20 10:00 G1",
+          "pick": "Iron Wing 先到 10 杀",
+          "modelP": 0.542,
+          "bankBefore": 1000,
+          "odds": 1.7,
+          "fullKelly": 0.0,
+          "quarterKelly": 0.0,
+          "evPerYuan": -0.0786,
+          "stake": 0,
+          "pctOfBank": 0.0,
+          "ifWin": 1000,
+          "ifLose": 1000,
+          "evYuan": -0.0,
+          "action": "空仓"
+        },
+        {
+          "id": "ubqf2",
+          "when": "8/20 13:00 G1",
+          "pick": "TEAM VISION 先到 10 杀",
+          "modelP": 0.558,
+          "bankBefore": 1000,
+          "odds": 1.7,
+          "fullKelly": 0.0,
+          "quarterKelly": 0.0,
+          "evPerYuan": -0.0514,
+          "stake": 0,
+          "pctOfBank": 0.0,
+          "ifWin": 1000,
+          "ifLose": 1000,
+          "evYuan": -0.0,
+          "action": "空仓"
+        },
+        {
+          "id": "ubqf3",
+          "when": "8/20 16:00 G1",
+          "pick": "Team Liquid 先到 10 杀",
+          "modelP": 0.652,
+          "bankBefore": 1000,
+          "odds": 1.7,
+          "fullKelly": 0.1549,
+          "quarterKelly": 0.0387,
+          "evPerYuan": 0.1084,
+          "stake": 39,
+          "pctOfBank": 3.9,
+          "ifWin": 1027.3,
+          "ifLose": 961,
+          "evYuan": 4.2,
+          "action": "下"
+        },
+        {
+          "id": "ubqf4",
+          "when": "8/20 19:00 G1",
+          "pick": "Team Falcons 先到 10 杀",
+          "modelP": 0.649,
+          "bankBefore": 1000,
+          "odds": 1.7,
+          "fullKelly": 0.1476,
+          "quarterKelly": 0.0369,
+          "evPerYuan": 0.1033,
+          "stake": 37,
+          "pctOfBank": 3.7,
+          "ifWin": 1025.9,
+          "ifLose": 963,
+          "evYuan": 3.8,
+          "action": "下"
+        }
+      ],
+      "walk": [
+        {
+          "pick": "Iron Wing 先到 10 杀",
+          "when": "8/20 10:00 G1",
+          "modelP": 0.542,
+          "bankBefore": 1000,
+          "stake": 0,
+          "pctOfBank": 0.0,
+          "quarterKelly": 0.0,
+          "action": "空仓",
+          "ifWinBank": 1000,
+          "ifLoseBank": 1000,
+          "nextNote": "空仓，本金不动，进入下一场"
+        },
+        {
+          "pick": "TEAM VISION 先到 10 杀",
+          "when": "8/20 13:00 G1",
+          "modelP": 0.558,
+          "bankBefore": 1000,
+          "stake": 0,
+          "pctOfBank": 0.0,
+          "quarterKelly": 0.0,
+          "action": "空仓",
+          "ifWinBank": 1000,
+          "ifLoseBank": 1000,
+          "nextNote": "空仓，本金不动，进入下一场"
+        },
+        {
+          "pick": "Team Liquid 先到 10 杀",
+          "when": "8/20 16:00 G1",
+          "modelP": 0.652,
+          "bankBefore": 1000,
+          "stake": 39,
+          "pctOfBank": 3.9,
+          "quarterKelly": 0.0387,
+          "action": "下",
+          "ifWinBank": 1027.3,
+          "ifLoseBank": 961,
+          "ifWinNext": {
+            "next": "Team Falcons 先到 10 杀",
+            "when": "8/20 19:00 G1",
+            "bank": 1027.3,
+            "stake": 38,
+            "pctOfBank": 3.7,
+            "action": "下",
+            "quarterKelly": 0.0369,
+            "naiveFixed100": 100,
+            "naive10pct": 103
+          },
+          "ifLoseNext": {
+            "next": "Team Falcons 先到 10 杀",
+            "when": "8/20 19:00 G1",
+            "bank": 961,
+            "stake": 35,
+            "pctOfBank": 3.64,
+            "action": "下",
+            "quarterKelly": 0.0369,
+            "naiveFixed100": 100,
+            "naive10pct": 96
+          }
+        }
+      ]
+    },
+    "sequentialAt185": {
+      "odds": 1.85,
+      "start": 1000,
+      "steps": [
+        {
+          "id": "ubqf1",
+          "when": "8/20 10:00 G1",
+          "pick": "Iron Wing 先到 10 杀",
+          "modelP": 0.542,
+          "bankBefore": 1000,
+          "odds": 1.85,
+          "fullKelly": 0.0032,
+          "quarterKelly": 0.0008,
+          "evPerYuan": 0.0027,
+          "stake": 0,
+          "pctOfBank": 0.0,
+          "ifWin": 1000,
+          "ifLose": 1000,
+          "evYuan": 0.0,
+          "action": "优势太薄，空仓"
+        },
+        {
+          "id": "ubqf2",
+          "when": "8/20 13:00 G1",
+          "pick": "TEAM VISION 先到 10 杀",
+          "modelP": 0.558,
+          "bankBefore": 1000,
+          "odds": 1.85,
+          "fullKelly": 0.038,
+          "quarterKelly": 0.0095,
+          "evPerYuan": 0.0323,
+          "stake": 10,
+          "pctOfBank": 1.0,
+          "ifWin": 1008.5,
+          "ifLose": 990,
+          "evYuan": 0.3,
+          "action": "下"
+        },
+        {
+          "id": "ubqf3",
+          "when": "8/20 16:00 G1",
+          "pick": "Team Liquid 先到 10 杀",
+          "modelP": 0.652,
+          "bankBefore": 1000,
+          "odds": 1.85,
+          "fullKelly": 0.2426,
+          "quarterKelly": 0.05,
+          "evPerYuan": 0.2062,
+          "stake": 50,
+          "pctOfBank": 5.0,
+          "ifWin": 1042.5,
+          "ifLose": 950,
+          "evYuan": 10.3,
+          "action": "下"
+        },
+        {
+          "id": "ubqf4",
+          "when": "8/20 19:00 G1",
+          "pick": "Team Falcons 先到 10 杀",
+          "modelP": 0.649,
+          "bankBefore": 1000,
+          "odds": 1.85,
+          "fullKelly": 0.2361,
+          "quarterKelly": 0.05,
+          "evPerYuan": 0.2006,
+          "stake": 50,
+          "pctOfBank": 5.0,
+          "ifWin": 1042.5,
+          "ifLose": 950,
+          "evYuan": 10.0,
+          "action": "下"
+        }
+      ],
+      "walk": [
+        {
+          "pick": "Iron Wing 先到 10 杀",
+          "when": "8/20 10:00 G1",
+          "modelP": 0.542,
+          "bankBefore": 1000,
+          "stake": 0,
+          "pctOfBank": 0.0,
+          "quarterKelly": 0.0008,
+          "action": "优势太薄，空仓",
+          "ifWinBank": 1000,
+          "ifLoseBank": 1000,
+          "nextNote": "空仓，本金不动，进入下一场"
+        },
+        {
+          "pick": "TEAM VISION 先到 10 杀",
+          "when": "8/20 13:00 G1",
+          "modelP": 0.558,
+          "bankBefore": 1000,
+          "stake": 10,
+          "pctOfBank": 1.0,
+          "quarterKelly": 0.0095,
+          "action": "下",
+          "ifWinBank": 1008.5,
+          "ifLoseBank": 990,
+          "ifWinNext": {
+            "next": "Team Liquid 先到 10 杀",
+            "when": "8/20 16:00 G1",
+            "bank": 1008.5,
+            "stake": 50,
+            "pctOfBank": 4.96,
+            "action": "下",
+            "quarterKelly": 0.05,
+            "naiveFixed100": 100,
+            "naive10pct": 101
+          },
+          "ifLoseNext": {
+            "next": "Team Liquid 先到 10 杀",
+            "when": "8/20 16:00 G1",
+            "bank": 990,
+            "stake": 50,
+            "pctOfBank": 5.05,
+            "action": "下",
+            "quarterKelly": 0.05,
+            "naiveFixed100": 100,
+            "naive10pct": 99
+          }
+        }
+      ]
+    },
+    "simultaneousAt170": {
+      "odds": 1.7,
+      "scale": 1.0,
+      "total": 76,
+      "cap": 100,
+      "tickets": [
+        {
+          "pick": "Iron Wing 先到 10 杀",
+          "when": "8/20 10:00 G1",
+          "modelP": 0.542,
+          "rawStake": 0,
+          "stake": 0,
+          "action": "空仓"
+        },
+        {
+          "pick": "TEAM VISION 先到 10 杀",
+          "when": "8/20 13:00 G1",
+          "modelP": 0.558,
+          "rawStake": 0,
+          "stake": 0,
+          "action": "空仓"
+        },
+        {
+          "pick": "Team Liquid 先到 10 杀",
+          "when": "8/20 16:00 G1",
+          "modelP": 0.652,
+          "rawStake": 39,
+          "stake": 39,
+          "action": "下"
+        },
+        {
+          "pick": "Team Falcons 先到 10 杀",
+          "when": "8/20 19:00 G1",
+          "modelP": 0.649,
+          "rawStake": 37,
+          "stake": 37,
+          "action": "下"
+        }
+      ]
+    },
+    "simultaneousAt185": {
+      "odds": 1.85,
+      "scale": 0.909,
+      "total": 99,
+      "cap": 100,
+      "tickets": [
+        {
+          "pick": "Iron Wing 先到 10 杀",
+          "when": "8/20 10:00 G1",
+          "modelP": 0.542,
+          "rawStake": 0,
+          "stake": 0,
+          "action": "空仓"
+        },
+        {
+          "pick": "TEAM VISION 先到 10 杀",
+          "when": "8/20 13:00 G1",
+          "modelP": 0.558,
+          "rawStake": 10,
+          "stake": 9,
+          "action": "压缩后下"
+        },
+        {
+          "pick": "Team Liquid 先到 10 杀",
+          "when": "8/20 16:00 G1",
+          "modelP": 0.652,
+          "rawStake": 50,
+          "stake": 45,
+          "action": "压缩后下"
+        },
+        {
+          "pick": "Team Falcons 先到 10 杀",
+          "when": "8/20 19:00 G1",
+          "modelP": 0.649,
+          "rawStake": 50,
+          "stake": 45,
+          "action": "压缩后下"
+        }
+      ]
+    }
+  }
 }

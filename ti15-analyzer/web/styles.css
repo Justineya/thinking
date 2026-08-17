@@ -332,10 +332,15 @@ code { color: var(--gold); font-size: 0.92em; }
   background: rgba(201, 162, 39, 0.4);
 }
 
+.stake-stats b { font-size: 26px; }
+.src-table.compact { margin-top: 10px; font-size: 13px; }
+.go-card { border-color: rgba(63, 107, 74, 0.7); }
+.compare .card b { color: var(--gold); }
+
 footer { text-align: center; color: var(--mute); padding: 24px; border-top: 1px solid var(--line); font-size: 13px; }
 
 @media (max-width: 860px) {
-  .grid-2, .ia, .matches, .phases, .hero-meta, .stat-row, .compare, .lenses, .draft { grid-template-columns: 1fr; }
+  .grid-2, .ia, .matches, .phases, .hero-meta, .stat-row, .compare, .lenses, .draft, .stake-stats { grid-template-columns: 1fr; }
   nav { display: none; }
   .status { display: none; }
 }

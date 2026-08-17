@@ -255,6 +255,151 @@ function renderBracket(data) {
   </section>`;
 }
 
+function yuan(n) {
+  if (n == null || Number.isNaN(Number(n))) return "—";
+  const v = Number(n);
+  const s = Number.isInteger(v) ? String(v) : v.toFixed(1);
+  return `${s} 元`;
+}
+
+function pct1(n) {
+  if (n == null || Number.isNaN(n)) return "—";
+  return `${Number(n).toFixed(1)}%`;
+}
+
+function actionCell(action) {
+  const klass = action === "下" || (action && action.includes("压缩")) ? "y" : "n";
+  return `<span class="${klass}">${action || "—"}</span>`;
+}
+
+function forkBox(title, node, tone) {
+  if (!node) return `<div class="card"><h3>${title}</h3><p class="note">后面没有要下的票。</p></div>`;
+  return `<div class="card ${tone || ""}">
+    <h3>${title}</h3>
+    <p>本金变成 <b>${yuan(node.bank)}</b></p>
+    <p>下一把 ${node.next}：<b>${yuan(node.stake)}</b>（${pct1(node.pctOfBank)}）</p>
+    <p class="note">若还下固定 100：${yuan(node.naiveFixed100)}。若下 10%：${yuan(node.naive10pct)}。¼Kelly 不是这两个数。</p>
+  </div>`;
+}
+
+function renderStake(data) {
+  const br = data.simulations?.bankroll;
+  if (!br) return '<p class="empty">还没有注码方案。先跑 simulate_playoffs.py。</p>';
+  const resize = br.resizeAt170 || {};
+  const first = resize.first || {};
+  const win = resize.ifWin || {};
+  const lose = resize.ifLose || {};
+  const compareRows = (br.compareAt170 || [])
+    .map((r) => `<tr>
+      <td>${r.when}<br><span class="note">${r.pick}</span></td>
+      <td>${pct(r.modelP)}<br><span class="note">盈亏平衡 ${r.breakEvenOdds}</span></td>
+      <td>${r.edgePerYuan > 0 ? '<span class="y">+' : '<span class="n">'}${Math.round(r.edgePerYuan * 1000) / 10}%</span></td>
+      <td>${yuan(r.fixed100)}<br><span class="${r.fixed100Ev >= 0 ? "y" : "n"}">EV ${r.fixed100Ev}</span></td>
+      <td>${yuan(r.pct10)}<br><span class="${r.pct10Ev >= 0 ? "y" : "n"}">EV ${r.pct10Ev}</span></td>
+      <td><b>${yuan(r.qKelly)}</b>（${pct1(r.qKellyPct)}）<br>${actionCell(r.action)}</td>
+    </tr>`)
+    .join("");
+  const pickCards = (br.picks || [])
+    .map((p) => {
+      const t = p.atDefault || {};
+      const grid = (p.grid || [])
+        .map(
+          (g) => `<tr>
+            <td>${g.odds.toFixed(2)}</td>
+            <td>${pct1(100 * g.fullKelly)}</td>
+            <td>${pct1(100 * g.quarterKelly)}</td>
+            <td>${yuan(g.stake)}</td>
+            <td>${actionCell(g.action)}</td>
+          </tr>`
+        )
+        .join("");
+      return `<article class="game">
+        <div class="game-top">
+          <div>
+            <strong>${p.alias || p.pick}</strong>
+            <div class="foot-note">${p.when} · ${p.sample || ""}</div>
+          </div>
+          <div>
+            <span class="tag ${t.stake ? "hot" : ""}">模型 ${pct(p.modelP)}</span>
+            <span class="tag">盈亏平衡 ${p.breakEvenOdds}</span>
+          </div>
+        </div>
+        <p>${p.note || ""}</p>
+        <p>低保 ${br.defaultOdds.toFixed(2)}：${actionCell(t.action)} ${t.stake ? yuan(t.stake) + "（本金 " + pct1(t.pctOfBank) + "，全Kelly " + pct1(100 * t.fullKelly) + "）" : "不下。p×赔率 < 1，固定 100 也是亏的。"}</p>
+        <table class="src-table compact">
+          <thead><tr><th>赔率</th><th>全Kelly</th><th>¼Kelly</th><th>注码</th><th>动作</th></tr></thead>
+          <tbody>${grid}</tbody>
+        </table>
+      </article>`;
+    })
+    .join("");
+  const walk = (br.sequentialAt170?.walk || [])
+    .map((n) => {
+      if (!n.stake) {
+        return `<li><b>${n.when}</b> ${n.pick} → 空仓，本金仍是 ${yuan(n.bankBefore)}</li>`;
+      }
+      return `<li><b>${n.when}</b> ${n.pick}：本金 ${yuan(n.bankBefore)} 下 <b>${yuan(n.stake)}</b>（${pct1(n.pctOfBank)}）。赢到 ${yuan(n.ifWinBank)}，输到 ${yuan(n.ifLoseBank)}。</li>`;
+    })
+    .join("");
+  const simul = br.simultaneousAt170 || {};
+  const simulRows = (simul.tickets || [])
+    .map(
+      (t) => `<tr>
+        <td>${t.when}</td>
+        <td>${t.pick}</td>
+        <td>${pct(t.modelP)}</td>
+        <td>${yuan(t.rawStake)}</td>
+        <td>${yuan(t.stake)}</td>
+        <td>${actionCell(t.action)}</td>
+      </tr>`
+    )
+    .join("");
+  const why = (br.whyQuarter || []).map((x) => `<li>${x}</li>`).join("");
+  const rules = (br.rules || []).map((x) => `<li>${x}</li>`).join("");
+  return `<section class="series-block">
+    <div class="series-head"><h2>注码：赚了下一把下多少</h2><div class="poly">本金 ${yuan(br.start)} · 低保按 ${br.defaultOdds.toFixed(2)}</div></div>
+    <div class="decide">
+      <p class="kicker">先回答这个问题</p>
+      <h3>${br.question}</h3>
+      <p class="lede">${br.answer}</p>
+      <p class="note">${br.formula}</p>
+    </div>
+    <div class="stat-row stake-stats">
+      <div><b>${yuan(first.stake)}</b><span>第一张正期望票 · ${first.pick || "Liquid"}</span></div>
+      <div><b>${pct1(first.pctOfBank)}</b><span>占当时本金 · 不是 10%</span></div>
+      <div><b>${yuan(win.stake)}</b><span>若赢了，下一把 ${win.next || "Falcons"}</span></div>
+      <div><b>${yuan(lose.stake)}</b><span>若输了，下一把仍按新本金重算</span></div>
+    </div>
+    <div class="compare">
+      ${forkBox("若第一张赢了", win, "go-card")}
+      ${forkBox("若第一张输了", lose, "warn")}
+    </div>
+    <p class="insight">赢了下一把大约 ${yuan(win.stake)}，不是 ${yuan(win.naiveFixed100)}，也不是本金的 10%（${yuan(win.naive10pct)}）。分数变成 ${pct1(win.pctOfBank)}，由下一把自己的优势决定，不是因为刚赢了就改成 10%。本金从 ${yuan(first.bank)} 变成 ${yuan(win.bank)}。</p>
+    <h3>三种下法，同一天四场 G1 先到10杀</h3>
+    <p class="section-lead">固定 100 和固定 10% 在本金 1000、低保 1.70 时碰巧都是 100 元，但它们不管有没有优势。¼Kelly 会空掉负期望，正期望大约只下 3–4%。</p>
+    <table class="src-table">
+      <thead><tr><th>场次</th><th>模型 p</th><th>期望/元</th><th>固定 100</th><th>固定 10%</th><th>¼Kelly</th></tr></thead>
+      <tbody>${compareRows}</tbody>
+    </table>
+    <p class="foot-note">${resize.whyNot100 || ""} ${resize.whyNot10pct || ""} 先到10杀 Polymarket 没有盘，表里赔率按常见低保 1.70；你拿到真实赔率后看每张票下面的赔率表。</p>
+    <h3>8/20 按开赛顺序走</h3>
+    <ol class="engine">${walk}</ol>
+    <h3>若开赛前就要一次下完</h3>
+    <p class="section-lead">四张票都按 1000 各算 ¼Kelly，合计超过本金 10%（${yuan(simul.cap)}）就同比例压缩。现在合计 ${yuan(simul.total)}，${simul.scale < 1 ? "触发了压缩。" : "没有碰到上限。"}</p>
+    <table class="src-table">
+      <thead><tr><th>时间</th><th>买</th><th>模型</th><th>未压缩</th><th>实下</th><th>动作</th></tr></thead>
+      <tbody>${simulRows}</tbody>
+    </table>
+    <h3>四张低保票 · 赔率一变注码就变</h3>
+    ${pickCards}
+    <h3>为什么是 ¼Kelly，不是全Kelly</h3>
+    <ol class="engine">${why}</ol>
+    <h3>规则</h3>
+    <ol class="engine">${rules}</ol>
+    <p class="foot-note">这是资金公式示意，不是投注建议。p 来自本届 80 局样本，赔率请换成你盘口上的真实价格。</p>
+  </section>`;
+}
+
 function renderPredictions(data) {
   const known = data.simulations?.known || [];
   const scenarios = data.simulations?.scenarios || [];
@@ -308,6 +453,10 @@ function render(data, mode) {
   const app = document.getElementById("app");
   const byId = Object.fromEntries(data.games.map((g) => [g.match_id, g]));
 
+  if (mode === "stake") {
+    app.innerHTML = renderStake(data);
+    return;
+  }
   if (mode === "bracket") {
     app.innerHTML = renderBracket(data);
     return;
@@ -348,13 +497,14 @@ function render(data, mode) {
 function setup(data) {
   const filters = document.getElementById("filters");
   const buttons = [
+    ["stake", "注码"],
     ["bracket", "对阵图"],
     ["predict", "预测与押注"],
     ["series", "8/20 四场"],
     ["all", "全部 80 局"],
     ...Object.keys(data.teams).map((n) => [n, n]),
   ];
-  let mode = "bracket";
+  let mode = "stake";
   const paint = () => {
     for (const btn of filters.querySelectorAll("button")) {
       btn.classList.toggle("on", btn.dataset.mode === mode);

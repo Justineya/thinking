@@ -13,6 +13,8 @@ from collections import Counter, defaultdict
 from itertools import product
 from pathlib import Path
 
+from stake_plan import build_bankroll
+
 ROOT = Path(__file__).resolve().parents[1]
 SIMS_PER_MAP = 5
 MAPS_BO3 = 3
@@ -576,6 +578,18 @@ def main() -> None:
                 sim["betting"] = betting_card(sim, {}, sample_n)
                 scenarios.append(sim)
 
+    teams_for_bank = {}
+    for name, rec in stats.items():
+        if name.startswith("_"):
+            continue
+        n = rec.get("games") or 0
+        got = rec.get("f10k") or 0
+        teams_for_bank[name] = {
+            "games": n,
+            "f10k_got": got,
+            "f10k_rate": (got / n) if n else 0,
+        }
+
     out = {
         "asOf": "2026-08-17",
         "seed": SEED,
@@ -585,9 +599,11 @@ def main() -> None:
             "win": "本届队胜率 + 这套阵容英雄在该队/样本里的收缩胜率 + 有限 H2H",
             "f10k": "本届先到10杀率 + 阵容英雄的先到10杀倾向",
             "roi": "买 Polymarket YES：期望回报率 = 模型概率/市场价格 - 1",
+            "stake": "¼Kelly × 当前本金，不是固定100，也不是固定10%",
         },
         "known": known,
         "scenarios": scenarios,
+        "bankroll": build_bankroll(known, teams_for_bank),
     }
     path = ROOT / "data" / "simulations.json"
     path.write_text(json.dumps(out, ensure_ascii=False, indent=2))
