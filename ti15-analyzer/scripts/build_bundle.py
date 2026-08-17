@@ -47,10 +47,11 @@ def team_profile(games: list[dict], name: str) -> dict:
     f10k_mid_share = []
     for game, side in mine:
         if game.get("f10k") and game["f10k"]["side"] == side:
-            f10k_mid_share.append(game["sides"][side]["mid"]["kills_before_10"] or 0)
+            mid = game["sides"][side]["mid"]
+            f10k_mid_share.append(mid.get("participate_before_10") or mid.get("kills_before_10") or 0)
     f10k_mid = sum(1 for share in f10k_mid_share if share >= 3)
-    mid_k = sum((game["sides"][side]["mid"]["kills_before_10"] or 0) for game, side in mine)
-    ms_k = sum((game["sides"][side].get("first10_mid_sup_kills") or 0) for game, side in mine)
+    mid_k = sum((game["sides"][side]["mid"].get("participate_before_10") or game["sides"][side]["mid"].get("kills_before_10") or 0) for game, side in mine)
+    ms_k = sum((game["sides"][side].get("first10_mid_sup_ka") or game["sides"][side].get("first10_mid_sup_kills") or 0) for game, side in mine)
     driven = sum(1 for game, side in mine if game["sides"][side].get("mid_sup_driven"))
     mids = Counter(game["sides"][side]["mid"]["hero"] for game, side in mine)
     pos4s = Counter(game["sides"][side]["pos4"]["hero"] for game, side in mine)
@@ -70,8 +71,11 @@ def team_profile(games: list[dict], name: str) -> dict:
         "f10k_got": f10k_got,
         "f10k_rate": round(f10k_got / n, 3),
         "f10k_mid_ge3": f10k_mid,
+        "avg_mid_ka_when_first_to_10": round(sum(f10k_mid_share) / len(f10k_mid_share), 2) if f10k_mid_share else None,
         "avg_mid_kills_when_first_to_10": round(sum(f10k_mid_share) / len(f10k_mid_share), 2) if f10k_mid_share else None,
+        "avg_mid_ka_in_first10": round(mid_k / n, 2),
         "avg_mid_kills_in_first10": round(mid_k / n, 2),
+        "avg_mid_sup_ka_in_first10": round(ms_k / n, 2),
         "avg_mid_sup_kills_in_first10": round(ms_k / n, 2),
         "mid_sup_driven_rate": round(driven / n, 3),
         "avg_duration_min": round(duration / 60, 1),
@@ -97,7 +101,7 @@ def main() -> None:
             "teamB": "Team Spirit",
             "when": "8/20 10:00 CST",
             "poly": series_price(markets, "Iron Wing vs Team Spirit"),
-            "insight": "本届无直接交手。F10K=先到10杀。IW 先到10杀 56%，Spirit 50%。Spirit 先到时 Larl 场均 2.3 刀；IW 中单 2.1。市场接近均势，G1 看谁先把比分堆到 10-x。",
+            "insight": "本届无直接交手。F10K=先到10杀。IW 先到10杀 56%，Spirit 50%。市场接近均势，G1 看谁先把比分堆到 10-x。",
         },
         {
             "id": "ubqf2",
@@ -105,7 +109,7 @@ def main() -> None:
             "teamB": "BoomBoys",
             "when": "8/20 13:00 CST",
             "poly": series_price(markets, "TEAM VISION vs BoomBoys"),
-            "insight": "瑞士 VISION 2-0。局1 VISION 先到10杀（7-10）并赢；局2 BoomBoys 先到10杀（5-10）但 VISION 仍赢下来——先到10杀不等于赢图。VISION 先到时 No[o]ne 场均 3.5 刀。市场 80% 给系列，让分别盲目跟。",
+            "insight": "瑞士 VISION 2-0。局1 VISION 先到10杀并赢；局2 BoomBoys 先到10杀但 VISION 仍赢——先到10杀不等于赢图。VISION 先到时 No[o]ne 参与偏高。市场 80% 给系列，让分别盲目跟。",
         },
         {
             "id": "ubqf3",
@@ -113,7 +117,7 @@ def main() -> None:
             "teamB": "Team Yandex",
             "when": "8/20 16:00 CST",
             "poly": series_price(markets, "Team Liquid vs Team Yandex"),
-            "insight": "瑞士 Liquid 2-1。Liquid 本届先到10杀 71%（八强最高），但中单只占其中 1.6 刀，人头多半在边路。三局先到10杀分别是 Yandex、Liquid、Liquid。市场只给 54.5%，信心偏低。",
+            "insight": "瑞士 Liquid 2-1。Liquid 本届先到10杀 71%（八强最高），但人头多半在边路，中单参与不一定高。三局先到10杀分别是 Yandex、Liquid、Liquid。市场只给 54.5%。",
         },
         {
             "id": "ubqf4",
@@ -121,18 +125,24 @@ def main() -> None:
             "teamB": "Team Falcons",
             "when": "8/20 19:00 CST",
             "poly": series_price(markets, "Nigma Galaxy vs Team Falcons"),
-            "insight": "无直接交手。NGX 胜率 80% 但先到10杀只有 30%——他们赢图不靠堆前10人头。Falcons 先到10杀 59%，Malr1ne 先到时场均 3.7 刀。市场 65.5% 给 Falcons。若猜先到10杀，Falcons 比系列更顺；若猜系列，NGX 的慢热赢图要单独看。",
+            "insight": "无直接交手。NGX 胜率 80% 但先到10杀只有 30%——他们赢图不靠堆前10人头。Falcons 先到10杀 59%。市场 65.5% 给 Falcons。若猜先到10杀，Falcons 比系列更顺。",
         },
     ]
+    playoffs = json.loads((ROOT / "data" / "playoffs.json").read_text())
+    sims = json.loads((ROOT / "data" / "simulations.json").read_text())
+    sim_by_id = {item["id"]: item for item in sims.get("known") or []}
     for item in series:
         item["h2hIds"] = [game["match_id"] for game in h2h(games, item["teamA"], item["teamB"])]
         item["profileA"] = team_profile(games, item["teamA"])
         item["profileB"] = team_profile(games, item["teamB"])
+        item["sim"] = sim_by_id.get(item["id"])
 
     bundle = {
         "asOf": "2026-08-17",
-        "note": "只覆盖八强在 TI15 的 80 局。F10K=哪支队伍先获得10次英雄击杀。中辅驱动=先到10杀时，该队中单+两个辅助合计至少3刀。",
+        "note": "只覆盖八强在 TI15 的 80 局。F10K=哪支队伍先获得10次英雄击杀。参与=击杀+助攻。中辅驱动=先到10杀时中单+双辅合计参与≥8。",
         "teams": {name: team_profile(games, name) for name in EIGHT},
+        "playoffs": playoffs,
+        "simulations": sims,
         "series": series,
         "games": games,
     }
@@ -156,13 +166,13 @@ def main() -> None:
   <div class="bg-grid"></div>
   <header class="topbar">
     <div class="brand"><span class="aegis">TI15</span><span>逐场分析</span></div>
-    <div class="status">80 局 · 先到10杀 · 盯中单中辅</div>
+    <div class="status">80 局 · 先到10杀 · 参与=击杀+助攻</div>
   </header>
   <main>
     <section class="hero">
       <p class="kicker">只做八强的 TI15 场次</p>
-      <h1>每局四镜头：BP、节奏与攻防、谁先到 10 杀（看中单）、中辅联动。</h1>
-      <p class="lede">F10K = 哪支队伍先获得 10 次英雄击杀，不是全局第 10 刀的收刀人。中辅驱动 = 先到 10 杀时中单+双辅合计至少 3 刀。</p>
+      <h1>对阵图、BP 模拟、先到 10 杀、胜率和 Polymarket 回报率。</h1>
+      <p class="lede">参与次数 = 击杀 + 助攻。每局至少 5 次 BP 模拟，再按本届战绩估先到 10 杀和胜率。</p>
     </section>
     <div class="filters" id="filters"></div>
     <div id="app">加载数据…</div>

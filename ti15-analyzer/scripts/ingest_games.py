@@ -67,14 +67,16 @@ def hero_name(heroes: dict[int, str], hero_id: int | None) -> str:
     return heroes.get(int(hero_id), f"#{hero_id}")
 
 
-def load_heroes() -> dict[int, str]:
+def load_heroes() -> tuple[dict[int, str], dict[int, str]]:
     path = ROOT / "data" / "heroes.json"
     if path.exists():
         rows = json.loads(path.read_text())
     else:
         rows = get_json("https://api.opendota.com/api/heroes")
         path.write_text(json.dumps(rows, ensure_ascii=False, indent=2))
-    return {int(h["id"]): h["localized_name"] for h in rows}
+    names = {int(h["id"]): h["localized_name"] for h in rows}
+    npc = {int(h["id"]): h["name"] for h in rows}
+    return names, npc
 
 
 def list_match_ids() -> list[int]:
@@ -227,7 +229,74 @@ def first_to_ten(events: list[dict]) -> dict | None:
     return None
 
 
-def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
+def fight_for_kill(teamfights: list[dict], time_s: int) -> dict | None:
+    for fight in teamfights or []:
+        start = int(fight.get("start") or 0)
+        end = int(fight.get("end") or 0)
+        if start - 12 <= time_s <= end + 20:
+            return fight
+    return None
+
+
+def participation_on_kills(
+    match: dict,
+    ten_kills: list[dict],
+    npc_by_id: dict[int, str],
+) -> dict[int, dict]:
+    """Kill + assist counts on a specific set of kills (usually a team's first 10).
+
+    Assists: same OpenDota teamfight with damage, or same 25s cluster as a
+    teammate kill/death. OpenDota has no per-kill assist log.
+    """
+    players = match.get("players") or []
+    slot_index = {p.get("player_slot"): i for i, p in enumerate(players)}
+    npc_to_slot = {}
+    for p in players:
+        npc = npc_by_id.get(int(p.get("hero_id") or 0))
+        if npc:
+            npc_to_slot[npc] = p.get("player_slot")
+    all_events = hero_kills(players)
+    clusters = fight_clusters(all_events, window=25)
+    event_cluster: dict[tuple, list[dict]] = {}
+    for cluster in clusters:
+        for event in cluster:
+            event_cluster[(event["time"], event["killer_slot"], event["victim"])] = cluster
+
+    stats: dict[int, dict] = defaultdict(lambda: {"kills": 0, "assists": 0})
+    teamfights = match.get("teamfights") or []
+
+    for kill in ten_kills:
+        killer_slot = kill["killer_slot"]
+        stats[killer_slot]["kills"] += 1
+        side = kill["side"]
+        assisted: set[int] = set()
+
+        fight = fight_for_kill(teamfights, kill["time"])
+        if fight:
+            for i, fp in enumerate(fight.get("players") or []):
+                if i >= len(players):
+                    continue
+                pslot = players[i].get("player_slot")
+                if side_of_slot(pslot or 0) != side or pslot == killer_slot:
+                    continue
+                if (fp.get("damage") or 0) > 0:
+                    assisted.add(pslot)
+
+        cluster = event_cluster.get((kill["time"], kill["killer_slot"], kill["victim"])) or []
+        for event in cluster:
+            if event["side"] == side and event["killer_slot"] != killer_slot:
+                assisted.add(event["killer_slot"])
+            if event["side"] != side:
+                victim_slot = npc_to_slot.get(event["victim"])
+                if victim_slot is not None and side_of_slot(victim_slot) == side and victim_slot != killer_slot:
+                    assisted.add(victim_slot)
+
+        for slot in assisted:
+            stats[slot]["assists"] += 1
+    return stats
+
+
+def analyze_game(meta: dict, match: dict, heroes: dict[int, str], npc_by_id: dict[int, str]) -> dict:
     players = match.get("players") or []
     roles = classify_roles(players) if players else {}
     events = hero_kills(players)
@@ -280,6 +349,9 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
     mid_in_first10 = {"radiant": 0, "dire": 0}
     pos4_in_first10 = {"radiant": 0, "dire": 0}
     pos5_in_first10 = {"radiant": 0, "dire": 0}
+    mid_a_first10 = {"radiant": 0, "dire": 0}
+    pos4_a_first10 = {"radiant": 0, "dire": 0}
+    pos5_a_first10 = {"radiant": 0, "dire": 0}
     mid_ids = {}
     pos4_ids = {}
     pos5_ids = {}
@@ -294,15 +366,20 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
         if pos5:
             pos5_ids[side] = pos5.get("player_slot")
 
+    part_by_side = {"radiant": {}, "dire": {}}
     if reached:
         for side, bag in reached["kills"].items():
-            for event in bag:
-                if event["killer_slot"] == mid_ids.get(side):
-                    mid_in_first10[side] += 1
-                elif event["killer_slot"] == pos4_ids.get(side):
-                    pos4_in_first10[side] += 1
-                elif event["killer_slot"] == pos5_ids.get(side):
-                    pos5_in_first10[side] += 1
+            part_by_side[side] = participation_on_kills(match, bag, npc_by_id)
+            for slot, st in part_by_side[side].items():
+                if slot == mid_ids.get(side):
+                    mid_in_first10[side] = st["kills"]
+                    mid_a_first10[side] = st["assists"]
+                elif slot == pos4_ids.get(side):
+                    pos4_in_first10[side] = st["kills"]
+                    pos4_a_first10[side] = st["assists"]
+                elif slot == pos5_ids.get(side):
+                    pos5_in_first10[side] = st["kills"]
+                    pos5_a_first10[side] = st["assists"]
 
     # mid-support same-fight clusters in first 12 min (both get a kill, not assist)
     early = [e for e in events if e["time"] <= 720]
@@ -323,6 +400,14 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
         pos5 = r.get("pos5") or {}
         gold10 = (mid.get("gold_t") or [None] * 11)
         xp10 = (mid.get("xp_t") or [None] * 11)
+        mk = mid_in_first10.get(side, 0)
+        ma = mid_a_first10.get(side, 0)
+        p4k = pos4_in_first10.get(side, 0)
+        p4a = pos4_a_first10.get(side, 0)
+        p5k = pos5_in_first10.get(side, 0)
+        p5a = pos5_a_first10.get(side, 0)
+        mid_ka = mk + ma
+        ms_ka = mk + ma + p4k + p4a + p5k + p5a
         return {
             "mid": {
                 "player": player_label(mid) if mid else None,
@@ -331,23 +416,30 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
                 "gold_t10": gold10[10] if len(gold10) > 10 else None,
                 "xp_t10": xp10[10] if len(xp10) > 10 else None,
                 "kills": mid.get("kills"),
-                "kills_before_10": mid_in_first10.get(side, 0),
+                "kills_before_10": mk,
+                "assists_before_10": ma,
+                "participate_before_10": mid_ka,
             },
             "pos4": {
                 "player": player_label(pos4) if pos4 else None,
                 "hero": hero_name(heroes, pos4.get("hero_id")) if pos4 else None,
                 "kills": pos4.get("kills"),
-                "kills_before_10": pos4_in_first10.get(side, 0),
+                "kills_before_10": p4k,
+                "assists_before_10": p4a,
+                "participate_before_10": p4k + p4a,
             },
             "pos5": {
                 "player": player_label(pos5) if pos5 else None,
                 "hero": hero_name(heroes, pos5.get("hero_id")) if pos5 else None,
-                "kills_before_10": pos5_in_first10.get(side, 0),
+                "kills_before_10": p5k,
+                "assists_before_10": p5a,
+                "participate_before_10": p5k + p5a,
             },
             "mid_support_fights_12min": mid_sup.get(side, 0),
             "kills_at_f10k": len(reached["kills"][side]) if reached else 0,
-            "first10_mid_sup_kills": mid_in_first10.get(side, 0) + pos4_in_first10.get(side, 0) + pos5_in_first10.get(side, 0),
-            "mid_sup_driven": (mid_in_first10.get(side, 0) + pos4_in_first10.get(side, 0) + pos5_in_first10.get(side, 0)) >= 3,
+            "first10_mid_sup_kills": mk + p4k + p5k,
+            "first10_mid_sup_ka": ms_ka,
+            "mid_sup_driven": ms_ka >= 8,
         }
 
     rad_name = EIGHT.get(match.get("radiant_team_id") or meta.get("radiant_team_id"), match.get("radiant_name") or "Radiant")
@@ -397,11 +489,13 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
         score = f10k["score"]
         win_s = rad_s if win_side == "radiant" else dire_s
         lose_s = dire_s if win_side == "radiant" else rad_s
+        mid = win_s["mid"]
         f10k_txt = (
-            f"{win_name}先到 10 杀（比分 {score['radiant']}-{score['dire']}，"
+            f"{win_name}先到 10 杀（当时 {score['radiant']}-{score['dire']}，"
             f"{f10k_time // 60}分{f10k_time % 60:02d}秒）。"
-            f"这 10 刀里中单 {win_s['mid']['player']}/{win_s['mid']['hero']} 出了 {win_s['mid']['kills_before_10']} 刀，"
-            f"中辅合计 {win_s['first10_mid_sup_kills']} 刀"
+            f"这 10 次击杀里，中单 {mid['player']}/{mid['hero']} 参与 {mid['participate_before_10']} 次"
+            f"（击杀 {mid['kills_before_10']} + 助攻 {mid['assists_before_10']}），"
+            f"中单+双辅合计参与 {win_s['first10_mid_sup_ka']} 次"
             f"{' · 中辅驱动' if win_s['mid_sup_driven'] else ''}。"
             f"对手当时 {lose_s['kills_at_f10k']} 杀。"
         )
@@ -415,12 +509,15 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
         "stance": stance,
         "f10k": f10k_txt,
         "mid_support": (
-            f"天辉 {rad_s['mid']['player']}/{rad_s['mid']['hero']} 在先到10杀时点出 {rad_s['mid']['kills_before_10']}，"
-            f"辅{rad_s['pos4']['player']}/{rad_s['pos4']['hero']} {rad_s['pos4']['kills_before_10']}，"
-            f"中辅合计{rad_s['first10_mid_sup_kills']}{' · 中辅驱动' if rad_s['mid_sup_driven'] else ''}，同框团{rad_s['mid_support_fights_12min']}；"
-            f"夜魇 {dire_s['mid']['player']}/{dire_s['mid']['hero']} {dire_s['mid']['kills_before_10']}，"
-            f"辅{dire_s['pos4']['player']}/{dire_s['pos4']['hero']} {dire_s['pos4']['kills_before_10']}，"
-            f"中辅合计{dire_s['first10_mid_sup_kills']}{' · 中辅驱动' if dire_s['mid_sup_driven'] else ''}，同框团{dire_s['mid_support_fights_12min']}"
+            f"天辉中单 {rad_s['mid']['player']}/{rad_s['mid']['hero']} 参与 {rad_s['mid']['participate_before_10']} 次"
+            f"（击杀{rad_s['mid']['kills_before_10']}+助攻{rad_s['mid']['assists_before_10']}），"
+            f"辅{rad_s['pos4']['player']}/{rad_s['pos4']['hero']} 参与 {rad_s['pos4']['participate_before_10']} 次，"
+            f"中辅合计{rad_s['first10_mid_sup_ka']}{' · 中辅驱动' if rad_s['mid_sup_driven'] else ''}；"
+            f"夜魇中单 {dire_s['mid']['player']}/{dire_s['mid']['hero']} 参与 {dire_s['mid']['participate_before_10']} 次"
+            f"（击杀{dire_s['mid']['kills_before_10']}+助攻{dire_s['mid']['assists_before_10']}），"
+            f"辅{dire_s['pos4']['player']}/{dire_s['pos4']['hero']} 参与 {dire_s['pos4']['participate_before_10']} 次，"
+            f"中辅合计{dire_s['first10_mid_sup_ka']}{' · 中辅驱动' if dire_s['mid_sup_driven'] else ''}。"
+            f"助攻按同一波团战伤害或同团阵亡估算，OpenDota 没有逐次助攻日志。"
         ),
     }
 
@@ -441,7 +538,9 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
         "length": length,
         "stance": stance,
         "f10k": f10k,
-        "f10k_mid_share": (rad_s if f10k and f10k["side"] == "radiant" else dire_s)["mid"]["kills_before_10"] if f10k else 0,
+        "f10k_mid_share": (
+            (rad_s if f10k and f10k["side"] == "radiant" else dire_s)["mid"]["participate_before_10"] if f10k else 0
+        ),
         "first_tower": tower,
         "gold": {"m5": gold_at(5), "m10": gold_at(10), "m15": gold_at(15), "m20": gold_at(20)},
         "kills_8min": kills_8,
@@ -454,7 +553,7 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
 
 
 def main() -> None:
-    heroes = load_heroes()
+    heroes, npc_by_id = load_heroes()
     metas = list_match_ids()
     games = []
     print(f"in-scope rows {len(metas)}")
@@ -462,15 +561,17 @@ def main() -> None:
         mid = int(meta["match_id"])
         print(f"[{i}/{len(metas)}] {mid}", flush=True)
         match = fetch_match(mid)
-        games.append(analyze_game(meta, match, heroes))
+        games.append(analyze_game(meta, match, heroes, npc_by_id))
 
     out = {
         "asOf": "2026-08-17",
         "n": len(games),
         "definition": {
             "f10k": "哪支队伍先获得 10 次英雄击杀（先到10杀），不是全局第10个击杀的收刀人",
+            "participate": "参与次数 = 击杀 + 助攻。助攻来自同一波 OpenDota 团战里出过伤害，或同一波 25 秒团里的击杀/阵亡",
             "mid": "lane_role=2，否则用已知中单名单",
-            "mid_support_fight": "前12分钟、25秒窗口内中单与游走辅都出过击杀",
+            "mid_support_fight": "前12分钟、40秒窗口内中单与游走辅都出过击杀",
+            "mid_sup_driven": "先到10杀时，该队中单+两个辅助合计参与次数 ≥ 8",
             "stance": "由 F10K 时间、一塔时间、15分钟经济差合成",
         },
         "games": games,
