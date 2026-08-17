@@ -8,13 +8,13 @@
 
 当前 Cloudflare Workers 预览：
 
-**https://ti15-playoff-analyzer.ambiguous-shock.workers.dev**
+**https://ti15-playoff-analyzer.lake-aerosteon.workers.dev**
 
 这不是自动长期的。预览账号必须在创建后约 1 小时内用免费 Cloudflare 账号认领，认领后才长期留在你的账号里（免费套餐，一般不用绑卡）。没认领就会消失。
 
 认领（约 1 小时内有效）：
 
-https://dash.cloudflare.com/claim-preview?claimToken=yGJPvVlE06PiLqqFyun-WXa_zx6a7WHZzRM53TP0ECg
+https://dash.cloudflare.com/claim-preview?claimToken=Xh6U9obxbxkZrU2SAWRhjF8w2onm1QQ7jbN-Zx26J-4
 
 第一次打开可能有人机验证。
 
