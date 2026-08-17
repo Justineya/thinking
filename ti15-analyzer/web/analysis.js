@@ -16,12 +16,90 @@ const mmss = (s) => {
   const r = s % 60;
   return `${m}:${String(r).padStart(2, "0")}`;
 };
+const TAG = {
+  "TEAM VISION": "VSN",
+  "Team Liquid": "Liquid",
+  "Nigma Galaxy": "NGX",
+  "Team Spirit": "Spirit",
+  "Iron Wing": "IW",
+  "Team Falcons": "FLCN",
+  "BoomBoys": "BB",
+  "Team Yandex": "TY",
+};
+
 const slotName = (slot) => {
   if (!slot) return "待定";
   if (typeof slot === "string") return slot;
   const who = slot.as === "winner" ? "胜者" : "败者";
   return `${slot.from} ${who}`;
 };
+
+function whenShort(dt) {
+  const m = String(dt || "").match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})/);
+  if (!m) return dt || "";
+  return `${Number(m[2])}/${Number(m[3])} ${m[4]}`;
+}
+
+function resolveSide(slot, byId) {
+  if (typeof slot === "string") {
+    return { tag: TAG[slot] || slot.slice(0, 4), name: slot, tbd: false, drop: "" };
+  }
+  const src = byId[slot?.from];
+  const kind = slot?.as === "winner" ? "胜者" : "败者";
+  const fromUpper = src && String(src.round || "").includes("胜者组") && slot?.as === "loser";
+  if (!src) return { tag: "TBD", name: kind, tbd: true, drop: "" };
+  if (typeof src.teamA === "string" && typeof src.teamB === "string") {
+    const pair = `${TAG[src.teamA] || src.teamA}/${TAG[src.teamB] || src.teamB}`;
+    return {
+      tag: kind === "胜者" ? "胜" : "败",
+      name: `${pair} ${kind}`,
+      tbd: true,
+      drop: fromUpper ? "从胜者组掉下来" : "",
+    };
+  }
+  return {
+    tag: kind === "胜者" ? "胜" : "败",
+    name: `${src.round}${kind}`,
+    tbd: true,
+    drop: fromUpper ? "从胜者组掉下来" : "",
+  };
+}
+
+function teamRow(t) {
+  return `<div class="ladder-team ${t.tbd ? "tbd" : ""}">
+    <span class="ladder-tag">${t.tag}</span>
+    <span class="ladder-name">${t.name}</span>
+    ${t.drop ? `<span class="ladder-drop">${t.drop}</span>` : ""}
+  </div>`;
+}
+
+function ladderMatch(id, byId, known) {
+  const m = byId[id];
+  if (!m) return "";
+  const a = resolveSide(m.teamA, byId);
+  const b = resolveSide(m.teamB, byId);
+  const sim = known[id];
+  const odds = sim ? `模型 ${pct(sim.series.pSeriesA)} / ${pct(sim.series.pSeriesB)}` : "";
+  return `<div class="ladder-match ${m.status || ""}">
+    <div class="ladder-meta"><span>${whenShort(m.datetime)}</span><span>${m.format}</span></div>
+    ${teamRow(a)}${teamRow(b)}
+    ${odds ? `<div class="ladder-odds">${odds}</div>` : '<div class="ladder-odds mute">待填</div>'}
+  </div>`;
+}
+
+function roundCol(title, ids, byId, known) {
+  return `<div class="ladder-round n${ids.length}">
+    <div class="ladder-round-title">${title}</div>
+    <div class="ladder-round-body">${ids
+      .map((id) => `<div class="ladder-slot">${ladderMatch(id, byId, known)}</div>`)
+      .join("")}</div>
+  </div>`;
+}
+
+function joinCol(pairs, kind) {
+  const inner = Array.from({ length: pairs }, () => `<div class="ladder-elbow"></div>`).join("");
+  return `<div class="ladder-join ${kind || "pair"}" aria-hidden="true">${inner}</div>`;
+}
 
 function kaLine(unit) {
   if (!unit) return "—";
@@ -135,38 +213,45 @@ function simPanel(sim) {
 }
 
 function renderBracket(data) {
-  const po = data.playoffs || {};
-  const days = po.days || [];
-  const matches = po.matches || [];
+  const matches = data.playoffs?.matches || [];
   const byId = Object.fromEntries(matches.map((m) => [m.id, m]));
   const known = Object.fromEntries((data.simulations?.known || []).map((s) => [s.id, s]));
-  const dayHtml = days
-    .map((day) => {
-      const cards = (day.slots || [])
-        .map((id) => {
-          const m = byId[id];
-          if (!m) return "";
-          const a = slotName(m.teamA);
-          const b = slotName(m.teamB);
-          const sim = known[id];
-          const line = sim
-            ? `模型系列 ${pct(sim.series.pSeriesA)} / ${pct(sim.series.pSeriesB)}`
-            : "对阵确定后会立刻出 5 次 BP 模拟";
-          return `<article class="match bracket-card" data-jump="${id}">
-            <div class="when">${m.datetime} CST · ${m.format} · ${m.status === "scheduled" ? "已排" : "待填"}</div>
-            <h3>${a} <em>vs</em> ${b}</h3>
-            <p>${m.round}</p>
-            <p class="foot-note">${line}</p>
-          </article>`;
-        })
-        .join("");
-      return `<h3>${day.label}</h3><div class="matches">${cards}</div>`;
-    })
-    .join("");
+  const upper = [
+    roundCol("胜者组首轮 · 8/20", ["ubqf1", "ubqf2", "ubqf3", "ubqf4"], byId, known),
+    joinCol(2, "pair"),
+    roundCol("胜者组半决赛 · 8/21", ["ubsf1", "ubsf2"], byId, known),
+    joinCol(1, "pair"),
+    roundCol("胜者组决赛 · 8/22", ["ubf"], byId, known),
+    joinCol(1, "line"),
+    roundCol("总决赛 Bo5 · 8/23", ["gf"], byId, known),
+  ].join("");
+  const lower = [
+    roundCol("败者组首轮 · 8/21", ["lbr1a", "lbr1b"], byId, known),
+    joinCol(2, "line"),
+    roundCol("败者组四分之一 · 8/22", ["lbqf1", "lbqf2"], byId, known),
+    joinCol(1, "pair"),
+    roundCol("败者组半决赛 · 8/22", ["lbsf"], byId, known),
+    joinCol(1, "line"),
+    roundCol("败者组决赛 · 8/23", ["lbf"], byId, known),
+  ].join("");
   return `<section class="series-block">
-    <div class="series-head"><h2>淘汰赛对阵图</h2><div class="poly">8/20–8/23 · 除总决赛 Bo5 外均为 Bo3</div></div>
-    <p class="section-lead">胜者组半决赛：IW/Spirit 胜者 vs VISION/BB 胜者；Liquid/Yandex 胜者 vs Nigma/Falcons 胜者。后面几天的格子已排好时间，出结果后把队名填进去就能用已算好的情景预测。</p>
-    ${dayHtml}
+    <div class="series-head"><h2>淘汰赛对阵图</h2><div class="poly">双败 · 总决赛 Bo5 · 其余 Bo3</div></div>
+    <p class="section-lead">和液体百科同一张阶梯：上面胜者组往右晋级，下面败者组接住掉下来的队。金标是已排好的队，灰标是「谁赢谁进」。</p>
+    <div class="ladder-legend">
+      <span><i class="lg gold"></i>已排对阵</span>
+      <span><i class="lg mute"></i>待填 / 情景</span>
+      <span><i class="lg drop"></i>从胜者组掉进败者组</span>
+    </div>
+    <div class="ladder-scroll">
+      <div class="ladder-block">
+        <div class="ladder-kicker">胜者组 Upper</div>
+        <div class="ladder upper">${upper}</div>
+      </div>
+      <div class="ladder-block">
+        <div class="ladder-kicker">败者组 Lower</div>
+        <div class="ladder lower">${lower}</div>
+      </div>
+    </div>
   </section>`;
 }
 
@@ -263,13 +348,13 @@ function render(data, mode) {
 function setup(data) {
   const filters = document.getElementById("filters");
   const buttons = [
-    ["predict", "预测与押注"],
     ["bracket", "对阵图"],
+    ["predict", "预测与押注"],
     ["series", "8/20 四场"],
     ["all", "全部 80 局"],
     ...Object.keys(data.teams).map((n) => [n, n]),
   ];
-  let mode = "predict";
+  let mode = "bracket";
   const paint = () => {
     for (const btn of filters.querySelectorAll("button")) {
       btn.classList.toggle("on", btn.dataset.mode === mode);
