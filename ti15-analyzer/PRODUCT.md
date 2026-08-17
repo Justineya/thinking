@@ -1,49 +1,58 @@
 # TI15 淘汰赛分析台 · 产品理解
 
 日期：2026-08-17  
-范围：The International 2026（TI15）淘汰赛  
-形态：可部署网页，而不是每次打开 Cursor 看一篇长评
+范围：**只分析八强在 TI15 打过的比赛**（瑞士 + 突围 + 正赛）。淘汰队互打、TI 之前的历史一律不做参考。  
+形态：可部署网页
 
-本文是设计评审稿。完整排版见 [`web/index.html`](web/index.html)。
+完整排版见 [`web/index.html`](web/index.html)。
 
-## 1. 看法
+## 1. 看法（已按补充收窄）
 
-- 做成站的理由：淘汰赛只有四天，队名、瑞士成绩、BP、Bo3/Bo5 会连续变化。价值在「同一套数据 + 同一套模型」刷新，而不是重写文章。
-- 不要做第二个液体百科。百科负责事实；本产品负责交手画像 → 英雄池 → 模拟 BP → 系列胜率 → 竞猜决策。
-- 竞猜模块克制：输出系列倾向、地图分、信心区间、「不该追的场次」。不爬非法博彩盘口，不写「稳胆」。
-- 最大数据坑：队名漂移。PARIVISION → TEAM VISION，BetBoom → BoomBoys，Tundra → 1w → Iron Wing。H2H 主键必须是 `team_id` + 五人组。
+- 做成站，而不是每次打开 Cursor 看长评。
+- 液体百科管赛程事实；本产品管这 80 局里的交手、BP、F10K、以及和 Polymarket 的对照。
+- 竞猜分两行：市场共识（Polymarket）+ 本届样本倾向。不爬私盘，缺数据标缺失，不编。
+- 队名仍要合并（VISION / BoomBoys / Iron Wing），但只为了对上**本届**场次。
 
-## 2. 页面
+## 2. 样本
 
-1. 总览 / 双败图
-2. 系列预览（核心）
-3. 队伍 / 选手
-4. 7.41e Meta
-5. 竞猜面板
-6. 赛后复盘与校准
+| | 局数 |
+| --- | --- |
+| TI15 全部（leagueid 19719） | 109 |
+| 八强出场 · 进样本 | **80** |
+| 淘汰队互打 · 丢弃 | 29 |
+| TI 之前 | 0 |
 
-## 3. 数据接口
+八强对阵已淘汰队的瑞士轮/突围赛**保留**（那是八强自己的本届样本）。
 
-| 层 | 源 | 用途 | 本期 |
-| --- | --- | --- | --- |
-| 赛程事实 | Liquipedia MediaWiki parse / 官方 v3 | 对阵、时间、阵容、改名 | parse 已验证（必须 Gzip + UA）；v3 需 Key |
-| 比赛细节 | OpenDota REST + explorer | H2H、英雄池、本届 `leagueid=19719` | **已打通，P1 主力** |
-| 深度解析 | STRATZ GraphQL | 完整 BP 顺序、视野、赛况 | 需 Token |
-| 版本对照 | OpenDota heroStats；D2PT 只人工看 | 7.41e 优先度 | 不爬 D2PT |
+## 3. 和另一套做法的对齐
 
-Steam leagueid：`19719`。八强 OpenDota team_id 见 `data/playoffs.json`。
+| 另一套 | 我们 |
+| --- | --- |
+| Liquipedia 当基准 | 采用 |
+| D2PT / Dotabuff 交叉核对 | 采用核对思路；两个站要拆开。比赛级用 OpenDota |
+| Polymarket BO3 隐含概率 | 采用，四场已拉到 |
+| F10K 无官方字段 → 大量无存档 | 「无官方字段」对；解析场可用 `kills_log` 计算，不必翻 Demo |
+| 人工 VOD 摘 F10K | 只留给未解析场 |
 
-Liquipedia 能用，而且必须用；但它给不了「怎么打」。完整分析要叠 OpenDota（必须）和 STRATZ（加深 BP）。
+## 4. 数据接口
 
-## 4. 8/20 胜者组首轮
+| 层 | 源 | 本期 |
+| --- | --- | --- |
+| 赛程事实 | Liquipedia parse | 已验证（Gzip + UA） |
+| 80 局细节 / F10K | OpenDota `kills_log` | 已验证，脚本 `scripts/f10k.py` |
+| 赛前系列胜率 | Polymarket Gamma API | 8/20 四场已快照 |
+| Meta 对照 | Dotabuff 人工；D2PT 不爬 | — |
 
-- 10:00 CST Iron Wing vs Team Spirit
-- 13:00 TEAM VISION vs BoomBoys
-- 16:00 Team Liquid vs Team Yandex
-- 19:00 Nigma Galaxy vs Team Falcons
+F10K 定义：**第 10 个英雄击杀归属**，不是「先到 10 杀」。当前四场 Polymarket **没有** F10K 盘，赛前首十杀不能假装来自市场。
 
-## 5. 需要确认后再做真分析页
+## 5. 8/20 胜者组 · Polymarket 快照（2026-08-17）
 
-1. 先做 8/20 四场，还是八强全量一起上
-2. 有没有 Liquipedia v3 Key / STRATZ Token
-3. 竞猜口径：默认系列胜负 + 地图分；让分只给「模型是否覆盖」
+- Iron Wing 47.5% / Spirit 52.5%
+- TEAM VISION 80.5% / BoomBoys 19.5%
+- Liquid 54.5% / Yandex 45.5%
+- Nigma 34.5% / Falcons 65.5%
+
+## 6. 还差的确认
+
+1. 有没有 Liquipedia v3 Key / STRATZ Token
+2. 竞猜卡默认五格：系列、O/U 或地图分、让分覆盖、F10K 本届倾向、信心
