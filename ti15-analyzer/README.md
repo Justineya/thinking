@@ -6,17 +6,19 @@
 
 ## 线上地址
 
-当前 Cloudflare Workers 预览：
+当前可打开（这个机器还在跑时有效）：
 
-**https://ti15-playoff-analyzer.lake-aerosteon.workers.dev**
+**https://dice-rural-ross-apartments.trycloudflare.com**
 
-这不是自动长期的。预览账号必须在创建后约 1 小时内用免费 Cloudflare 账号认领，认领后才长期留在你的账号里（免费套餐，一般不用绑卡）。没认领就会消失。
+Cloudflare 预览站（浏览器里可能要过一下人机验证）：
 
-认领（约 1 小时内有效）：
+**https://ti15-playoff-analyzer.magnificent-sovereign.workers.dev**
 
-https://dash.cloudflare.com/claim-preview?claimToken=Xh6U9obxbxkZrU2SAWRhjF8w2onm1QQ7jbN-Zx26J-4
+预览站必须在约 1 小时内用免费 Cloudflare 账号认领，否则又会失效。认领后才长期留在你的账号里（免费套餐，一般不用绑卡）：
 
-第一次打开可能有人机验证。
+https://dash.cloudflare.com/claim-preview?claimToken=xT7l223VPhObCKT-IrNcObHmNug4ZdS10OYz6AcMyrg
+
+想彻底不靠我这边的临时链接：把 `ti15-analyzer/web/` 上传到你自己的网站。
 
 ## 复制到你自己的网站
 
