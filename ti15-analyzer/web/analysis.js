@@ -295,8 +295,9 @@ function renderStake(data) {
       <td>${pct(r.modelP)}<br><span class="note">盈亏平衡 ${r.breakEvenOdds}</span></td>
       <td>${r.edgePerYuan > 0 ? '<span class="y">+' : '<span class="n">'}${Math.round(r.edgePerYuan * 1000) / 10}%</span></td>
       <td>${yuan(r.fixed100)}<br><span class="${r.fixed100Ev >= 0 ? "y" : "n"}">EV ${r.fixed100Ev}</span></td>
-      <td>${yuan(r.pct10)}<br><span class="${r.pct10Ev >= 0 ? "y" : "n"}">EV ${r.pct10Ev}</span></td>
       <td><b>${yuan(r.qKelly)}</b>（${pct1(r.qKellyPct)}）<br>${actionCell(r.action)}</td>
+      <td><b>${yuan(r.halfKelly)}</b>（${pct1(r.halfKellyPct)}）<br>${actionCell(r.actionBold)}</td>
+      <td>${yuan(r.fullKellyStake)}（${pct1(r.fullKellyPct)}）</td>
     </tr>`)
     .join("");
   const pickCards = (br.picks || [])
@@ -356,6 +357,43 @@ function renderStake(data) {
     .join("");
   const why = (br.whyQuarter || []).map((x) => `<li>${x}</li>`).join("");
   const rules = (br.rules || []).map((x) => `<li>${x}</li>`).join("");
+  const sampleWhy = (br.sampleWhy || []).map((x) => `<li>${x}</li>`).join("");
+  const uncRows = (br.picks || [])
+    .map((p) => {
+      const u = p.uncertainty || {};
+      const w = u.wilson95 || [];
+      const rw = u.rawWilson95 || [];
+      return `<tr>
+        <td>${p.alias || p.pick}<br><span class="note">有效样本 min(${u.teamN}, ${u.oppN}) = ${u.nEff} 局</span></td>
+        <td>${pct(p.modelP)} ± ${pct1(100 * (u.se || 0))}</td>
+        <td>${pct(w[0])} – ${pct(w[1])}</td>
+        <td>${pct(u.pMinusSe)}<br><span class="${u.plusEvIfLow ? "y" : "n"}">低1σ时 ${u.plusEvIfLow ? "仍+" : "变负"}EV</span></td>
+        <td>${u.raw || "—"} → ${pct(rw[0])}–${pct(rw[1])}</td>
+        <td>${u.needNFor5pp || "—"} 局才够 ±5 点<br><span class="note">现在 ${u.nEff}</span></td>
+      </tr>`;
+    })
+    .join("");
+  const profiles = br.profiles || {};
+  const profOrder = ["稳健", "大胆", "过猛"];
+  const profCards = profOrder
+    .map((k) => {
+      const pr = profiles[k];
+      if (!pr) return "";
+      const bits = (pr.tickets || [])
+        .filter((t) => t.stake)
+        .map((t) => `${t.pick.replace("先到 10 杀", "F10K")} ${yuan(t.stake)}`)
+        .join("；") || "没有正期望票";
+      return `<div class="card ${k === "大胆" ? "go-card" : k === "过猛" ? "warn" : ""}">
+        <h3>${pr.label}</h3>
+        <p>当日合计 <b>${yuan(pr.total)}</b> · 两张都输大约剩 ${yuan(pr.ifAllLose)}</p>
+        <p>${bits}</p>
+        <p class="note">${pr.why}</p>
+      </div>`;
+    })
+    .join("");
+  const boldResize = br.resizeBoldAt170 || {};
+  const bFirst = boldResize.first || {};
+  const bWin = boldResize.ifWin || {};
   return `<section class="series-block">
     <div class="series-head"><h2>注码：赚了下一把下多少</h2><div class="poly">本金 ${yuan(br.start)} · 低保按 ${br.defaultOdds.toFixed(2)}</div></div>
     <div class="decide">
@@ -364,21 +402,33 @@ function renderStake(data) {
       <p class="lede">${br.answer}</p>
       <p class="note">${br.formula}</p>
     </div>
+    <h3>样本够不够准？</h3>
+    <p class="insight">${br.sampleHeadline || ""}</p>
+    <ol class="engine">${sampleWhy}</ol>
+    <table class="src-table">
+      <thead><tr><th>票</th><th>模型 p ± 1σ</th><th>模型 95%</th><th>若真 p 低 1σ</th><th>该队原始率 95%</th><th>要 ±5 点需要</th></tr></thead>
+      <tbody>${uncRows}</tbody>
+    </table>
+    <p class="foot-note">σ = √(p(1−p)/n)，n 取对阵两队里更少的那侧。Wilson 是小样本二项区间。低保 1.70 时，这四张票只要真 p 低一个标准误，全部变负期望——所以默认不能下全Kelly。</p>
+    <h3>大胆一点怎么下</h3>
+    <p class="section-lead">${br.boldRule || ""}</p>
+    <div class="phases">${profCards}</div>
+    <p class="insight">大胆档 Liquid 大约 ${yuan(bFirst.stake)}（${pct1(bFirst.pctOfBank)}），赢了下一把 Falcons 大约 ${yuan(bWin.stake)}，仍然不是 100，也不是 10%（${yuan(bWin.naive10pct)}）。IW / VISION 先到10杀点估计已亏，大胆也是 0。</p>
     <div class="stat-row stake-stats">
-      <div><b>${yuan(first.stake)}</b><span>第一张正期望票 · ${first.pick || "Liquid"}</span></div>
-      <div><b>${pct1(first.pctOfBank)}</b><span>占当时本金 · 不是 10%</span></div>
-      <div><b>${yuan(win.stake)}</b><span>若赢了，下一把 ${win.next || "Falcons"}</span></div>
-      <div><b>${yuan(lose.stake)}</b><span>若输了，下一把仍按新本金重算</span></div>
+      <div><b>${yuan(first.stake)}</b><span>稳健 · ${first.pick || "Liquid"}</span></div>
+      <div><b>${yuan(bFirst.stake)}</b><span>大胆 · 同一张票</span></div>
+      <div><b>${yuan(win.stake)}</b><span>稳健 · 若赢了下一把</span></div>
+      <div><b>${yuan(bWin.stake)}</b><span>大胆 · 若赢了下一把</span></div>
     </div>
     <div class="compare">
-      ${forkBox("若第一张赢了", win, "go-card")}
-      ${forkBox("若第一张输了", lose, "warn")}
+      ${forkBox("稳健：若第一张赢了", win, "go-card")}
+      ${forkBox("稳健：若第一张输了", lose, "warn")}
     </div>
     <p class="insight">赢了下一把大约 ${yuan(win.stake)}，不是 ${yuan(win.naiveFixed100)}，也不是本金的 10%（${yuan(win.naive10pct)}）。分数变成 ${pct1(win.pctOfBank)}，由下一把自己的优势决定，不是因为刚赢了就改成 10%。本金从 ${yuan(first.bank)} 变成 ${yuan(win.bank)}。</p>
-    <h3>三种下法，同一天四场 G1 先到10杀</h3>
-    <p class="section-lead">固定 100 和固定 10% 在本金 1000、低保 1.70 时碰巧都是 100 元，但它们不管有没有优势。¼Kelly 会空掉负期望，正期望大约只下 3–4%。</p>
+    <h3>同一天四场 G1 先到10杀</h3>
+    <p class="section-lead">固定 100 不管有没有优势。¼Kelly 空掉负期望，正期望大约 4%。½Kelly 大约 8%，仍低于 10%。全Kelly 把估出来的 p 当成真值，样本撑不住。</p>
     <table class="src-table">
-      <thead><tr><th>场次</th><th>模型 p</th><th>期望/元</th><th>固定 100</th><th>固定 10%</th><th>¼Kelly</th></tr></thead>
+      <thead><tr><th>场次</th><th>模型 p</th><th>期望/元</th><th>固定 100</th><th>稳健 ¼</th><th>大胆 ½</th><th>过猛 全</th></tr></thead>
       <tbody>${compareRows}</tbody>
     </table>
     <p class="foot-note">${resize.whyNot100 || ""} ${resize.whyNot10pct || ""} 先到10杀 Polymarket 没有盘，表里赔率按常见低保 1.70；你拿到真实赔率后看每张票下面的赔率表。</p>
@@ -397,6 +447,36 @@ function renderStake(data) {
     <h3>规则</h3>
     <ol class="engine">${rules}</ol>
     <p class="foot-note">这是资金公式示意，不是投注建议。p 来自本届 80 局样本，赔率请换成你盘口上的真实价格。</p>
+  </section>`;
+}
+
+function renderEwc(data) {
+  const e = data.ewc;
+  if (!e) return "";
+  const eight = e.eight || {};
+  const rec = Object.entries(eight)
+    .map(([name, r]) => `<tr><td>${name}<br><span class="note">EWC 名 ${r.as}</span></td><td>${r.maps}</td><td>${r.place}</td></tr>`)
+    .join("");
+  const aug = (e.forAug20 || []).map((x) => `<li><b>${x.use}</b> ${x.text}</li>`).join("");
+  const diff = (e.patchDiff || []).map((x) => `<li>${x}</li>`).join("");
+  const m = e.meta || {};
+  return `<section class="series-block">
+    <div class="series-head"><h2>EWC 先验 · ${e.patch} → 本届 ${e.tiPatch}</h2><div class="poly">${e.dates} · 巴黎</div></div>
+    <p class="insight">${e.whyInclude}</p>
+    <p class="section-lead">${e.whyWeightNotFull || e.whyNotPoolF10K || ""}</p>
+    <div class="stat-row stake-stats">
+      <div><b>${e.patch}</b><span>EWC 版本 · 模型权重 ${Math.round((e.sampleWeight || 0.45) * 100)}%</span></div>
+      <div><b>${m.ewcMapsEight} 局</b><span>八强在 EWC 打过的地图</span></div>
+      <div><b>${m.ewcAvgMinEight} 分</b><span>EWC 场均 · TI ${m.tiAvgMinEight} 分</span></div>
+      <div><b>已并进</b><span>胜率 · F10K · BP · H2H</span></div>
+    </div>
+    <ol class="engine">${diff}</ol>
+    <table class="src-table compact">
+      <thead><tr><th>八强</th><th>EWC 地图</th><th>名次</th></tr></thead>
+      <tbody>${rec}</tbody>
+    </table>
+    <h3>对 8/20 四场怎么用</h3>
+    <ol class="engine">${aug}</ol>
   </section>`;
 }
 
@@ -446,7 +526,7 @@ function renderPredictions(data) {
       </section>`;
     })
     .join("");
-  return knownHtml + nextHtml;
+  return renderEwc(data) + knownHtml + nextHtml;
 }
 
 function render(data, mode) {
@@ -454,7 +534,7 @@ function render(data, mode) {
   const byId = Object.fromEntries(data.games.map((g) => [g.match_id, g]));
 
   if (mode === "stake") {
-    app.innerHTML = renderStake(data);
+    app.innerHTML = renderStake(data) + renderEwc(data);
     return;
   }
   if (mode === "bracket") {
@@ -466,7 +546,7 @@ function render(data, mode) {
     return;
   }
   if (mode === "series") {
-    app.innerHTML = data.series
+    app.innerHTML = renderEwc(data) + data.series
       .map((s) => {
         const h2h = (s.h2hIds || []).map((id) => byId[id]).filter(Boolean);
         const sim = (data.simulations?.known || []).find((x) => x.id === s.id) || s.sim;

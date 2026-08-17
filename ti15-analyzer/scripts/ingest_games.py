@@ -29,6 +29,19 @@ EIGHT = {
     8255888: "BoomBoys",
     9823272: "Team Yandex",
 }
+# OpenDota team ids at EWC 2026 (league 19785) → canonical playoff names.
+EWC_EIGHT = {
+    9824702: "TEAM VISION",
+    10182357: "Iron Wing",
+    8255888: "BoomBoys",
+    2163: "Team Liquid",
+    10136357: "Nigma Galaxy",
+    7119388: "Team Spirit",
+    9247354: "Team Falcons",
+    9823272: "Team Yandex",
+}
+EWC_LEAGUE = 19785
+TI_LEAGUE = 19719
 MID_NAMES = {
     "No[o]ne-",
     "No[o]ne",
@@ -79,20 +92,22 @@ def load_heroes() -> tuple[dict[int, str], dict[int, str]]:
     return names, npc
 
 
-def list_match_ids() -> list[int]:
-    sql = """
+def list_league_matches(league_id: int, team_ids: set[int]) -> list[dict]:
+    sql = f"""
     SELECT match_id, start_time, radiant_team_id, dire_team_id, radiant_win, duration, series_id
     FROM matches
-    WHERE leagueid=19719
+    WHERE leagueid={league_id}
     ORDER BY start_time
     """
     url = "https://api.opendota.com/api/explorer?" + urllib.parse.urlencode({"sql": sql})
     rows = get_json(url)["rows"]
-    out = []
-    for r in rows:
-        if r["radiant_team_id"] in EIGHT or r["dire_team_id"] in EIGHT:
-            out.append(r)
-    return out
+    return [
+        r for r in rows if r["radiant_team_id"] in team_ids or r["dire_team_id"] in team_ids
+    ]
+
+
+def list_match_ids() -> list[dict]:
+    return list_league_matches(TI_LEAGUE, set(EIGHT))
 
 
 def fetch_match(match_id: int) -> dict:
@@ -296,7 +311,16 @@ def participation_on_kills(
     return stats
 
 
-def analyze_game(meta: dict, match: dict, heroes: dict[int, str], npc_by_id: dict[int, str]) -> dict:
+def analyze_game(
+    meta: dict,
+    match: dict,
+    heroes: dict[int, str],
+    npc_by_id: dict[int, str],
+    team_map: dict[int, str] | None = None,
+    source: str = "ti15",
+    patch: str = "7.41e",
+) -> dict:
+    team_map = team_map or EIGHT
     players = match.get("players") or []
     roles = classify_roles(players) if players else {}
     events = hero_kills(players)
@@ -442,8 +466,10 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str], npc_by_id: dic
             "mid_sup_driven": ms_ka >= 8,
         }
 
-    rad_name = EIGHT.get(match.get("radiant_team_id") or meta.get("radiant_team_id"), match.get("radiant_name") or "Radiant")
-    dire_name = EIGHT.get(match.get("dire_team_id") or meta.get("dire_team_id"), match.get("dire_name") or "Dire")
+    rad_tid = match.get("radiant_team_id") or meta.get("radiant_team_id")
+    dire_tid = match.get("dire_team_id") or meta.get("dire_team_id")
+    rad_name = team_map.get(rad_tid) or match.get("radiant_name") or "Radiant"
+    dire_name = team_map.get(dire_tid) or match.get("dire_name") or "Dire"
     radiant_win = match.get("radiant_win")
     winner = rad_name if radiant_win else dire_name
 
@@ -549,6 +575,8 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str], npc_by_id: dic
         "sides": {"radiant": rad_s, "dire": dire_s},
         "blurb": blurb,
         "opendota": f"https://www.opendota.com/matches/{match.get('match_id') or meta.get('match_id')}",
+        "source": source,
+        "patch": patch,
     }
 
 
@@ -561,7 +589,7 @@ def main() -> None:
         mid = int(meta["match_id"])
         print(f"[{i}/{len(metas)}] {mid}", flush=True)
         match = fetch_match(mid)
-        games.append(analyze_game(meta, match, heroes, npc_by_id))
+        games.append(analyze_game(meta, match, heroes, npc_by_id, source="ti15", patch="7.41e"))
 
     out = {
         "asOf": "2026-08-17",

@@ -101,7 +101,7 @@ def main() -> None:
             "teamB": "Team Spirit",
             "when": "8/20 10:00 CST",
             "poly": series_price(markets, "Iron Wing vs Team Spirit"),
-            "insight": "本届无直接交手。F10K=先到10杀。IW 先到10杀 56%，Spirit 50%。市场接近均势，G1 看谁先把比分堆到 10-x。",
+            "insight": "本届无直接交手。EWC 也没打过：1w 8/13、Spirit 10/15，帮不上。F10K=先到10杀。IW 先到10杀 56%，Spirit 50%。市场接近均势，G1 看谁先把比分堆到 10-x。",
         },
         {
             "id": "ubqf2",
@@ -109,7 +109,7 @@ def main() -> None:
             "teamB": "BoomBoys",
             "when": "8/20 13:00 CST",
             "poly": series_price(markets, "TEAM VISION vs BoomBoys"),
-            "insight": "瑞士 VISION 2-0。局1 VISION 先到10杀并赢；局2 BoomBoys 先到10杀但 VISION 仍赢——先到10杀不等于赢图。VISION 先到时 No[o]ne 参与偏高。市场 80% 给系列，让分别盲目跟。",
+            "insight": "EWC 决赛就是这两队，VISION 3-1；瑞士又 2-0。系列低保有一个月内的重复样本。局2 BoomBoys 先到10杀但 VISION 仍赢——先到10杀不等于赢图，F10K 不要当低保。市场 80% 给系列，让分别盲目跟。",
         },
         {
             "id": "ubqf3",
@@ -117,7 +117,7 @@ def main() -> None:
             "teamB": "Team Yandex",
             "when": "8/20 16:00 CST",
             "poly": series_price(markets, "Team Liquid vs Team Yandex"),
-            "insight": "瑞士 Liquid 2-1。Liquid 本届先到10杀 71%（八强最高），但人头多半在边路，中单参与不一定高。三局先到10杀分别是 Yandex、Liquid、Liquid。市场只给 54.5%。",
+            "insight": "EWC 没有这两队交手。当时 Yandex 进四强（14/17）、Liquid 生存赛出局（9/16），不能倒过来当 8/20 的系列先验。本届 Liquid 先到10杀 71% 仍是八强最高，人头多半在边路。市场只给系列 54.5%。",
         },
         {
             "id": "ubqf4",
@@ -125,7 +125,7 @@ def main() -> None:
             "teamB": "Team Falcons",
             "when": "8/20 19:00 CST",
             "poly": series_price(markets, "Nigma Galaxy vs Team Falcons"),
-            "insight": "无直接交手。NGX 胜率 80% 但先到10杀只有 30%——他们赢图不靠堆前10人头。Falcons 先到10杀 59%。市场 65.5% 给 Falcons。若猜先到10杀，Falcons 比系列更顺。",
+            "insight": "本届无直接交手。EWC 两边都是 5–8、没打过。NGX 本届胜率 80% 但先到10杀只有 30%——赢图不靠堆前10人头。Falcons 先到10杀 59%。市场 65.5% 给 Falcons。若猜先到10杀，跟 Falcons，不要跟 NGX 系列混为一谈。",
         },
     ]
     playoffs = json.loads((ROOT / "data" / "playoffs.json").read_text())
@@ -139,10 +139,11 @@ def main() -> None:
 
     bundle = {
         "asOf": "2026-08-17",
-        "note": "只覆盖八强在 TI15 的 80 局。F10K=哪支队伍先获得10次英雄击杀。参与=击杀+助攻。中辅驱动=先到10杀时中单+双辅合计参与≥8。",
+        "note": "逐场页只列 TI15 的 80 局。BP/F10K/胜率模拟 = TI15 100% + EWC 八强地图 45%。",
         "teams": {name: team_profile(games, name) for name in EIGHT},
         "playoffs": playoffs,
         "simulations": sims,
+        "ewc": json.loads((ROOT / "data" / "ewc.json").read_text()),
         "series": series,
         "games": games,
     }

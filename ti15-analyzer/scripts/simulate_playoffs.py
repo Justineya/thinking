@@ -20,6 +20,7 @@ SIMS_PER_MAP = 5
 MAPS_BO3 = 3
 MAPS_BO5 = 5
 SEED = 20260817
+EWC_SAMPLE_WEIGHT = 0.45  # 7.41d at EWC vs 7.41e at TI — same skeleton, lighter weight
 
 # 7.41 captain's mode as observed in TI15 parses. 0 = first picker, 1 = second.
 CM = [
@@ -92,55 +93,76 @@ def feeder_teams(slot, matches_by_id: dict) -> list[str]:
     return out
 
 
+def load_model_games() -> list[dict]:
+    ti = load_json("games.json")["games"]
+    for g in ti:
+        g["sample_weight"] = 1.0
+    ewc_path = ROOT / "data" / "ewc_games.json"
+    ewc: list[dict] = []
+    if ewc_path.exists():
+        ewc = load_json("ewc_games.json").get("games") or []
+        for g in ewc:
+            g["sample_weight"] = EWC_SAMPLE_WEIGHT
+    return ti + ewc
+
+
 def build_team_stats(games: list[dict]) -> dict:
     stats = {}
-    global_hero = defaultdict(lambda: {"picks": 0, "wins": 0, "f10k": 0})
+    global_hero = defaultdict(lambda: {"picks": 0.0, "wins": 0.0, "f10k": 0.0})
     for game in games:
+        w = float(game.get("sample_weight") or 1.0)
         for side in ("radiant", "dire"):
             name = game[side]
-            picks = [p["hero"] for p in (game.get("draft") or {}).get(side, {}).get("picks") or []]
-            bans = [b["hero"] for b in (game.get("draft") or {}).get(side, {}).get("bans") or []]
+            draft_side = (game.get("draft") or {}).get(side) or {}
+            picks = [p["hero"] for p in draft_side.get("picks") or []]
+            bans = [b["hero"] for b in draft_side.get("bans") or []]
             won = game.get("winner") == name
             got_f10k = bool(game.get("f10k") and game["f10k"]["side"] == side)
             mid = ((game.get("sides") or {}).get(side) or {}).get("mid") or {}
             rec = stats.setdefault(
                 name,
                 {
-                    "games": 0,
-                    "wins": 0,
-                    "f10k": 0,
+                    "games": 0.0,
+                    "wins": 0.0,
+                    "f10k": 0.0,
+                    "games_ti": 0.0,
+                    "games_ewc": 0.0,
                     "picks": Counter(),
                     "bans": Counter(),
                     "mid": Counter(),
-                    "hero_games": defaultdict(int),
-                    "hero_wins": defaultdict(int),
-                    "hero_f10k": defaultdict(int),
+                    "hero_games": defaultdict(float),
+                    "hero_wins": defaultdict(float),
+                    "hero_f10k": defaultdict(float),
                     "first_picks": Counter(),
-                    "h2h_win": defaultdict(int),
-                    "h2h_n": defaultdict(int),
+                    "h2h_win": defaultdict(float),
+                    "h2h_n": defaultdict(float),
                 },
             )
-            rec["games"] += 1
-            rec["wins"] += int(won)
-            rec["f10k"] += int(got_f10k)
-            rec["picks"].update(picks)
-            rec["bans"].update(bans)
+            rec["games"] += w
+            rec["wins"] += w * int(won)
+            rec["f10k"] += w * int(got_f10k)
+            if game.get("source") == "ewc":
+                rec["games_ewc"] += w / EWC_SAMPLE_WEIGHT
+            else:
+                rec["games_ti"] += w
+            rec["picks"].update({h: w for h in picks})
+            rec["bans"].update({h: w for h in bans})
             if picks:
-                rec["first_picks"][picks[0]] += 1
+                rec["first_picks"][picks[0]] += w
             if mid.get("hero"):
-                rec["mid"][mid["hero"]] += 1
+                rec["mid"][mid["hero"]] += w
             opp = game["dire"] if side == "radiant" else game["radiant"]
-            rec["h2h_n"][opp] += 1
-            rec["h2h_win"][opp] += int(won)
+            rec["h2h_n"][opp] += w
+            rec["h2h_win"][opp] += w * int(won)
             for hero in picks:
-                rec["hero_games"][hero] += 1
-                rec["hero_wins"][hero] += int(won)
-                rec["hero_f10k"][hero] += int(got_f10k)
-                global_hero[hero]["picks"] += 1
-                global_hero[hero]["wins"] += int(won)
-                global_hero[hero]["f10k"] += int(got_f10k)
+                rec["hero_games"][hero] += w
+                rec["hero_wins"][hero] += w * int(won)
+                rec["hero_f10k"][hero] += w * int(got_f10k)
+                global_hero[hero]["picks"] += w
+                global_hero[hero]["wins"] += w * int(won)
+                global_hero[hero]["f10k"] += w * int(got_f10k)
     stats["_global"] = global_hero
-    stats["_all_heroes"] = sorted({h for g in global_hero for h in [g]})
+    stats["_all_heroes"] = sorted(global_hero)
     return stats
 
 
@@ -524,7 +546,9 @@ def betting_card(sim: dict, poly: dict | None, sample_n: int) -> dict:
 
 
 def main() -> None:
-    games = load_json("games.json")["games"]
+    games = load_model_games()
+    ti_n = sum(1 for g in games if g.get("source") != "ewc")
+    ewc_n = sum(1 for g in games if g.get("source") == "ewc")
     playoffs = load_json("playoffs.json")
     poly = load_json("polymarket-playoffs.json")
     stats = build_team_stats(games)
@@ -585,8 +609,10 @@ def main() -> None:
         n = rec.get("games") or 0
         got = rec.get("f10k") or 0
         teams_for_bank[name] = {
-            "games": n,
-            "f10k_got": got,
+            "games": round(n, 1),
+            "gamesTi": int(rec.get("games_ti") or 0),
+            "gamesEwc": int(rec.get("games_ewc") or 0),
+            "f10k_got": round(got, 1),
             "f10k_rate": (got / n) if n else 0,
         }
 
@@ -595,11 +621,13 @@ def main() -> None:
         "seed": SEED,
         "simsPerMap": SIMS_PER_MAP,
         "definition": {
-            "bp": "按本届 80 局里各队实际选禁频率走 7.41 队长模式，每局 5 次",
-            "win": "本届队胜率 + 这套阵容英雄在该队/样本里的收缩胜率 + 有限 H2H",
-            "f10k": "本届先到10杀率 + 阵容英雄的先到10杀倾向",
+            "bp": "TI15 80 局 + EWC 八强地图（45% 权重）里的选禁频率，7.41 队长模式每局 5 次",
+            "win": "加权队胜率 + 阵容英雄收缩胜率 + 有限 H2H（含 EWC 八强交手）",
+            "f10k": "加权先到10杀率 + 阵容英雄先到10杀倾向",
             "roi": "买 Polymarket YES：期望回报率 = 模型概率/市场价格 - 1",
-            "stake": "¼Kelly × 当前本金，不是固定100，也不是固定10%",
+            "stake": "默认¼Kelly；大胆½Kelly（p 不往上加）；全Kelly样本撑不住",
+            "ewcWeight": EWC_SAMPLE_WEIGHT,
+            "sampleMaps": {"ti15": ti_n, "ewc": ewc_n},
         },
         "known": known,
         "scenarios": scenarios,
