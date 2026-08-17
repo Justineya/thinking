@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TI15 淘汰赛分析台 · 产品设计</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <header class="topbar">
+    <div class="brand">
+      <span class="aegis">TI15</span>
+      <span>淘汰赛分析台</span>
+    </div>
+    <nav>
+      <a href="#view">理解</a>
+      <a href="#product">产品</a>
+      <a href="#data">数据接口</a>
+      <a href="#bracket">对阵</a>
+      <a href="#engine">分析引擎</a>
+      <a href="#arch">架构</a>
+      <a href="#next">下一步</a>
+    </nav>
+    <div class="status">正赛 8/20 开打 · 今日 8/17 设计评审</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="kicker">产品理解稿 · 不是赛评本身</p>
+      <h1>先把「看什么、数据从哪来、怎么算、怎么部署」钉死，再写每场分析。</h1>
+      <p class="lede">
+        你要的不是一篇 Cursor 里的长评，而是一个能反复打开的网页：TI15 淘汰赛每场对决、历史交手、常用英雄、赛前 BP 模拟、赛况推演，最后落到可执行的竞猜参考。
+        下面是我对这件事的判断，以及现在真正能接到的数据接口。
+      </p>
+      <div class="hero-meta">
+        <div><b>赛事</b>The International 2026（TI15）</div>
+        <div><b>地点</b>上海东方体育中心</div>
+        <div><b>版本</b>7.41e</div>
+        <div><b>Steam League</b>19719</div>
+      </div>
+    </section>
+
+    <section id="view">
+      <h2>1. 我的看法</h2>
+      <div class="grid-2">
+        <article class="card">
+          <h3>这件事值不值得做成站</h3>
+          <p>值。TI 淘汰赛窗口只有四天，信息密度极高：队名改了、瑞士赛刚打完、BP 会按对手变、Bo3/Bo5 的盘口逻辑完全不同。靠每次打开 Cursor 问一遍，时效和对齐成本都太高。做成站的核心价值是<strong>同一套数据 + 同一套模型</strong>，赛程更新后刷新，而不是重写文章。</p>
+        </article>
+        <article class="card">
+          <h3>不要做成第二个液体百科</h3>
+          <p>Liquipedia 已经把赛程、阵容、比分、英雄统计做得很好。我们不该再做一个百科。差异化在后半段：<strong>交手画像 → 英雄池/禁用倾向 → 模拟 BP → 系列胜率 → 竞猜决策</strong>。百科给事实，我们给「这场该怎么下判断」。</p>
+        </article>
+        <article class="card">
+          <h3>竞猜模块必须克制</h3>
+          <p>分析可以指导预测，但不能做成投注站。产品输出应是：系列胜率、最可能地图分、信心区间、以及「不该追的盘」。不爬非法博彩盘口，不给「稳胆」「必红」。Valve 客户端里的 Predictions / Fantasy 才是合法对照物。</p>
+        </article>
+        <article class="card warn">
+          <h3>现在最大的坑：队名与身份漂移</h3>
+          <p>本届 H2H 如果按队名硬匹配会全错：PARIVISION → TEAM VISION，BetBoom → BoomBoys，Tundra → 1w → Iron Wing。正确主键是 <code>team_id</code> + 选手五人组，而不是牌子。否则「历史战绩」这一栏会直接骗人。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="product">
+      <h2>2. 产品长什么样</h2>
+      <p class="section-lead">一个站点，三个使用节奏：赛前看预览、赛中看 BP 对照、赛后看模型校准。</p>
+      <div class="ia">
+        <div class="ia-item">
+          <span>01</span>
+          <h3>总览 / 对阵图</h3>
+          <p>双败图、下一场倒计时、瑞士成绩与晋级路径。点一场进入系列页。</p>
+        </div>
+        <div class="ia-item">
+          <span>02</span>
+          <h3>系列预览页</h3>
+          <p>每场核心页。H2H、阵容、近期状态、签名英雄、模拟 BP、系列胜率、竞猜建议。</p>
+        </div>
+        <div class="ia-item">
+          <span>03</span>
+          <h3>队伍 / 选手页</h3>
+          <p>本届 BP 画像、位置英雄池、一三楼倾向、对线英雄、LAN vs 线上差异。</p>
+        </div>
+        <div class="ia-item">
+          <span>04</span>
+          <h3>版本 Meta 层</h3>
+          <p>7.41e 职业优先度、本届 TI 禁用率、和「这支队会不会拿」分开显示。</p>
+        </div>
+        <div class="ia-item">
+          <span>05</span>
+          <h3>竞猜面板</h3>
+          <p>系列胜者、地图分、让分是否覆盖、信心低的场次明确标「过」。可导出当日卡片。</p>
+        </div>
+        <div class="ia-item">
+          <span>06</span>
+          <h3>赛后复盘</h3>
+          <p>真实 BP vs 模拟 BP、预测 vs 结果、校准曲线。没有这一页，模型会一直自我感觉良好。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="data">
+      <h2>3. 数据接口：液体百科能不能用？</h2>
+      <p class="section-lead">能用，而且必须用——但它只覆盖「赛程事实」，覆盖不了「怎么打」。完整产品要叠四层数据。</p>
+
+      <div class="layers">
+        <div class="layer">
+          <div class="layer-tag">L1 赛程事实</div>
+          <h3>Liquipedia（液体百科）</h3>
+          <ul>
+            <li>对阵图、开赛时间、阵容、转会、队名变更、VOD</li>
+            <li>本届页面：<a href="https://liquipedia.net/dota2/The_International/2026" target="_blank" rel="noopener">The International/2026</a></li>
+            <li>Steam leagueid 已写在 infobox 里：<code>19719</code></li>
+          </ul>
+          <p class="note">官方 REST v3（<code>api.liquipedia.net/api/v3</code>）要申请 API Key，结构化最好。没有 Key 时，MediaWiki <code>action=parse</code> 可以拉 wikitext，但必须带 <strong>Gzip</strong> 和合规 User-Agent，否则直接 406。</p>
+        </div>
+        <div class="layer go">
+          <div class="layer-tag">L2 比赛细节 · 已打通</div>
+          <h3>OpenDota</h3>
+          <ul>
+            <li>免费 REST，无需 Key 即可读公开职业数据</li>
+            <li><code>/leagues/19719/matches</code>：本届已入库 100+ 场</li>
+            <li><code>/teams/{id}/heroes</code>、<code>/players/{id}/heroes</code>：英雄池</li>
+            <li><code>/explorer</code>：SQL 聚合 H2H、BP、时长、经济差</li>
+          </ul>
+          <p class="note">这是第一期主力。队名会空，必须用 team_id。八强 ID 已核对：VISION 9572001、Liquid 2163、NGX 10136357、Spirit 7119388、Iron Wing 10150413、Falcons 9247354、BoomBoys 8255888、Yandex 9823272。</p>
+        </div>
+        <div class="layer">
+          <div class="layer-tag">L3 深度解析</div>
+          <h3>STRATZ GraphQL</h3>
+          <ul>
+            <li>Replay 级：分路、视野、物品时序、Draft 顺序</li>
+            <li>适合 BP 模拟和「赛况怎么打崩」</li>
+            <li>需要 API Token，且有 Cloudflare 门</li>
+          </ul>
+          <p class="note">第二期再接。没有它，BP 模拟只能用「谁常拿 / 谁常禁 / 版本优先度」，做不到真实先后手建模。</p>
+        </div>
+        <div class="layer">
+          <div class="layer-tag">L4 版本优先度</div>
+          <h3>Dota2ProTracker + Steam</h3>
+          <ul>
+            <li>D2PT：7.41e 高分/职业英雄梯队，无稳定官方 API</li>
+            <li>Steam Web API：<code>GetLiveLeagueGames</code> 可做赛中刷新</li>
+            <li>Dotabuff / DLTV：补充，但爬虫脆弱，不作为主源</li>
+          </ul>
+          <p class="note">Meta 层第一期用 OpenDota <code>/heroStats</code> 的职业 pick/ban/win，D2PT 只作人工对照，不爬。</p>
+        </div>
+      </div>
+
+      <table class="src-table">
+        <thead>
+          <tr>
+            <th>能力</th>
+            <th>Liquipedia</th>
+            <th>OpenDota</th>
+            <th>STRATZ</th>
+            <th>D2PT / Steam</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>淘汰赛对阵 / 开赛时间</td><td class="y">主源</td><td class="n">弱</td><td class="m">可</td><td class="m">Steam 直播</td></tr>
+          <tr><td>阵容、教练、改名</td><td class="y">主源</td><td class="n">易过期</td><td class="m">可</td><td class="n">否</td></tr>
+          <tr><td>历史交手（系列）</td><td class="y">系列级</td><td class="y">比赛级</td><td class="y">比赛级</td><td class="n">否</td></tr>
+          <tr><td>常用英雄 / 禁用</td><td class="m">赛事统计</td><td class="y">主源</td><td class="y">更深</td><td class="m">版本对照</td></tr>
+          <tr><td>完整 BP 顺序</td><td class="m">赛后填</td><td class="m">部分</td><td class="y">主源</td><td class="n">否</td></tr>
+          <tr><td>赛况（经济、推塔、团战）</td><td class="n">否</td><td class="y">基础</td><td class="y">主源</td><td class="n">否</td></tr>
+          <tr><td>需要密钥</td><td>v3 要 / parse 不要</td><td>可选提额</td><td>要</td><td>Steam 要</td></tr>
+          <tr><td>本期能不能接</td><td class="y">parse 已验证</td><td class="y">已验证</td><td class="m">等 Token</td><td class="m">Steam 可选</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="bracket">
+      <h2>4. 当前淘汰赛对阵（待分析对象）</h2>
+      <p class="section-lead">瑞士前三直通：VISION、Liquid、Nigma。淘汰赛补进：Falcons、BoomBoys、Spirit、Iron Wing、Yandex。8 月 20 日胜者组首轮四场 Bo3。</p>
+      <div class="matches">
+        <article class="match">
+          <div class="when">8/20 10:00 CST · Bo3</div>
+          <h3>Iron Wing <em>vs</em> Team Spirit</h3>
+          <p>原 Tundra 五人组对两届 TI 冠军班底。瑞士阶段两边都不是直通，状态和 BP 弹性会决定上限。</p>
+        </article>
+        <article class="match">
+          <div class="when">8/20 13:00 CST · Bo3</div>
+          <h3>TEAM VISION <em>vs</em> BoomBoys</h3>
+          <p>瑞士第 1 对上原 BetBoom。独联体内战，Puppey 执教 vs gpk 线。这会是「谁更能打系列赛」的样本。</p>
+        </article>
+        <article class="match">
+          <div class="when">8/20 16:00 CST · Bo3</div>
+          <h3>Team Liquid <em>vs</em> Team Yandex</h3>
+          <p>Liquid 直通，Yandex 从淘汰赛 2-1 翻掉 LGD 进来。Nisha 对 CHIRA_JUNIOR 的中路会是 BP 轴心。</p>
+        </article>
+        <article class="match">
+          <div class="when">8/20 19:00 CST · Bo3</div>
+          <h3>Nigma Galaxy <em>vs</em> Team Falcons</h3>
+          <p>卫冕冠军走淘汰赛上来打瑞士第 3。SumaiL / KuroKy 体系对 Falcons 的稳定五人组，夜场焦点。</p>
+        </article>
+      </div>
+      <p class="foot-note">胜者组半决赛：IW/Spirit 胜者 vs VISION/BB 胜者；Liquid/Yandex 胜者 vs Nigma/Falcons 胜者。总决赛 Bo5，其余 Bo3。</p>
+    </section>
+
+    <section id="engine">
+      <h2>5. 分析引擎怎么做（你点的那几项）</h2>
+      <ol class="engine">
+        <li>
+          <h3>历史战绩</h3>
+          <p>三层：<strong>同五人组</strong>最近 6 个月 H2H → <strong>同组织</strong>近 12 个月（改名合并）→ <strong>本届瑞士</strong>对共同对手。LAN 权重大于线上。样本小于 4 场就显示「不足」，不强行百分比。</p>
+        </li>
+        <li>
+          <h3>常用英雄</h3>
+          <p>按位置输出：本届 TI 出场、7.41e 职业场、签名英雄（选手 career 高出场）。同时列「对方一禁名单」——这比胜率榜更接近真实 BP。</p>
+        </li>
+        <li>
+          <h3>赛前模拟 BP</h3>
+          <p>第一期不做神经网络。用规则 + 蒙特卡洛：版本优先度 × 队伍英雄池 × 对手克制 × 先后手。跑 200 次草稿，输出「高概率 Ban」「一楼争抢」「可能的五保一/四核节奏」。第二期有 STRATZ 后再拟合真实 draft 顺序。</p>
+        </li>
+        <li>
+          <h3>胜率</h3>
+          <p>先出<strong>赛前系列胜率</strong>（Elo + 近期状态 + LAN + H2H 小样本收缩），再出<strong>BP 后单图胜率</strong>。Bo3 用独立图近似，再校正「先胜方会不会换套路」。给区间，不给 51.2% 这种假精确。</p>
+        </li>
+        <li>
+          <h3>赛况模拟</h3>
+          <p>不是录像生成。是三条路径：对线优势型、中期打架型、超长发育型——各给触发条件和谁更擅长。对照本届已出现的超长时长（本届平均时长偏高），明确标「这队怕拖 / 这队就吃拖」。</p>
+        </li>
+        <li>
+          <h3>竞猜指导</h3>
+          <p>每场固定四格：系列倾向、地图分主推、是否覆盖让分、信心（高/中/低）。信心低就写「过」。全程标注这是模型意见，不是内幕，也不是投注建议。</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="arch">
+      <h2>6. 部署形态</h2>
+      <div class="grid-2">
+        <article class="card">
+          <h3>推荐架构</h3>
+          <p>静态前端（这个目录就能先挂 GitHub Pages / Cloudflare Pages）+ 一个很薄的数据刷新脚本。TI 这四天用定时拉取 OpenDota + Liquipedia parse，写成 JSON，前端只读本地数据。这样你打开的是网页，不是 Cursor。</p>
+        </article>
+        <article class="card">
+          <h3>为什么第一期不上重后端</h3>
+          <p>淘汰赛一共就十几场系列。数据量小，缓存 JSON 足够。等 STRATZ Token、Liquipedia v3 Key 齐了，再加 API 层也不迟。先保证 8/20 能看四场预览。</p>
+        </article>
+      </div>
+      <pre class="flow">Liquipedia parse / OpenDota REST
+        ↓  定时脚本（每 15–30 分钟）
+     data/*.json  （对阵、H2H、英雄池、模型输出）
+        ↓
+   静态网页  ← 你每天打开的就是这个</pre>
+    </section>
+
+    <section id="next">
+      <h2>7. 建议的分期，以及需要你拍板的事</h2>
+      <div class="phases">
+        <div>
+          <h3>P0 现在</h3>
+          <p>产品理解页（你正在看）+ 对阵数据钉死 + 数据源验证。</p>
+        </div>
+        <div>
+          <h3>P1 正赛前</h3>
+          <p>八强队伍页、四场胜者组预览、H2H、英雄池、第一版系列胜率与竞猜卡。</p>
+        </div>
+        <div>
+          <h3>P2 正赛中</h3>
+          <p>比分自动刷新、赛后校准、下一场预览滚动生成。有 Token 再加深 BP。</p>
+        </div>
+      </div>
+      <div class="decide">
+        <h3>请你确认这三件事，我下一轮就按这个做真分析页</h3>
+        <ol>
+          <li><strong>范围：</strong>先做 8/20 四场胜者组，还是八强全量画像一起上？</li>
+          <li><strong>密钥：</strong>有没有 Liquipedia API Key / STRATZ Token？没有就 P1 只用 OpenDota + 百科 parse。</li>
+          <li><strong>竞猜口径：</strong>只要系列胜负 + 地图分，还是也要让分/总局数？我默认前两项，第三项只给「模型覆盖与否」。</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>TI15 淘汰赛分析台 · 产品设计稿 · 数据截至 2026-08-17 · 非投注工具</p>
+  </footer>
+</body>
+</html>

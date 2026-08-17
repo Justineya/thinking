@@ -1,0 +1,128 @@
+{
+  "event": "The International 2026",
+  "shortName": "TI15",
+  "patch": "7.41e",
+  "leagueId": 19719,
+  "venue": "上海东方体育中心",
+  "groupStage": "2026-08-13 ~ 2026-08-16",
+  "playoffs": "2026-08-20 ~ 2026-08-23",
+  "timezone": "Asia/Shanghai",
+  "asOf": "2026-08-17",
+  "swissTop3": ["TEAM VISION", "Team Liquid", "Nigma Galaxy"],
+  "eliminationWinners": ["Team Falcons", "BoomBoys", "Team Spirit", "Iron Wing", "Team Yandex"],
+  "aliases": {
+    "TEAM VISION": ["PARIVISION", "PVISION", "VSN"],
+    "BoomBoys": ["BetBoom Team", "BetBoom", "BB Team", "BB"],
+    "Iron Wing": ["1w Team", "1win", "Tundra Esports", "Tundra"]
+  },
+  "teams": [
+    {
+      "id": "vision",
+      "name": "TEAM VISION",
+      "tag": "VSN",
+      "opendotaId": 9572001,
+      "seed": "瑞士第1，直通",
+      "players": ["Satanic", "No[o]ne-", "Noticed", "9Class", "Dukalis"],
+      "coach": "Puppey"
+    },
+    {
+      "id": "liquid",
+      "name": "Team Liquid",
+      "tag": "Liquid",
+      "opendotaId": 2163,
+      "seed": "瑞士第2，直通",
+      "players": ["m1CKe", "Nisha", "Ace", "Boxi", "tOfu"],
+      "coach": "Blitz / Jabbz"
+    },
+    {
+      "id": "nigma",
+      "name": "Nigma Galaxy",
+      "tag": "NGX",
+      "opendotaId": 10136357,
+      "seed": "瑞士第3，直通",
+      "players": ["SumaiL", "lorenof", "Davai", "OmaR", "GH"],
+      "coach": "KuroKy"
+    },
+    {
+      "id": "spirit",
+      "name": "Team Spirit",
+      "tag": "TSpirit",
+      "opendotaId": 7119388,
+      "seed": "淘汰赛晋级",
+      "players": ["Yatoro", "Larl", "Collapse", "not me", "rue"],
+      "coach": "Miposhka / MiLAN"
+    },
+    {
+      "id": "ironwing",
+      "name": "Iron Wing",
+      "tag": "IW",
+      "opendotaId": 10150413,
+      "seed": "淘汰赛晋级",
+      "players": ["Pure", "bzm", "33", "Ari", "Whitemon"],
+      "coach": "MoonMeander",
+      "note": "原 Tundra 阵容，经 1w 转会后以 Iron Wing 出战"
+    },
+    {
+      "id": "falcons",
+      "name": "Team Falcons",
+      "tag": "FLCN",
+      "opendotaId": 9247354,
+      "seed": "淘汰赛晋级（卫冕冠军）",
+      "players": ["skiter", "Malr1ne", "ATF", "Cr1t-", "Sneyking"],
+      "coach": "Aui_2000"
+    },
+    {
+      "id": "boomboys",
+      "name": "BoomBoys",
+      "tag": "BB",
+      "opendotaId": 8255888,
+      "seed": "淘汰赛晋级",
+      "players": ["Kiritych~", "gpk~", "MieRo", "Save-", "Kataomi"],
+      "coach": "boolk",
+      "note": "原 BetBoom Team"
+    },
+    {
+      "id": "yandex",
+      "name": "Team Yandex",
+      "tag": "TY",
+      "opendotaId": 9823272,
+      "seed": "淘汰赛晋级",
+      "players": ["watson", "CHIRA_JUNIOR", "DM", "Saksa", "Malady"],
+      "coach": "Accell"
+    }
+  ],
+  "upperBracketR1": [
+    {
+      "id": "ubqf1",
+      "round": "胜者组首轮",
+      "datetime": "2026-08-20 10:00",
+      "format": "Bo3",
+      "teamA": "Iron Wing",
+      "teamB": "Team Spirit"
+    },
+    {
+      "id": "ubqf2",
+      "round": "胜者组首轮",
+      "datetime": "2026-08-20 13:00",
+      "format": "Bo3",
+      "teamA": "TEAM VISION",
+      "teamB": "BoomBoys"
+    },
+    {
+      "id": "ubqf3",
+      "round": "胜者组首轮",
+      "datetime": "2026-08-20 16:00",
+      "format": "Bo3",
+      "teamA": "Team Liquid",
+      "teamB": "Team Yandex"
+    },
+    {
+      "id": "ubqf4",
+      "round": "胜者组首轮",
+      "datetime": "2026-08-20 19:00",
+      "format": "Bo3",
+      "teamA": "Nigma Galaxy",
+      "teamB": "Team Falcons"
+    }
+  ]
+}
