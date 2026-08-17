@@ -30,7 +30,7 @@
       <p class="kicker">产品理解稿 · 不是赛评本身</p>
       <h1>先把「看什么、数据从哪来、怎么算、怎么部署」钉死，再写每场分析。</h1>
       <p class="lede">
-        样本只收八强在 TI15 打过的 80 局。逐场看 BP、节奏、前中期攻防、第10杀（盯中单）和中辅联动。
+        样本只收八强在 TI15 打过的 80 局。逐场看 BP、节奏、前中期攻防、谁先到 10 杀（盯中单）和中辅联动。
         打开 <a href="./analysis.html" style="color:#c9a227">逐场分析页</a> 即可用，不必每次进 Cursor。
       </p>
       <div class="hero-meta">
@@ -96,7 +96,7 @@
           <tr><td>Dota2 Pro Tracker / Dotabuff 交叉核对 BP 和时长</td><td class="m">采用核对思路。注意这是两个站：Dotabuff 是百科级职业页；D2PT 是 7.41e 高分 Meta。比赛级交叉我们用 OpenDota，不爬 D2PT。</td></tr>
           <tr><td>Polymarket 赛前 BO3 系列隐含概率</td><td class="y">采用。公开 API 已拉到 8/20 四场（见下方对阵卡）。这是市场共识，不当成模型胜率。</td></tr>
           <tr><td>Oddsportal 做盘口交叉</td><td class="m">可选人工对照。产品不接博彩聚合站爬虫。</td></tr>
-          <tr><td>F10K 无官方字段，大量标【无公开存档】</td><td class="y">「不是官方字段」这条完全对。但解析过的 replay 有 <code>kills_log</code>，可以算出第 10 个英雄击杀归属。已在本届对局里验证，不必逐局翻 Demo。</td></tr>
+          <tr><td>F10K 无官方字段，大量标【无公开存档】</td><td class="y">「不是官方字段」对。解析场可以从击杀时间轴算出哪边先堆到 10 杀。不是看谁收第 10 刀。</td></tr>
           <tr><td>少数局靠直播时间轴人工摘 F10K</td><td class="m">只留给未解析场。优先 POST OpenDota parse；仍没有才标缺失。</td></tr>
         </tbody>
       </table>
@@ -180,8 +180,8 @@
           <h3>F10K = 从击杀时间轴推导</h3>
           <ul>
             <li>Valve / 液体百科原生都没有这个字段，另一套提醒是对的</li>
-            <li>定义钉死：<strong>第 10 个英雄击杀的归属</strong>，不是「先到 10 杀」</li>
-            <li>OpenDota 解析场：<code>players[].kills_log</code> 按时间排序取第 10 条</li>
+            <li>定义钉死：<strong>哪支队伍先获得 10 次英雄击杀</strong>，不是全局第 10 刀的收刀人</li>
+            <li>OpenDota 解析场：按时间累加两边人头，谁先到 10 谁赢这项</li>
             <li>脚本：<code>scripts/f10k.py &lt;match_id&gt;</code>，已在本届对局跑通</li>
           </ul>
           <p class="note">同一秒两记击杀会标「时序歧义」，不强行判。未解析场先请求 parse；仍没有才写【无存档】——这是真缺失，不是偷懒。不编 F10K。</p>
@@ -223,7 +223,7 @@
           <tr><td>阵容、教练、改名、晋级</td><td class="y">主源</td><td class="n">易过期</td><td class="n">否</td><td class="m">核对</td></tr>
           <tr><td>本届八强交手 / BP / 时长</td><td class="m">系列级</td><td class="y">单局主源</td><td class="n">否</td><td class="m">核对</td></tr>
           <tr><td>赛前 BO3 系列胜率</td><td class="n">否</td><td class="n">否</td><td class="y">主源</td><td class="n">否</td></tr>
-          <tr><td>F10K（第10个英雄击杀）</td><td class="n">无此字段</td><td class="y">kills_log 可算</td><td class="n">这四场无盘</td><td class="n">无此字段</td></tr>
+          <tr><td>F10K（先到 10 杀）</td><td class="n">无此字段</td><td class="y">kills_log 可算</td><td class="n">这四场无盘</td><td class="n">无此字段</td></tr>
           <tr><td>需要密钥</td><td>v3 要 / parse 不要</td><td>可选提额</td><td>不要</td><td>不要（不爬）</td></tr>
           <tr><td>本期能不能接</td><td class="y">parse 已验证</td><td class="y">80 局已在库</td><td class="y">四场已拉到</td><td class="m">人工对照</td></tr>
         </tbody>
@@ -271,7 +271,7 @@
         </li>
         <li>
           <h3>逐场四镜头（已上线）</h3>
-          <p>每局固定写：BP 一阶段禁/前两手/中单第几手；节奏（F10K 时间 + 时长）；前中期攻防（进攻转线 / 杀人不转塔 / 发育 / 滚雪球）；F10K 是否中单收刀、中单在前10杀出手几刀；中辅在前10杀合计、是否中辅驱动。详见 <a href="./analysis.html" style="color:#c9a227">逐场分析</a>。</p>
+          <p>每局固定写：BP；节奏；前中期攻防；哪边先到 10 杀、当时中单出了几刀；中辅在这 10 刀里占几刀。详见 <a href="./analysis.html" style="color:#c9a227">逐场分析</a>。</p>
         </li>
         <li>
           <h3>胜率：市场一行、样本一行</h3>

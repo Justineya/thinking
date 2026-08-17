@@ -44,11 +44,11 @@ def team_profile(games: list[dict], name: str) -> dict:
     n = len(mine)
     wins = sum(1 for game, _ in mine if game["winner"] == name)
     f10k_got = sum(1 for game, side in mine if game.get("f10k") and game["f10k"]["side"] == side)
-    f10k_mid = sum(
-        1
-        for game, side in mine
-        if game.get("f10k") and game["f10k"]["side"] == side and game.get("f10k_by_mid")
-    )
+    f10k_mid_share = []
+    for game, side in mine:
+        if game.get("f10k") and game["f10k"]["side"] == side:
+            f10k_mid_share.append(game["sides"][side]["mid"]["kills_before_10"] or 0)
+    f10k_mid = sum(1 for share in f10k_mid_share if share >= 3)
     mid_k = sum((game["sides"][side]["mid"]["kills_before_10"] or 0) for game, side in mine)
     ms_k = sum((game["sides"][side].get("first10_mid_sup_kills") or 0) for game, side in mine)
     driven = sum(1 for game, side in mine if game["sides"][side].get("mid_sup_driven"))
@@ -69,7 +69,8 @@ def team_profile(games: list[dict], name: str) -> dict:
         "winrate": round(wins / n, 3),
         "f10k_got": f10k_got,
         "f10k_rate": round(f10k_got / n, 3),
-        "f10k_by_mid": f10k_mid,
+        "f10k_mid_ge3": f10k_mid,
+        "avg_mid_kills_when_first_to_10": round(sum(f10k_mid_share) / len(f10k_mid_share), 2) if f10k_mid_share else None,
         "avg_mid_kills_in_first10": round(mid_k / n, 2),
         "avg_mid_sup_kills_in_first10": round(ms_k / n, 2),
         "mid_sup_driven_rate": round(driven / n, 3),
@@ -96,7 +97,7 @@ def main() -> None:
             "teamB": "Team Spirit",
             "when": "8/20 10:00 CST",
             "poly": series_price(markets, "Iron Wing vs Team Spirit"),
-            "insight": "本届无直接交手。两边中单都爱 Earth Spirit。Spirit 的 F10K 0 次由 Larl 收刀，中单更多是对线资源而不是前10杀收割者。IW 前10杀中单出手更少（0.94），F10K 一半靠其他位置。市场接近均势，适合看 G1 中辅是否先开。",
+            "insight": "本届无直接交手。F10K=先到10杀。IW 先到10杀 56%，Spirit 50%。Spirit 先到时 Larl 场均 2.3 刀；IW 中单 2.1。市场接近均势，G1 看谁先把比分堆到 10-x。",
         },
         {
             "id": "ubqf2",
@@ -104,7 +105,7 @@ def main() -> None:
             "teamB": "BoomBoys",
             "when": "8/20 13:00 CST",
             "poly": series_price(markets, "TEAM VISION vs BoomBoys"),
-            "insight": "瑞士轮 VISION 2-0，两局都慢。No[o]ne 前10杀场均 2.1 刀，中辅驱动 90%，是八强里最明显的中辅轴。BoomBoys 中单（gpk）自己也能收 F10K，但系列里第一局 F10K 是 MieRo 的 Enigma。市场 80% 给系列，-1.5 接近 50%，跟系列、慎追 2-0。",
+            "insight": "瑞士 VISION 2-0。局1 VISION 先到10杀（7-10）并赢；局2 BoomBoys 先到10杀（5-10）但 VISION 仍赢下来——先到10杀不等于赢图。VISION 先到时 No[o]ne 场均 3.5 刀。市场 80% 给系列，让分别盲目跟。",
         },
         {
             "id": "ubqf3",
@@ -112,7 +113,7 @@ def main() -> None:
             "teamB": "Team Yandex",
             "when": "8/20 16:00 CST",
             "poly": series_price(markets, "Team Liquid vs Team Yandex"),
-            "insight": "瑞士轮 Liquid 2-1。三局 F10K 分别是 m1CKe、tOfu、CHIRA_JUNIOR，只有一局是中单收刀。Nisha 本届 Earth Spirit 5 次。市场只给 Liquid 54.5%，和 H2H 不完全同向，信心应偏低。",
+            "insight": "瑞士 Liquid 2-1。Liquid 本届先到10杀 71%（八强最高），但中单只占其中 1.6 刀，人头多半在边路。三局先到10杀分别是 Yandex、Liquid、Liquid。市场只给 54.5%，信心偏低。",
         },
         {
             "id": "ubqf4",
@@ -120,7 +121,7 @@ def main() -> None:
             "teamB": "Team Falcons",
             "when": "8/20 19:00 CST",
             "poly": series_price(markets, "Nigma Galaxy vs Team Falcons"),
-            "insight": "本届无直接交手。NGX 瑞士战绩更好（80%），F10K 拿到率 60%，但中辅驱动只有 40%——他们的前10杀更散。Falcons F10K 58.8%，Malr1ne 场均 1.65 刀更像中单轴。市场 65.5% 给 Falcons，是名气/卫冕溢价，对 NGX 中辅是否能打出同框是关键。",
+            "insight": "无直接交手。NGX 胜率 80% 但先到10杀只有 30%——他们赢图不靠堆前10人头。Falcons 先到10杀 59%，Malr1ne 先到时场均 3.7 刀。市场 65.5% 给 Falcons。若猜先到10杀，Falcons 比系列更顺；若猜系列，NGX 的慢热赢图要单独看。",
         },
     ]
     for item in series:
@@ -130,7 +131,7 @@ def main() -> None:
 
     bundle = {
         "asOf": "2026-08-17",
-        "note": "只覆盖八强在 TI15 的 80 局。F10K=第10个英雄击杀。中辅驱动=该队中单+两个辅助在前10杀里合计至少3刀。",
+        "note": "只覆盖八强在 TI15 的 80 局。F10K=哪支队伍先获得10次英雄击杀。中辅驱动=先到10杀时，该队中单+两个辅助合计至少3刀。",
         "teams": {name: team_profile(games, name) for name in EIGHT},
         "series": series,
         "games": games,

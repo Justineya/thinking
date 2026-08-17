@@ -19,7 +19,8 @@ const mmss = (s) => {
 
 function gameCard(g) {
   const f = g.f10k || {};
-  const f10kTag = g.f10k_by_mid ? "中单收刀" : "非中单收刀";
+  const f10kTag = g.f10k ? `先到10杀 ${g.f10k.side === "radiant" ? g.radiant : g.dire}` : "未到10杀";
+  const score = g.f10k?.score;
   return `<article class="game">
     <div class="game-top">
       <div>
@@ -27,14 +28,14 @@ function gameCard(g) {
         <div class="foot-note">胜者 ${g.winner} · ${Math.floor(g.duration / 60)} 分钟 · ${g.pace} / ${g.stance}</div>
       </div>
       <div>
-        <span class="tag ${g.f10k_by_mid ? "hot" : ""}">${f10kTag}</span>
+        <span class="tag ${g.f10k ? "hot" : ""}">${f10kTag}</span>
         <a href="${g.opendota}" target="_blank" rel="noopener">OpenDota</a>
       </div>
     </div>
     <div class="lenses">
       <div><h4>BP 思路</h4><p>天辉：${g.blurb.bp.radiant}<br>夜魇：${g.blurb.bp.dire}</p></div>
       <div><h4>节奏 · 前中期攻防</h4><p>${g.blurb.pace}<br>攻防标签：${g.blurb.stance}。15分钟经济差 ${g.gold?.m15 ?? "?"}。一塔 ${g.first_tower ? mmss(g.first_tower.time) + " 由" + (g.first_tower.taker === "radiant" ? "天辉" : "夜魇") + "拆掉" : "未见T1记录"}。</p></div>
-      <div><h4>F10K · 盯中单</h4><p>${g.blurb.f10k}<br>第10杀 ${f.killer || "?"} / ${f.killer_hero || "?"} · ${mmss(f.time)} · 比分 ${f.split ? f.split.radiant + "-" + f.split.dire : "?"}<br>中单前10杀出手：${g.sides.radiant.mid.player} ${g.sides.radiant.mid.hero} ${g.sides.radiant.mid.kills_before_10} 刀；${g.sides.dire.mid.player} ${g.sides.dire.mid.hero} ${g.sides.dire.mid.kills_before_10} 刀。</p></div>
+      <div><h4>先到 10 杀 · 盯中单</h4><p>${g.blurb.f10k}<br>${score ? "当时比分 " + score.radiant + "-" + score.dire + " · " : ""}${mmss(f.time)}<br>中单在先到10杀时点出：${g.sides.radiant.mid.player} ${g.sides.radiant.mid.hero} ${g.sides.radiant.mid.kills_before_10} 刀；${g.sides.dire.mid.player} ${g.sides.dire.mid.hero} ${g.sides.dire.mid.kills_before_10} 刀。</p></div>
       <div><h4>中辅联动</h4><p>${g.blurb.mid_support}</p></div>
     </div>
   </article>`;
@@ -45,7 +46,7 @@ function profileBox(p) {
   return `<div class="profile">
     <h3>${p.name}</h3>
     <p>本届 ${p.wins}/${p.games}（${pct(p.winrate)}）· 场均 ${p.avg_duration_min} 分钟</p>
-    <p>拿到 F10K <b>${pct(p.f10k_rate)}</b>，其中中单收刀 ${p.f10k_by_mid}/${p.f10k_got}</p>
+    <p>先到 10 杀 <b>${pct(p.f10k_rate)}</b>；先到时中单场均 ${p.avg_mid_kills_when_first_to_10 ?? "—"} 刀，其中中单≥3刀 ${p.f10k_mid_ge3}/${p.f10k_got}</p>
     <p>中单前10杀场均 <b>${p.avg_mid_kills_in_first10}</b> · 中辅合计 <b>${p.avg_mid_sup_kills_in_first10}</b> · 中辅驱动 ${pct(p.mid_sup_driven_rate)}</p>
     <p>中单常用 ${mids || "—"}</p>
   </div>`;

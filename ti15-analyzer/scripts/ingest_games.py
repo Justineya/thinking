@@ -208,21 +208,39 @@ def draft_for_team(picks_bans: list[dict], team_bit: int, heroes: dict[int, str]
     return {"bans": bans, "picks": picks, "phase1_bans": bans[:2], "first_picks": picks[:2]}
 
 
+def first_to_ten(events: list[dict]) -> dict | None:
+    """Which team first reaches 10 hero kills — not who claimed global kill #10."""
+    counts = {"radiant": 0, "dire": 0}
+    bags: dict[str, list[dict]] = {"radiant": [], "dire": []}
+    for event in events:
+        side = event["side"]
+        counts[side] += 1
+        bags[side].append(event)
+        if counts[side] == 10:
+            return {
+                "side": side,
+                "time": event["time"],
+                "score": {"radiant": counts["radiant"], "dire": counts["dire"]},
+                "completing": event,
+                "kills": {"radiant": bags["radiant"], "dire": bags["dire"]},
+            }
+    return None
+
+
 def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
     players = match.get("players") or []
     roles = classify_roles(players) if players else {}
     events = hero_kills(players)
+    reached = first_to_ten(events)
     f10k = None
-    if len(events) >= 10:
-        tenth = events[9]
-        rad = sum(1 for e in events[:10] if e["side"] == "radiant")
+    if reached:
+        done = reached["completing"]
         f10k = {
-            "side": tenth["side"],
-            "killer": tenth["killer"],
-            "killer_hero": hero_name(heroes, tenth["killer_hero_id"]),
-            "time": tenth["time"],
-            "split": {"radiant": rad, "dire": 10 - rad},
-            "ambiguous_same_second": sum(1 for e in events if e["time"] == tenth["time"]) > 1,
+            "side": reached["side"],
+            "time": reached["time"],
+            "score": reached["score"],
+            "completing_killer": done["killer"],
+            "completing_hero": hero_name(heroes, done["killer_hero_id"]),
         }
 
     gold = match.get("radiant_gold_adv") or []
@@ -239,9 +257,9 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
     # pace
     if f10k_time is None:
         pace = "未知"
-    elif f10k_time < 480:
-        pace = "快"
     elif f10k_time < 720:
+        pace = "快"
+    elif f10k_time < 960:
         pace = "正常"
     else:
         pace = "慢"
@@ -259,7 +277,6 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
     kills_8 = sum(1 for e in events if e["time"] <= 480)
     kills_15 = sum(1 for e in events if e["time"] <= 900)
 
-    mid_f10k = False
     mid_in_first10 = {"radiant": 0, "dire": 0}
     pos4_in_first10 = {"radiant": 0, "dire": 0}
     pos5_in_first10 = {"radiant": 0, "dire": 0}
@@ -277,20 +294,14 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
         if pos5:
             pos5_ids[side] = pos5.get("player_slot")
 
-    if f10k:
-        killer_slot = events[9]["killer_slot"]
-        for side, slot in mid_ids.items():
-            if slot == killer_slot:
-                mid_f10k = True
-        for e in events[:10]:
-            for side, slot in mid_ids.items():
-                if e["killer_slot"] == slot:
+    if reached:
+        for side, bag in reached["kills"].items():
+            for event in bag:
+                if event["killer_slot"] == mid_ids.get(side):
                     mid_in_first10[side] += 1
-            for side, slot in pos4_ids.items():
-                if e["killer_slot"] == slot:
+                elif event["killer_slot"] == pos4_ids.get(side):
                     pos4_in_first10[side] += 1
-            for side, slot in pos5_ids.items():
-                if e["killer_slot"] == slot:
+                elif event["killer_slot"] == pos5_ids.get(side):
                     pos5_in_first10[side] += 1
 
     # mid-support same-fight clusters in first 12 min (both get a kill, not assist)
@@ -334,6 +345,7 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
                 "kills_before_10": pos5_in_first10.get(side, 0),
             },
             "mid_support_fights_12min": mid_sup.get(side, 0),
+            "kills_at_f10k": len(reached["kills"][side]) if reached else 0,
             "first10_mid_sup_kills": mid_in_first10.get(side, 0) + pos4_in_first10.get(side, 0) + pos5_in_first10.get(side, 0),
             "mid_sup_driven": (mid_in_first10.get(side, 0) + pos4_in_first10.get(side, 0) + pos5_in_first10.get(side, 0)) >= 3,
         }
@@ -348,13 +360,13 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
     g15 = gold_at(15) or 0
     tower_time = tower["time"] if tower else None
     early_push = tower_time is not None and tower_time <= 600
-    if f10k_time and f10k_time <= 540 and (early_push or abs(g15) >= 2500):
+    if f10k_time and f10k_time <= 720 and (early_push or abs(g15) >= 2500):
         stance = "进攻转线"
-    elif f10k_time and f10k_time >= 720 and abs(g15) < 2000:
+    elif f10k_time and f10k_time >= 960 and abs(g15) < 2000:
         stance = "发育对线"
     elif abs(g15) >= 4000:
         stance = "滚雪球"
-    elif f10k_time and f10k_time <= 600 and not early_push:
+    elif f10k_time and f10k_time <= 780 and not early_push:
         stance = "杀人不转塔"
     else:
         stance = "来回拉锯"
@@ -377,23 +389,36 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
     rad_s = side_summary("radiant")
     dire_s = side_summary("dire")
 
-    f10k_is_mid_txt = None
+    f10k_txt = "没有队伍先堆到 10 杀"
     if f10k:
-        f10k_is_mid_txt = "中单拿下第10杀" if mid_f10k else f"{f10k['killer']}（{f10k['killer_hero']}）拿下第10杀，不是中单收刀"
+        win_side = f10k["side"]
+        win_name = rad_name if win_side == "radiant" else dire_name
+        lose_side = "dire" if win_side == "radiant" else "radiant"
+        score = f10k["score"]
+        win_s = rad_s if win_side == "radiant" else dire_s
+        lose_s = dire_s if win_side == "radiant" else rad_s
+        f10k_txt = (
+            f"{win_name}先到 10 杀（比分 {score['radiant']}-{score['dire']}，"
+            f"{f10k_time // 60}分{f10k_time % 60:02d}秒）。"
+            f"这 10 刀里中单 {win_s['mid']['player']}/{win_s['mid']['hero']} 出了 {win_s['mid']['kills_before_10']} 刀，"
+            f"中辅合计 {win_s['first10_mid_sup_kills']} 刀"
+            f"{' · 中辅驱动' if win_s['mid_sup_driven'] else ''}。"
+            f"对手当时 {lose_s['kills_at_f10k']} 杀。"
+        )
 
     blurb = {
         "bp": {
             "radiant": bp_note(rad_draft, "radiant", rad_s["mid"]["hero"]),
             "dire": bp_note(dire_draft, "dire", dire_s["mid"]["hero"]),
         },
-        "pace": f"{pace}节奏 / {length}局（{duration // 60}分{(duration % 60):02d}秒）；F10K 出现在 {f10k_time // 60 if f10k_time else '?'}分" + (f"{(f10k_time % 60):02d}秒" if f10k_time else ""),
+        "pace": f"{pace}节奏 / {length}局（{duration // 60}分{(duration % 60):02d}秒）；先到10杀出现在 {f10k_time // 60 if f10k_time else '?'}分" + (f"{(f10k_time % 60):02d}秒" if f10k_time else ""),
         "stance": stance,
-        "f10k": f10k_is_mid_txt or "本局击杀日志不足 10 个，无法计算 F10K",
+        "f10k": f10k_txt,
         "mid_support": (
-            f"天辉 {rad_s['mid']['player']}/{rad_s['mid']['hero']} 前10杀{rad_s['mid']['kills_before_10']}，"
+            f"天辉 {rad_s['mid']['player']}/{rad_s['mid']['hero']} 在先到10杀时点出 {rad_s['mid']['kills_before_10']}，"
             f"辅{rad_s['pos4']['player']}/{rad_s['pos4']['hero']} {rad_s['pos4']['kills_before_10']}，"
             f"中辅合计{rad_s['first10_mid_sup_kills']}{' · 中辅驱动' if rad_s['mid_sup_driven'] else ''}，同框团{rad_s['mid_support_fights_12min']}；"
-            f"夜魇 {dire_s['mid']['player']}/{dire_s['mid']['hero']} 前10杀{dire_s['mid']['kills_before_10']}，"
+            f"夜魇 {dire_s['mid']['player']}/{dire_s['mid']['hero']} {dire_s['mid']['kills_before_10']}，"
             f"辅{dire_s['pos4']['player']}/{dire_s['pos4']['hero']} {dire_s['pos4']['kills_before_10']}，"
             f"中辅合计{dire_s['first10_mid_sup_kills']}{' · 中辅驱动' if dire_s['mid_sup_driven'] else ''}，同框团{dire_s['mid_support_fights_12min']}"
         ),
@@ -416,7 +441,7 @@ def analyze_game(meta: dict, match: dict, heroes: dict[int, str]) -> dict:
         "length": length,
         "stance": stance,
         "f10k": f10k,
-        "f10k_by_mid": mid_f10k,
+        "f10k_mid_share": (rad_s if f10k and f10k["side"] == "radiant" else dire_s)["mid"]["kills_before_10"] if f10k else 0,
         "first_tower": tower,
         "gold": {"m5": gold_at(5), "m10": gold_at(10), "m15": gold_at(15), "m20": gold_at(20)},
         "kills_8min": kills_8,
@@ -443,7 +468,7 @@ def main() -> None:
         "asOf": "2026-08-17",
         "n": len(games),
         "definition": {
-            "f10k": "第10个英雄击杀归属",
+            "f10k": "哪支队伍先获得 10 次英雄击杀（先到10杀），不是全局第10个击杀的收刀人",
             "mid": "lane_role=2，否则用已知中单名单",
             "mid_support_fight": "前12分钟、25秒窗口内中单与游走辅都出过击杀",
             "stance": "由 F10K 时间、一塔时间、15分钟经济差合成",
