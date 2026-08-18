@@ -2,9 +2,7 @@
 
 主项目：**[噜噜/](噜噜/)** — 水豚噜噜主人公，炒股题材动画短视频。
 
-TI15 淘汰赛分析台已迁到独立仓库（观赛请打开那边的 GitHub Pages，不要用本仓库临时链接）：
-
-**https://github.com/Justineya/ti15-playoff-analyzer**
+TI15 分析台代码在本仓库 [`ti15-analyzer/`](ti15-analyzer/)。Cloud Agent **不能**写入另一个仓库，所以观赛站的自动更新也挂在本仓库的 GitHub Actions 上。独立空仓库 `ti15-playoff-analyzer` 需要你在 **Cursor 桌面版**（用你自己的 GitHub 登录）推一次，Cloud Agent 做不到。
 
 | 系列 | 说明 |
 |------|------|

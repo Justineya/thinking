@@ -2,6 +2,7 @@ name: Deploy TI15 site
 
 on:
   push:
+    branches: [main]
     paths:
       - "ti15-analyzer/web/**"
       - ".github/workflows/ti15-pages.yml"
