@@ -770,16 +770,17 @@ function setup(data) {
     ["bracket", "对阵图"],
     ["predict", "预测与押注"],
     ["series", "8/20 四场"],
-    ["all", "全部 80 局"],
+    ["all", "全部局"],
     ...Object.keys(data.teams).map((n) => [n, n]),
   ];
   let mode = "stake";
   let liveNote = "";
   const updateOddsStatus = () => {
     if (!oddsStatus) return;
+    const pub = data.publishedAt || data.asOf || "";
     const asOf = data.polymarket?.asOf;
-    const fmt = window.TI15_ODDS?.formatAsOf(asOf) || asOf || "快照";
-    oddsStatus.textContent = `Polymarket ${fmt}`;
+    const fmt = window.TI15_ODDS?.formatAsOf(asOf) || asOf || "";
+    oddsStatus.textContent = pub ? `更新 ${pub}` : fmt ? `Polymarket ${fmt}` : "待更新";
   };
   const paint = () => {
     for (const btn of filters.querySelectorAll("button")) {
@@ -829,5 +830,5 @@ if (window.TI15_DATA) {
   setup(window.TI15_DATA);
 } else {
   document.getElementById("app").innerHTML =
-    "数据文件没加载到。请直接打开 <code>ti15-analyzer/web/index.html</code>，不要打开 GitHub 的源码预览页。";
+    "数据文件没加载到。请打开本站首页，不要打开 GitHub 的源码预览页。";
 }

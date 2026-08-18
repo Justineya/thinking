@@ -14,6 +14,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -592,7 +593,7 @@ def main() -> None:
         games.append(analyze_game(meta, match, heroes, npc_by_id, source="ti15", patch="7.41e"))
 
     out = {
-        "asOf": "2026-08-17",
+        "asOf": datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M") + " CST",
         "n": len(games),
         "definition": {
             "f10k": "哪支队伍先获得 10 次英雄击杀（先到10杀），不是全局第10个击杀的收刀人",

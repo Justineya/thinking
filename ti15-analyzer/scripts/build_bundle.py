@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from collections import Counter
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -143,9 +144,11 @@ def main() -> None:
         item["profileB"] = team_profile(games, item["teamB"])
         item["sim"] = sim_by_id.get(item["id"])
 
+    published = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M") + " CST"
     bundle = {
-        "asOf": poly.get("asOf", "2026-08-17")[:10],
-        "note": "逐场页只列 TI15 的 80 局。BP/F10K/胜率模拟 = TI15 100% + EWC 八强地图 45%。",
+        "asOf": published,
+        "publishedAt": published,
+        "note": "逐场页列 TI15 八强地图（含淘汰赛新局）。BP/F10K/胜率模拟 = TI15 100% + EWC 八强地图 45%。",
         "polySlugs": poly_slugs,
         "polymarket": poly,
         "teams": {name: team_profile(games, name) for name in EIGHT},

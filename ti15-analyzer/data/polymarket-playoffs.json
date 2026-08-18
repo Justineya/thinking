@@ -1,11 +1,11 @@
 {
-  "asOf": "2026-08-18T02:41Z",
+  "asOf": "2026-08-18T03:57Z",
   "source": "https://gamma-api.polymarket.com",
   "events": [
     {
       "slug": "dota2-ironwi-ts8-2026-08-19",
       "title": "Dota 2: Iron Wing vs Team Spirit (BO3) - The International Playoffs",
-      "volume": 29086.632831999996,
+      "volume": 29096.066792999998,
       "markets": [
         {
           "question": "Dota 2: Iron Wing vs Team Spirit - Game 1 Winner",
@@ -113,8 +113,8 @@
             "No"
           ],
           "prices": [
-            "0.26",
-            "0.74"
+            "0.255",
+            "0.745"
           ]
         },
         {
@@ -168,8 +168,8 @@
             "No"
           ],
           "prices": [
-            "0.26",
-            "0.74"
+            "0.255",
+            "0.745"
           ]
         },
         {
@@ -232,7 +232,7 @@
     {
       "slug": "dota2-vsn2-boombo-2026-08-20",
       "title": "Dota 2: TEAM VISION vs BoomBoys (BO3) - The International Playoffs",
-      "volume": 85745.842015,
+      "volume": 85777.87022900001,
       "markets": [
         {
           "question": "Dota 2: TEAM VISION vs BoomBoys - Game 1 Winner",
@@ -241,8 +241,8 @@
             "BoomBoys"
           ],
           "prices": [
-            "0.685",
-            "0.315"
+            "0.69",
+            "0.31"
           ]
         },
         {
@@ -340,8 +340,8 @@
             "No"
           ],
           "prices": [
-            "0.255",
-            "0.745"
+            "0.245",
+            "0.755"
           ]
         },
         {
@@ -395,8 +395,8 @@
             "No"
           ],
           "prices": [
-            "0.255",
-            "0.745"
+            "0.245",
+            "0.755"
           ]
         },
         {
@@ -450,8 +450,8 @@
             "No"
           ],
           "prices": [
-            "0.52",
-            "0.48"
+            "0.525",
+            "0.475"
           ]
         }
       ]
@@ -459,7 +459,7 @@
     {
       "slug": "dota2-liquid-ty-2026-08-20",
       "title": "Dota 2: Team Liquid vs Team Yandex (BO3) - The International Playoffs",
-      "volume": 57926.73526700003,
+      "volume": 57953.276766,
       "markets": [
         {
           "question": "Dota 2: Team Liquid vs Team Yandex - Game 1 Winner",
@@ -567,8 +567,8 @@
             "No"
           ],
           "prices": [
-            "0.13",
-            "0.87"
+            "0.12",
+            "0.88"
           ]
         },
         {
@@ -622,8 +622,8 @@
             "No"
           ],
           "prices": [
-            "0.13",
-            "0.87"
+            "0.125",
+            "0.875"
           ]
         },
         {
@@ -677,8 +677,8 @@
             "No"
           ],
           "prices": [
-            "0.615",
-            "0.385"
+            "0.625",
+            "0.375"
           ]
         }
       ]
@@ -686,7 +686,7 @@
     {
       "slug": "dota2-ngx-flc-2026-08-20",
       "title": "Dota 2: Nigma Galaxy vs Team Falcons (BO3) - The International Playoffs",
-      "volume": 90847.66826300001,
+      "volume": 90847.668263,
       "markets": [
         {
           "question": "Dota 2: Nigma Galaxy vs Team Falcons - Game 1 Winner",
@@ -706,8 +706,8 @@
             "Team Falcons"
           ],
           "prices": [
-            "0.42",
-            "0.58"
+            "0.405",
+            "0.595"
           ]
         },
         {
@@ -717,8 +717,8 @@
             "Team Falcons"
           ],
           "prices": [
-            "0.335",
-            "0.665"
+            "0.345",
+            "0.655"
           ]
         },
         {
@@ -728,8 +728,8 @@
             "Under"
           ],
           "prices": [
-            "0.47",
-            "0.53"
+            "0.475",
+            "0.525"
           ]
         },
         {
@@ -794,8 +794,8 @@
             "No"
           ],
           "prices": [
-            "0.09",
-            "0.91"
+            "0.06",
+            "0.94"
           ]
         },
         {
@@ -838,8 +838,8 @@
             "No"
           ],
           "prices": [
-            "0.295",
-            "0.705"
+            "0.29",
+            "0.71"
           ]
         },
         {
@@ -871,8 +871,8 @@
             "No"
           ],
           "prices": [
-            "0.455",
-            "0.545"
+            "0.525",
+            "0.475"
           ]
         },
         {
@@ -893,8 +893,8 @@
             "No"
           ],
           "prices": [
-            "0.56",
-            "0.44"
+            "0.55",
+            "0.45"
           ]
         },
         {
@@ -904,8 +904,8 @@
             "No"
           ],
           "prices": [
-            "0.615",
-            "0.385"
+            "0.625",
+            "0.375"
           ]
         }
       ]

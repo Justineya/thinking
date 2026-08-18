@@ -7,14 +7,38 @@
   "groupStage": "2026-08-13 ~ 2026-08-16",
   "playoffs": "2026-08-20 ~ 2026-08-23",
   "timezone": "Asia/Shanghai",
-  "asOf": "2026-08-17",
+  "asOf": "2026-08-18 11:57 CST",
   "note": "对阵图按液体百科/赛程稿排好，后续场次队伍会随结果填入。时间均为北京时间。",
-  "swissTop3": ["TEAM VISION", "Team Liquid", "Nigma Galaxy"],
-  "eliminationWinners": ["Team Falcons", "BoomBoys", "Team Spirit", "Iron Wing", "Team Yandex"],
+  "swissTop3": [
+    "TEAM VISION",
+    "Team Liquid",
+    "Nigma Galaxy"
+  ],
+  "eliminationWinners": [
+    "Team Falcons",
+    "BoomBoys",
+    "Team Spirit",
+    "Iron Wing",
+    "Team Yandex"
+  ],
   "aliases": {
-    "TEAM VISION": ["PARIVISION", "PVISION", "VSN"],
-    "BoomBoys": ["BetBoom Team", "BetBoom", "BB Team", "BB"],
-    "Iron Wing": ["1w Team", "1win", "Tundra Esports", "Tundra"]
+    "TEAM VISION": [
+      "PARIVISION",
+      "PVISION",
+      "VSN"
+    ],
+    "BoomBoys": [
+      "BetBoom Team",
+      "BetBoom",
+      "BB Team",
+      "BB"
+    ],
+    "Iron Wing": [
+      "1w Team",
+      "1win",
+      "Tundra Esports",
+      "Tundra"
+    ]
   },
   "teams": [
     {
@@ -23,7 +47,13 @@
       "tag": "VSN",
       "opendotaId": 9572001,
       "seed": "瑞士第1，直通",
-      "players": ["Satanic", "No[o]ne-", "Noticed", "9Class", "Dukalis"],
+      "players": [
+        "Satanic",
+        "No[o]ne-",
+        "Noticed",
+        "9Class",
+        "Dukalis"
+      ],
       "coach": "Puppey"
     },
     {
@@ -32,7 +62,13 @@
       "tag": "Liquid",
       "opendotaId": 2163,
       "seed": "瑞士第2，直通",
-      "players": ["m1CKe", "Nisha", "Ace", "Boxi", "tOfu"],
+      "players": [
+        "m1CKe",
+        "Nisha",
+        "Ace",
+        "Boxi",
+        "tOfu"
+      ],
       "coach": "Blitz / Jabbz"
     },
     {
@@ -41,7 +77,13 @@
       "tag": "NGX",
       "opendotaId": 10136357,
       "seed": "瑞士第3，直通",
-      "players": ["SumaiL", "lorenof", "Davai", "OmaR", "GH"],
+      "players": [
+        "SumaiL",
+        "lorenof",
+        "Davai",
+        "OmaR",
+        "GH"
+      ],
       "coach": "KuroKy"
     },
     {
@@ -50,7 +92,13 @@
       "tag": "TSpirit",
       "opendotaId": 7119388,
       "seed": "淘汰赛晋级",
-      "players": ["Yatoro", "Larl", "Collapse", "not me", "rue"],
+      "players": [
+        "Yatoro",
+        "Larl",
+        "Collapse",
+        "not me",
+        "rue"
+      ],
       "coach": "Miposhka / MiLAN"
     },
     {
@@ -59,7 +107,13 @@
       "tag": "IW",
       "opendotaId": 10150413,
       "seed": "淘汰赛晋级",
-      "players": ["Pure", "bzm", "33", "Ari", "Whitemon"],
+      "players": [
+        "Pure",
+        "bzm",
+        "33",
+        "Ari",
+        "Whitemon"
+      ],
       "coach": "MoonMeander",
       "note": "原 Tundra 阵容，经 1w 转会后以 Iron Wing 出战"
     },
@@ -69,7 +123,13 @@
       "tag": "FLCN",
       "opendotaId": 9247354,
       "seed": "淘汰赛晋级（卫冕冠军）",
-      "players": ["skiter", "Malr1ne", "ATF", "Cr1t-", "Sneyking"],
+      "players": [
+        "skiter",
+        "Malr1ne",
+        "ATF",
+        "Cr1t-",
+        "Sneyking"
+      ],
       "coach": "Aui_2000"
     },
     {
@@ -78,7 +138,13 @@
       "tag": "BB",
       "opendotaId": 8255888,
       "seed": "淘汰赛晋级",
-      "players": ["Kiritych~", "gpk~", "MieRo", "Save-", "Kataomi"],
+      "players": [
+        "Kiritych~",
+        "gpk~",
+        "MieRo",
+        "Save-",
+        "Kataomi"
+      ],
       "coach": "boolk",
       "note": "原 BetBoom Team"
     },
@@ -88,15 +154,55 @@
       "tag": "TY",
       "opendotaId": 9823272,
       "seed": "淘汰赛晋级",
-      "players": ["watson", "CHIRA_JUNIOR", "DM", "Saksa", "Malady"],
+      "players": [
+        "watson",
+        "CHIRA_JUNIOR",
+        "DM",
+        "Saksa",
+        "Malady"
+      ],
       "coach": "Accell"
     }
   ],
   "days": [
-    {"date": "2026-08-20", "label": "第1天 · 胜者组首轮", "slots": ["ubqf1", "ubqf2", "ubqf3", "ubqf4"]},
-    {"date": "2026-08-21", "label": "第2天 · 败者组首轮 + 胜者组半决赛", "slots": ["lbr1a", "lbr1b", "ubsf1", "ubsf2"]},
-    {"date": "2026-08-22", "label": "第3天 · 败者组四分之一 + 胜者组决赛 + 败者组半决赛", "slots": ["lbqf1", "lbqf2", "ubf", "lbsf"]},
-    {"date": "2026-08-23", "label": "第4天 · 败者组决赛 + 总决赛", "slots": ["lbf", "gf"]}
+    {
+      "date": "2026-08-20",
+      "label": "第1天 · 胜者组首轮",
+      "slots": [
+        "ubqf1",
+        "ubqf2",
+        "ubqf3",
+        "ubqf4"
+      ]
+    },
+    {
+      "date": "2026-08-21",
+      "label": "第2天 · 败者组首轮 + 胜者组半决赛",
+      "slots": [
+        "lbr1a",
+        "lbr1b",
+        "ubsf1",
+        "ubsf2"
+      ]
+    },
+    {
+      "date": "2026-08-22",
+      "label": "第3天 · 败者组四分之一 + 胜者组决赛 + 败者组半决赛",
+      "slots": [
+        "lbqf1",
+        "lbqf2",
+        "ubf",
+        "lbsf"
+      ]
+    },
+    {
+      "date": "2026-08-23",
+      "label": "第4天 · 败者组决赛 + 总决赛",
+      "slots": [
+        "lbf",
+        "gf"
+      ]
+    }
   ],
   "matches": [
     {
@@ -161,8 +267,14 @@
       "day": "2026-08-21",
       "datetime": "2026-08-21 10:00",
       "format": "Bo3",
-      "teamA": {"from": "ubqf1", "as": "loser"},
-      "teamB": {"from": "ubqf2", "as": "loser"},
+      "teamA": {
+        "from": "ubqf1",
+        "as": "loser"
+      },
+      "teamB": {
+        "from": "ubqf2",
+        "as": "loser"
+      },
       "status": "awaiting",
       "winnerTo": "lbqf1"
     },
@@ -172,8 +284,14 @@
       "day": "2026-08-21",
       "datetime": "2026-08-21 13:00",
       "format": "Bo3",
-      "teamA": {"from": "ubqf3", "as": "loser"},
-      "teamB": {"from": "ubqf4", "as": "loser"},
+      "teamA": {
+        "from": "ubqf3",
+        "as": "loser"
+      },
+      "teamB": {
+        "from": "ubqf4",
+        "as": "loser"
+      },
       "status": "awaiting",
       "winnerTo": "lbqf2"
     },
@@ -183,8 +301,14 @@
       "day": "2026-08-21",
       "datetime": "2026-08-21 16:00",
       "format": "Bo3",
-      "teamA": {"from": "ubqf1", "as": "winner"},
-      "teamB": {"from": "ubqf2", "as": "winner"},
+      "teamA": {
+        "from": "ubqf1",
+        "as": "winner"
+      },
+      "teamB": {
+        "from": "ubqf2",
+        "as": "winner"
+      },
       "status": "awaiting",
       "winnerTo": "ubf",
       "loserTo": "lbqf2"
@@ -195,8 +319,14 @@
       "day": "2026-08-21",
       "datetime": "2026-08-21 19:00",
       "format": "Bo3",
-      "teamA": {"from": "ubqf3", "as": "winner"},
-      "teamB": {"from": "ubqf4", "as": "winner"},
+      "teamA": {
+        "from": "ubqf3",
+        "as": "winner"
+      },
+      "teamB": {
+        "from": "ubqf4",
+        "as": "winner"
+      },
       "status": "awaiting",
       "winnerTo": "ubf",
       "loserTo": "lbqf1"
@@ -207,8 +337,14 @@
       "day": "2026-08-22",
       "datetime": "2026-08-22 10:00",
       "format": "Bo3",
-      "teamA": {"from": "lbr1a", "as": "winner"},
-      "teamB": {"from": "ubsf2", "as": "loser"},
+      "teamA": {
+        "from": "lbr1a",
+        "as": "winner"
+      },
+      "teamB": {
+        "from": "ubsf2",
+        "as": "loser"
+      },
       "status": "awaiting",
       "winnerTo": "lbsf"
     },
@@ -218,8 +354,14 @@
       "day": "2026-08-22",
       "datetime": "2026-08-22 13:00",
       "format": "Bo3",
-      "teamA": {"from": "lbr1b", "as": "winner"},
-      "teamB": {"from": "ubsf1", "as": "loser"},
+      "teamA": {
+        "from": "lbr1b",
+        "as": "winner"
+      },
+      "teamB": {
+        "from": "ubsf1",
+        "as": "loser"
+      },
       "status": "awaiting",
       "winnerTo": "lbsf"
     },
@@ -229,8 +371,14 @@
       "day": "2026-08-22",
       "datetime": "2026-08-22 16:00",
       "format": "Bo3",
-      "teamA": {"from": "ubsf1", "as": "winner"},
-      "teamB": {"from": "ubsf2", "as": "winner"},
+      "teamA": {
+        "from": "ubsf1",
+        "as": "winner"
+      },
+      "teamB": {
+        "from": "ubsf2",
+        "as": "winner"
+      },
       "status": "awaiting",
       "winnerTo": "gf",
       "loserTo": "lbf"
@@ -241,8 +389,14 @@
       "day": "2026-08-22",
       "datetime": "2026-08-22 19:00",
       "format": "Bo3",
-      "teamA": {"from": "lbqf1", "as": "winner"},
-      "teamB": {"from": "lbqf2", "as": "winner"},
+      "teamA": {
+        "from": "lbqf1",
+        "as": "winner"
+      },
+      "teamB": {
+        "from": "lbqf2",
+        "as": "winner"
+      },
       "status": "awaiting",
       "winnerTo": "lbf"
     },
@@ -252,8 +406,14 @@
       "day": "2026-08-23",
       "datetime": "2026-08-23 10:00",
       "format": "Bo3",
-      "teamA": {"from": "lbsf", "as": "winner"},
-      "teamB": {"from": "ubf", "as": "loser"},
+      "teamA": {
+        "from": "lbsf",
+        "as": "winner"
+      },
+      "teamB": {
+        "from": "ubf",
+        "as": "loser"
+      },
       "status": "awaiting",
       "winnerTo": "gf"
     },
@@ -263,8 +423,14 @@
       "day": "2026-08-23",
       "datetime": "2026-08-23 13:00",
       "format": "Bo5",
-      "teamA": {"from": "ubf", "as": "winner"},
-      "teamB": {"from": "lbf", "as": "winner"},
+      "teamA": {
+        "from": "ubf",
+        "as": "winner"
+      },
+      "teamB": {
+        "from": "lbf",
+        "as": "winner"
+      },
       "status": "awaiting"
     }
   ]

@@ -10,6 +10,7 @@ import json
 import math
 import random
 from collections import Counter, defaultdict
+from datetime import datetime, timedelta, timezone
 from itertools import product
 from pathlib import Path
 
@@ -617,8 +618,9 @@ def main() -> None:
             "f10k_rate": (got / n) if n else 0,
         }
 
+    cst = timezone(timedelta(hours=8))
     out = {
-        "asOf": "2026-08-17",
+        "asOf": datetime.now(cst).strftime("%Y-%m-%d %H:%M") + " CST",
         "seed": SEED,
         "simsPerMap": SIMS_PER_MAP,
         "definition": {
