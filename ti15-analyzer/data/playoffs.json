@@ -109,6 +109,7 @@
       "teamB": "Team Spirit",
       "status": "scheduled",
       "polyTitle": "Iron Wing vs Team Spirit",
+      "polySlug": "dota2-ironwi-ts8-2026-08-19",
       "winnerTo": "ubsf1",
       "loserTo": "lbr1a"
     },
@@ -122,6 +123,7 @@
       "teamB": "BoomBoys",
       "status": "scheduled",
       "polyTitle": "TEAM VISION vs BoomBoys",
+      "polySlug": "dota2-vsn2-boombo-2026-08-20",
       "winnerTo": "ubsf1",
       "loserTo": "lbr1a"
     },
@@ -135,6 +137,7 @@
       "teamB": "Team Yandex",
       "status": "scheduled",
       "polyTitle": "Team Liquid vs Team Yandex",
+      "polySlug": "dota2-liquid-ty-2026-08-20",
       "winnerTo": "ubsf2",
       "loserTo": "lbr1b"
     },
@@ -148,6 +151,7 @@
       "teamB": "Team Falcons",
       "status": "scheduled",
       "polyTitle": "Nigma Galaxy vs Team Falcons",
+      "polySlug": "dota2-ngx-flc-2026-08-20",
       "winnerTo": "ubsf2",
       "loserTo": "lbr1b"
     },

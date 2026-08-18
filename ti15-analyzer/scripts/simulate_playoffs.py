@@ -571,6 +571,7 @@ def main() -> None:
             sim["round"] = match["round"]
             sim["when"] = match.get("datetime")
             sim["status"] = "scheduled"
+            sim["polySlug"] = match.get("polySlug")
             title = match.get("polyTitle") or ""
             event = None
             for ev in poly.get("events") or []:

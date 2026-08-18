@@ -176,24 +176,25 @@ function mapSims(map) {
   </div>`;
 }
 
-function betTable(betting) {
+function betTable(betting, liveNote) {
   if (!betting) return "";
   const rows = (betting.rows || [])
     .map((r) => {
       const roi = r.roi == null ? "—" : `${r.roi >= 0 ? "+" : ""}${Math.round(r.roi * 100)}%`;
       const mkt = r.marketP == null ? "无盘" : pct(r.marketP);
+      const odds = r.odds ? ` · 等价 ${r.odds.toFixed(2)}` : "";
       return `<tr>
         <td>${r.market}</td>
         <td>${r.pick}</td>
         <td>${pct(r.modelP)}</td>
-        <td>${mkt}</td>
+        <td>${mkt}${odds}</td>
         <td>${roi}</td>
         <td>${r.action}</td>
       </tr>`;
     })
     .join("");
   return `<div class="bet">
-    <h3>押注方案（模型 vs Polymarket）</h3>
+    <h3>押注方案（模型 vs Polymarket）${liveNote || ""}</h3>
     <p class="insight">${betting.plan}</p>
     <table class="src-table">
       <thead><tr><th>盘口</th><th>买谁</th><th>模型</th><th>市场</th><th>期望回报率</th><th>建议</th></tr></thead>
@@ -203,11 +204,20 @@ function betTable(betting) {
   </div>`;
 }
 
-function simPanel(sim) {
+function simPanel(sim, liveNote) {
   if (!sim) return '<p class="empty">还没有模拟。</p>';
+  const polyBits = [];
+  if (sim.polyLive?.prices) {
+    const [a, b] = sim.polyLive.prices;
+    polyBits.push(`系列市场 ${sim.polyLive.outcomes[0]} ${pct(a)} / ${sim.polyLive.outcomes[1]} ${pct(b)}`);
+  }
+  if (sim.poly?.g1?.prices) {
+    const g = sim.poly.g1;
+    polyBits.push(`G1 ${g.outcomes[0]} ${pct(g.prices[0])} / ${g.outcomes[1]} ${pct(g.prices[1])}`);
+  }
   return `<div class="sim-wrap">
-    <p class="insight">${sim.why || ""} 系列 ${sim.teamA} ${pct(sim.series?.pSeriesA)} / ${sim.teamB} ${pct(sim.series?.pSeriesB)}。先到10杀 ${pct(sim.pF10A)} / ${pct(sim.pF10B)}。</p>
-    ${betTable(sim.betting)}
+    <p class="insight">${sim.why || ""} 系列 ${sim.teamA} ${pct(sim.series?.pSeriesA)} / ${sim.teamB} ${pct(sim.series?.pSeriesB)}。先到10杀 ${pct(sim.pF10A)} / ${pct(sim.pF10B)}。${polyBits.length ? `<br><span class="note">${polyBits.join(" · ")}</span>` : ""}</p>
+    ${betTable(sim.betting, liveNote)}
     ${(sim.maps || []).map(mapSims).join("")}
   </div>`;
 }
@@ -656,7 +666,7 @@ function renderEwc(data) {
   </section>`;
 }
 
-function renderPredictions(data) {
+function renderPredictions(data, liveNote) {
   const known = data.simulations?.known || [];
   const scenarios = data.simulations?.scenarios || [];
   const bySlot = {};
@@ -674,7 +684,7 @@ function renderPredictions(data) {
           <div class="poly">${sim.when || ""} CST</div>
         </div>
         ${series ? `<p class="insight">${series.insight}</p>` : ""}
-        ${simPanel(sim)}
+        ${simPanel(sim, liveNote)}
       </section>`;
     })
     .join("");
@@ -705,7 +715,7 @@ function renderPredictions(data) {
   return renderEwc(data) + knownHtml + nextHtml;
 }
 
-function render(data, mode) {
+function render(data, mode, liveNote) {
   const app = document.getElementById("app");
   const byId = Object.fromEntries(data.games.map((g) => [g.match_id, g]));
 
@@ -719,7 +729,7 @@ function render(data, mode) {
     return;
   }
   if (mode === "predict") {
-    app.innerHTML = renderPredictions(data);
+    app.innerHTML = renderPredictions(data, liveNote);
     return;
   }
   if (mode === "series") {
@@ -734,7 +744,7 @@ function render(data, mode) {
           </div>
           <p class="insight">${s.insight}</p>
           <div class="compare">${profileBox(s.profileA)}${profileBox(s.profileB)}</div>
-          ${simPanel(sim)}
+          ${simPanel(sim, liveNote)}
           <h3>本届直接交手</h3>
           ${h2h.length ? h2h.map(gameCard).join("") : '<p class="empty">本届无直接交手，上面是各自 80 局里的中单/F10K 画像。</p>'}
         </section>`;
@@ -753,6 +763,8 @@ function render(data, mode) {
 
 function setup(data) {
   const filters = document.getElementById("filters");
+  const oddsBtn = document.getElementById("odds-refresh");
+  const oddsStatus = document.getElementById("odds-status");
   const buttons = [
     ["stake", "注码"],
     ["bracket", "对阵图"],
@@ -762,11 +774,18 @@ function setup(data) {
     ...Object.keys(data.teams).map((n) => [n, n]),
   ];
   let mode = "stake";
+  let liveNote = "";
+  const updateOddsStatus = () => {
+    if (!oddsStatus) return;
+    const asOf = data.polymarket?.asOf;
+    const fmt = window.TI15_ODDS?.formatAsOf(asOf) || asOf || "快照";
+    oddsStatus.textContent = `Polymarket ${fmt}`;
+  };
   const paint = () => {
     for (const btn of filters.querySelectorAll("button")) {
       btn.classList.toggle("on", btn.dataset.mode === mode);
     }
-    render(data, mode === "all" ? "all" : mode);
+    render(data, mode === "all" ? "all" : mode, liveNote);
   };
   filters.innerHTML = buttons
     .map(([id, label]) => `<button type="button" data-mode="${id}">${label}</button>`)
@@ -777,6 +796,32 @@ function setup(data) {
     mode = btn.dataset.mode;
     paint();
   });
+  if (oddsBtn && window.TI15_ODDS) {
+    oddsBtn.addEventListener("click", async () => {
+      oddsBtn.disabled = true;
+      oddsBtn.textContent = "拉取中…";
+      try {
+        const res = await window.TI15_ODDS.refreshOdds(data);
+        liveNote = ` · 已刷新 ${window.TI15_ODDS.formatAsOf(res.asOf)}`;
+        updateOddsStatus();
+        paint();
+        oddsBtn.textContent = "已更新";
+        setTimeout(() => {
+          oddsBtn.textContent = "刷新赔率";
+          oddsBtn.disabled = false;
+        }, 2000);
+      } catch (err) {
+        oddsBtn.textContent = "刷新失败";
+        if (oddsStatus) oddsStatus.textContent = String(err.message || err);
+        setTimeout(() => {
+          oddsBtn.textContent = "刷新赔率";
+          oddsBtn.disabled = false;
+          updateOddsStatus();
+        }, 3000);
+      }
+    });
+  }
+  updateOddsStatus();
   paint();
 }
 

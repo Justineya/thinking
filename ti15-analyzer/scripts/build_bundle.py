@@ -129,6 +129,12 @@ def main() -> None:
         },
     ]
     playoffs = json.loads((ROOT / "data" / "playoffs.json").read_text())
+    poly = markets
+    poly_slugs = [
+        m["polySlug"]
+        for m in playoffs.get("matches") or []
+        if m.get("polySlug") and isinstance(m.get("teamA"), str) and isinstance(m.get("teamB"), str)
+    ]
     sims = json.loads((ROOT / "data" / "simulations.json").read_text())
     sim_by_id = {item["id"]: item for item in sims.get("known") or []}
     for item in series:
@@ -138,8 +144,10 @@ def main() -> None:
         item["sim"] = sim_by_id.get(item["id"])
 
     bundle = {
-        "asOf": "2026-08-17",
+        "asOf": poly.get("asOf", "2026-08-17")[:10],
         "note": "逐场页只列 TI15 的 80 局。BP/F10K/胜率模拟 = TI15 100% + EWC 八强地图 45%。",
+        "polySlugs": poly_slugs,
+        "polymarket": poly,
         "teams": {name: team_profile(games, name) for name in EIGHT},
         "playoffs": playoffs,
         "simulations": sims,
@@ -154,7 +162,9 @@ def main() -> None:
     js_path = ROOT / "web" / "data.js"
     js_path.write_text("window.TI15_DATA = " + payload + ";\n")
     css = (ROOT / "web" / "styles.css").read_text()
+    odds_js = (ROOT / "web" / "odds.js").read_text()
     app_js = (ROOT / "web" / "analysis.js").read_text()
+    poly_asof = poly.get("asOf", "2026-08-17")[:16].replace("T", " ")
     standalone = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -167,7 +177,8 @@ def main() -> None:
   <div class="bg-grid"></div>
   <header class="topbar">
     <div class="brand"><span class="aegis">TI15</span><span>逐场分析</span></div>
-    <div class="status">80 局 · 先到10杀 · 参与=击杀+助攻</div>
+    <div class="status" id="odds-status">Polymarket …</div>
+    <button type="button" class="odds-refresh" id="odds-refresh" title="从 Polymarket 拉最新价格">刷新赔率</button>
   </header>
   <main>
     <section class="hero">
@@ -178,8 +189,9 @@ def main() -> None:
     <div class="filters" id="filters"></div>
     <div id="app">加载数据…</div>
   </main>
-  <footer><p>数据：OpenDota league 19719 · 市场：Polymarket 8/17 快照 · 非投注建议</p></footer>
+  <footer><p>数据：OpenDota league 19719 · 市场：Polymarket {poly_asof} · 点「刷新赔率」拉最新 · 非投注建议</p></footer>
   <script>window.TI15_DATA = {payload};</script>
+  <script>{odds_js}</script>
   <script>{app_js}</script>
 </body>
 </html>

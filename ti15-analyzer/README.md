@@ -42,10 +42,13 @@ https://dash.cloudflare.com/claim-preview?claimToken=xT7l223VPhObCKT-IrNcObHmNug
 更新数据后在仓库里跑：
 
 ```bash
+python3 ti15-analyzer/scripts/fetch_polymarket.py   # 拉 Polymarket 最新价 → data/polymarket-playoffs.json
 python3 ti15-analyzer/scripts/ingest_games.py
 python3 ti15-analyzer/scripts/simulate_playoffs.py
 python3 ti15-analyzer/scripts/build_bundle.py
 ```
+
+线上页面右上角有 **「刷新赔率」**：浏览器直连 Polymarket Gamma API，即时更新 8/20 四场的系列/G1/O/U/让分，并重算模型 vs 市场差价（**不含**先到10杀——Polymarket 没这格；低保盘请用手动填赔率的计算器）。
 
 然后再上传 `web/`，或 `cd ti15-analyzer && npx wrangler deploy`。
 
