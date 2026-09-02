@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>个人健康档案</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>个人健康档案</h1>
+    <p class="sub">港深就医记录 · 本地存储 · AI 仅读你自己的材料</p>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <h2>上传记录</h2>
+      <form id="upload-form">
+        <label>就诊日期 <input type="date" name="visit_date" required /></label>
+        <label>地区
+          <select name="region" required>
+            <option value="HK">香港</option>
+            <option value="SZ">深圳</option>
+            <option value="OTHER">其他</option>
+          </select>
+        </label>
+        <label>类型
+          <select name="record_type" required>
+            <option value="lab">化验</option>
+            <option value="imaging">影像</option>
+            <option value="prescription">处方</option>
+            <option value="visit">门诊小结</option>
+            <option value="other">其他</option>
+          </select>
+        </label>
+        <label>标题 <input type="text" name="title" placeholder="如：肝功能复查" required /></label>
+        <label>机构 <input type="text" name="institution" placeholder="如：港大深圳医院" /></label>
+        <label>标签 <input type="text" name="tags" placeholder="消化,复查" /></label>
+        <label>备注 <textarea name="notes" rows="3" placeholder="照片类报告可先写关键数值"></textarea></label>
+        <label>附件 <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md" /></label>
+        <button type="submit">保存</button>
+      </form>
+      <p id="upload-msg" class="msg"></p>
+    </section>
+
+    <section class="card">
+      <h2>时间轴</h2>
+      <button type="button" id="refresh-btn" class="ghost">刷新</button>
+      <ul id="timeline" class="timeline"></ul>
+    </section>
+
+    <section class="card full">
+      <h2>问档案</h2>
+      <form id="ask-form">
+        <textarea name="question" rows="2" placeholder="例：近半年肝功能有什么变化？上次在深圳开的药是什么？" required></textarea>
+        <button type="submit">分析</button>
+      </form>
+      <div id="answer" class="answer"></div>
+      <ul id="sources" class="sources"></ul>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
