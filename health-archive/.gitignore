@@ -2,6 +2,7 @@
 data/records/*
 !data/records/.gitkeep
 data/health.db
+reports/context.md
 __pycache__/
 *.pyc
 .venv/

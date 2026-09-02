@@ -48,6 +48,7 @@ python -m app.main
 
 - API Key 只放在服务端 `.env`，**不要**暴露给前端  
 - 「一次性综合分析」：`POST /api/analyze/summary`（网页「一键综合分析」按钮）
+- **可选**：用 Cursor Automation 批量写 `reports/analysis.md`，见 [docs/CURSOR_AUTOMATION.md](docs/CURSOR_AUTOMATION.md)
 
 ## 典型用法
 
