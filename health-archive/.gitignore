@@ -1,8 +1,15 @@
 .env
-data/records/*
-!data/records/.gitkeep
-data/health.db
-reports/context.md
+.venv/
 __pycache__/
 *.pyc
-.venv/
+*.pyo
+
+# 健康数据 — 绝不提交
+data/health.db
+data/records/*
+!data/records/.gitkeep
+reports/context.md
+reports/analysis.md
+
+# 本地配置
+*.local

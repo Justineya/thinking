@@ -13,4 +13,4 @@
 
 ---
 
-**个人项目：** [health-archive/](health-archive/) — 港深个人病历库（Phase 1 自用）
+**个人健康档案** 已拆分为独立项目，见 [`health-archive/`](health-archive/)（可复制为新仓库，说明见 `health-archive/docs/SPIN_OUT.md`）。

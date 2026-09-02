@@ -1,69 +1,80 @@
-# 个人健康档案（Phase 1）
+# 个人健康档案
 
-本地优先的个人健康档案：**随手记症状**（像闲聊）+ 偶尔补化验/就诊记录，AI 按**你自己的时间线**综合分析。
+本地优先：**随手记症状** + 偶尔补化验/就诊记录，AI 按**你自己的时间线**综合分析。港深跨境就医场景友好。
 
 > 仅供个人整理与健康咨询参考，不替代医生面诊。
 
-## 功能（第一期）
+## 功能（Phase 1 · 个人自用）
 
-- **症状日记**：随手写「今天胃胀、打嗝…」，默认当天
-- **综合分析**：跨多条症状 + 化验/就诊记录做梳理（如「最近肠胃怎么回事」）
-- **上传报告（可选）**：PDF / 文本化验单、处方
-- 时间轴浏览；关键词检索 + LLM（OpenAI 兼容 API）
+- **症状日记**：像闲聊一样记「今天胃胀、打嗝…」
+- **综合分析**：跨多条症状 + 报告做时间线梳理
+- **上传报告（可选）**：PDF / 文本
+- **一键综合分析**：`POST /api/analyze/summary`
 
 ## 快速开始
 
 ```bash
-cd health-archive
+git clone <你的新仓库地址>
+cd <仓库名>
+
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+
 cp .env.example .env
-# 编辑 .env，填入 LLM_API_KEY（通义/DeepSeek/OpenAI 等）
+# 编辑 .env，填入 LLM_API_KEY（通义 / DeepSeek / OpenAI 兼容）
 
 python -m app.main
 ```
 
 浏览器打开：<http://127.0.0.1:8765>
 
-## 数据存在哪
+或使用一键脚本：
 
-- 原始文件：`data/records/`
-- 索引与正文：`data/health.db`（SQLite，本地）
-
-**不要**把 `data/` 提交到 git；换电脑用备份整个 `health-archive/data` 目录。
-
-## 架构：网页怎么调 AI？
-
-**不要调 Cursor（写代码的这个 Agent）**——它没有给你个人产品用的 HTTP 接口，慢、贵、也不适合生产。
-
-正确链路（本项目已按此实现）：
-
-```
-浏览器 → 你的 FastAPI（/api/ask 或 /api/analyze/summary）
-       → 从本地 SQLite 取出症状/报告
-       → 调用大模型 API（通义 / DeepSeek 等，OpenAI 兼容）
-       → JSON 返回网页展示
+```bash
+bash scripts/setup.sh
 ```
 
-- API Key 只放在服务端 `.env`，**不要**暴露给前端  
-- 「一次性综合分析」：`POST /api/analyze/summary`（网页「一键综合分析」按钮）
-- **可选**：用 Cursor Automation 批量写 `reports/analysis.md`，见 [docs/CURSOR_AUTOMATION.md](docs/CURSOR_AUTOMATION.md)
+## 数据存储
 
-## 典型用法
+| 路径 | 说明 |
+|------|------|
+| `data/records/` | 上传的原始文件 |
+| `data/health.db` | SQLite 索引与正文 |
 
-1. **不舒服时**：打开「记症状」，两三句话记下（比打开豆包强在：会存档、能跨天看）
-2. **攒一周后**：点「最近症状梳理」，或问「胃相关症状出现过几次」
-3. **看完病**：偶尔把 PDF/关键数值补进「上传报告」，分析时会和症状日记对照
+**切勿**将 `data/`、`.env` 提交到 git。换机时备份整个 `data/` 目录。
 
-## 后续（产品化前）
+## API 一览
 
-- [ ] 图片 OCR（繁简）
-- [ ] 检验项结构化（项目名、数值、单位、参考范围）
-- [ ] 港深单位换算表
-- [ ] 导出复诊摘要 PDF
-- [ ] 可选加密与同步（NAS / 私有云）
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/api/journal` | 记一条症状 |
+| POST | `/api/records` | 上传报告 |
+| GET | `/api/records` | 时间轴列表 |
+| POST | `/api/ask` | 提问分析 |
+| POST | `/api/analyze/summary` | 一键综合分析 |
+
+## 架构
+
+```
+浏览器 → FastAPI → SQLite（你的数据）
+              ↓
+         大模型 API（.env 里的 Key，仅服务端）
+```
+
+- **不要**把 LLM Key 写进前端
+- **不要**用 Cursor Agent 做网页实时分析（见 [docs/CURSOR_AUTOMATION.md](docs/CURSOR_AUTOMATION.md) 仅作可选批处理）
+
+## 文档
+
+- [从本目录迁到新仓库](docs/SPIN_OUT.md)
+- [多人 / 家庭共享路线图](docs/ROADMAP.md)
+- [Cursor Automation 批处理（可选）](docs/CURSOR_AUTOMATION.md)
 
 ## 技术栈
 
-FastAPI + SQLite + 单页 HTML，无前端构建。
+FastAPI · SQLite · 单页 HTML（无前端构建）
+
+## 后续
+
+见 [docs/ROADMAP.md](docs/ROADMAP.md)
