@@ -11,39 +11,33 @@
 git clone git@github.com:<你>/<新仓库名>.git
 cd <新仓库名>
 
-# 2. 从 thinking 仓库复制（在 thinking 仓库同级目录执行）
+# 2. 从 thinking 仓库复制
+
+**有 rsync：**
+
+```bash
 rsync -av \
   --exclude '.venv' \
   --exclude 'data/health.db' \
   --exclude 'data/records/*' \
   --exclude '.env' \
   --exclude '__pycache__' \
-  --exclude '*.pyc' \
   /path/to/thinking/health-archive/ ./
+```
 
-# 3. 首次提交
+**或用打包脚本（自动 fallback）：**
+
+```bash
+bash /path/to/thinking/health-archive/scripts/package-for-new-repo.sh .
+```
+
+**Windows：** 手动复制 `health-archive` 文件夹内所有文件到新仓库根目录（跳过 `.venv`、`data/health.db`、`.env`）。
 git add .
 git commit -m "Initial commit: personal health log (Phase 1)"
 git push -u origin main
 ```
 
-Windows 无 rsync 时：手动复制 `health-archive` 文件夹内所有文件到新仓库根目录（跳过 `.venv`、`data/health.db`、`.env`）。
-
-## 方式 B：用打包脚本
-
-在 `thinking` 仓库内：
-
-```bash
-bash health-archive/scripts/package-for-new-repo.sh ~/health-log
-cd ~/health-log
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin git@github.com:<你>/<新仓库名>.git
-git push -u origin main
-```
-
-## 新仓库建议设置
+# 3. 首次提交
 
 1. **Private**（健康类项目默认私有，即使用户数据不在 git 里）
 2. 开启 **Secret scanning**（GitHub 默认）
