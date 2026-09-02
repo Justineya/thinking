@@ -133,13 +133,10 @@ button.ghost {
 
 .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0; }
 
-.chip {
-  margin: 0;
-  padding: 0.35rem 0.65rem;
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #dbeafe;
-  font-size: 0.8rem;
+.chip.primary {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
 }
 
 details summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; }

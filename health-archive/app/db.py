@@ -100,6 +100,42 @@ async def get_record(record_id: int) -> dict[str, Any] | None:
         return data
 
 
+async def list_recent_medical(limit: int = 15) -> list[dict[str, Any]]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """
+            SELECT id, visit_date, region, institution, record_type,
+                   title, extracted_text, notes, tags
+            FROM records
+            WHERE record_type != 'symptom'
+            ORDER BY visit_date DESC, id DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        return [dict(row) for row in await cursor.fetchall()]
+
+
+async def get_full_analysis_context(
+    symptom_limit: int = 40,
+    medical_limit: int = 15,
+) -> list[dict[str, Any]]:
+    """All recent material for one-shot comprehensive analysis."""
+    symptoms = await list_recent_symptoms(limit=symptom_limit)
+    medical = await list_recent_medical(limit=medical_limit)
+    merged = symptoms + medical
+    seen: set[int] = set()
+    unique: list[dict[str, Any]] = []
+    for row in merged:
+        rid = row["id"]
+        if rid not in seen:
+            seen.add(rid)
+            unique.append(row)
+    unique.sort(key=lambda r: (r.get("visit_date") or "", r.get("id") or 0))
+    return unique
+
+
 async def list_recent_symptoms(limit: int = 30) -> list[dict[str, Any]]:
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row

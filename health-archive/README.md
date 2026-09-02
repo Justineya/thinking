@@ -33,6 +33,22 @@ python -m app.main
 
 **不要**把 `data/` 提交到 git；换电脑用备份整个 `health-archive/data` 目录。
 
+## 架构：网页怎么调 AI？
+
+**不要调 Cursor（写代码的这个 Agent）**——它没有给你个人产品用的 HTTP 接口，慢、贵、也不适合生产。
+
+正确链路（本项目已按此实现）：
+
+```
+浏览器 → 你的 FastAPI（/api/ask 或 /api/analyze/summary）
+       → 从本地 SQLite 取出症状/报告
+       → 调用大模型 API（通义 / DeepSeek 等，OpenAI 兼容）
+       → JSON 返回网页展示
+```
+
+- API Key 只放在服务端 `.env`，**不要**暴露给前端  
+- 「一次性综合分析」：`POST /api/analyze/summary`（网页「一键综合分析」按钮）
+
 ## 典型用法
 
 1. **不舒服时**：打开「记症状」，两三句话记下（比打开豆包强在：会存档、能跨天看）

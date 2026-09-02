@@ -66,3 +66,18 @@ def ask_llm(question: str, records: list[dict]) -> str:
         ],
     )
     return response.choices[0].message.content or ""
+
+
+SUMMARY_QUESTION = """请对我档案中的全部材料做一次综合分析，输出：
+
+1. **症状时间线**：按日期列出主要症状，标出反复出现的模式或诱因线索
+2. **与检查/就诊的对照**：若有化验/处方/门诊记录，哪些和症状可能对得上（不确定要说明）
+3. **待观察点**：目前信息里还缺什么、建议下次就医时问医生什么
+4. **一句话摘要**：给医生看时用的极简版（3–5 句）
+
+仅基于摘录，不诊断、不开药。"""
+
+
+def analyze_summary(records: list[dict]) -> str:
+    return ask_llm(SUMMARY_QUESTION, records)
+

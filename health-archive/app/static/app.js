@@ -83,7 +83,26 @@ document.getElementById("ask-form").addEventListener("submit", async (e) => {
   await runAsk(new FormData(e.target).get("question"));
 });
 
-document.querySelectorAll(".chip").forEach((btn) => {
+document.getElementById("analyze-once-btn").addEventListener("click", async () => {
+  const answerEl = document.getElementById("answer");
+  const sourcesEl = document.getElementById("sources");
+  answerEl.textContent = "正在综合分析全部档案（约 10–30 秒）…";
+  sourcesEl.innerHTML = "";
+  const res = await fetch("/api/analyze/summary", { method: "POST" });
+  const data = await res.json();
+  if (!res.ok) {
+    answerEl.textContent = data.detail || "分析失败";
+    return;
+  }
+  answerEl.textContent = data.answer;
+  sourcesEl.innerHTML =
+    `<li class="src-title">本次纳入 ${data.record_count} 条记录</li>` +
+    (data.sources || [])
+      .map((s) => `<li>#${s.id} ${s.visit_date} ${escapeHtml(s.title)}</li>`)
+      .join("");
+});
+
+document.querySelectorAll(".chip[data-q]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const ta = document.querySelector('#ask-form [name="question"]');
     ta.value = btn.dataset.q;

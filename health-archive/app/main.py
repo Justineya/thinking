@@ -9,7 +9,7 @@ from app import db
 from app.config import HOST, PORT, ROOT
 from app.ingest import SUPPORTED_EXTENSIONS, extract_text, save_upload
 from app.journal import symptom_title, today_str
-from app.llm import ask_llm
+from app.llm import analyze_summary, ask_llm
 
 STATIC_DIR = ROOT / "app" / "static"
 
@@ -128,6 +128,28 @@ async def create_record(
         }
     )
     return {"id": record_id, "extracted_chars": len(extracted)}
+
+
+@app.post("/api/analyze/summary")
+async def analyze_once():
+    """One-shot full analysis: recent symptoms + medical records → LLM → JSON to web."""
+    records = await db.get_full_analysis_context()
+    if not records:
+        raise HTTPException(status_code=400, detail="还没有任何记录，先记一条症状")
+    answer = analyze_summary(records)
+    return {
+        "answer": answer,
+        "record_count": len(records),
+        "sources": [
+            {
+                "id": r["id"],
+                "visit_date": r["visit_date"],
+                "title": r["title"],
+                "record_type": r.get("record_type"),
+            }
+            for r in records
+        ],
+    }
 
 
 @app.post("/api/ask")
