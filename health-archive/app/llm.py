@@ -2,14 +2,15 @@ from openai import OpenAI
 
 from app.config import LLM_API_KEY, LLM_BASE_URL, LLM_MODEL
 
-SYSTEM_PROMPT = """你是个人健康档案助手，只根据用户提供的病历摘录回答问题。
+SYSTEM_PROMPT = """你是个人健康档案助手，根据用户自己的「症状日记」和「就医/化验记录」回答问题。
 
 规则：
-1. 仅基于摘录内容回答；信息不足时明确说「档案里没有相关记录」。
-2. 不做确诊、不开药、不替代医生面诊。
-3. 涉及趋势对比时，列出日期和具体数值（若摘录中有）。
-4. 港深两地报告单位可能不同，对比时提醒核对单位。
-5. 回答简洁，用中文。"""
+1. 仅基于提供的摘录；信息不足时明确说「档案里没有相关记录」。
+2. 用户问综合分析时：按时间线梳理症状出现频率、诱因线索、是否反复；若有化验/就诊记录，尝试对照（不强行关联）。
+3. 不做确诊、不开药、不替代医生面诊；可建议「若持续/加重应就诊」。
+4. 涉及化验数值对比时列出日期；港深单位可能不同，提醒核对。
+5. 区分「症状自述」与「医院检查」，不要混为一谈。
+6. 回答简洁，用中文。"""
 
 
 def build_context(records: list[dict]) -> str:
@@ -21,16 +22,23 @@ def build_context(records: list[dict]) -> str:
         body = (r.get("extracted_text") or r.get("notes") or "").strip()
         if len(body) > 2500:
             body = body[:2500] + "\n…（截断）"
+        type_label = {
+            "symptom": "症状日记",
+            "lab": "化验",
+            "imaging": "影像",
+            "prescription": "处方",
+            "visit": "门诊",
+            "other": "其他",
+        }.get(r.get("record_type"), r.get("record_type"))
         blocks.append(
             f"""---
 记录 #{r.get('id')}
-就诊日期: {r.get('visit_date')}
+日期: {r.get('visit_date')}
 地区: {r.get('region')}
-机构: {r.get('institution') or '未填'}
-类型: {r.get('record_type')}
+类型: {type_label}
 标题: {r.get('title')}
 内容:
-{body or '（无正文，仅有标题/备注）'}
+{body or '（无正文）'}
 """
         )
     return "\n".join(blocks)

@@ -100,6 +100,47 @@ async def get_record(record_id: int) -> dict[str, Any] | None:
         return data
 
 
+async def list_recent_symptoms(limit: int = 30) -> list[dict[str, Any]]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """
+            SELECT id, visit_date, region, institution, record_type,
+                   title, extracted_text, notes, tags
+            FROM records
+            WHERE record_type = 'symptom'
+            ORDER BY visit_date DESC, id DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        return [dict(row) for row in await cursor.fetchall()]
+
+
+def _is_synthesis_question(query: str) -> bool:
+    hints = (
+        "综合", "分析", "趋势", "最近", "这段时间", "一直", "反复",
+        "模式", "关联", "对比", "总结", "梳理", "怎么回事", "为什么",
+    )
+    return any(h in query for h in hints)
+
+
+async def get_context_for_ask(query: str, limit: int = 25) -> list[dict[str, Any]]:
+    """Merge keyword hits with recent symptom diary for cross-entry synthesis."""
+    hits = await search_records(query, limit=12)
+    seen = {r["id"] for r in hits}
+    merged = list(hits)
+
+    if _is_synthesis_question(query) or len(hits) < 3:
+        for row in await list_recent_symptoms(limit=30):
+            if row["id"] not in seen:
+                merged.append(row)
+                seen.add(row["id"])
+
+    merged.sort(key=lambda r: (r.get("visit_date") or "", r.get("id") or 0))
+    return merged[:limit]
+
+
 async def search_records(query: str, limit: int = 8) -> list[dict[str, Any]]:
     """Simple keyword search for RAG context."""
     raw = query.strip()

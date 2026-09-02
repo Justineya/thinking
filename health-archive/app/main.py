@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from app import db
 from app.config import HOST, PORT, ROOT
 from app.ingest import SUPPORTED_EXTENSIONS, extract_text, save_upload
+from app.journal import symptom_title, today_str
 from app.llm import ask_llm
 
 STATIC_DIR = ROOT / "app" / "static"
@@ -50,6 +51,36 @@ async def download_file(record_id: int):
     if not path.exists():
         raise HTTPException(status_code=404, detail="文件已丢失")
     return FileResponse(path, filename=record.get("file_name") or path.name)
+
+
+@app.post("/api/journal")
+async def log_symptom(
+    text: str = Form(...),
+    visit_date: str = Form(""),
+    region: str = Form("OTHER"),
+    tags: str = Form(""),
+):
+    """Quick symptom diary — like chatting with Doubao, but persisted."""
+    body = text.strip()
+    if not body:
+        raise HTTPException(status_code=400, detail="内容不能为空")
+
+    record_id = await db.insert_record(
+        {
+            "visit_date": visit_date.strip() or today_str(),
+            "region": region,
+            "record_type": "symptom",
+            "title": symptom_title(body),
+            "extracted_text": body,
+            "tags": tags.strip() or None,
+        }
+    )
+    return {"id": record_id, "title": symptom_title(body)}
+
+
+@app.get("/api/journal")
+async def list_journal(limit: int = 50):
+    return {"entries": await db.list_recent_symptoms(limit=limit)}
 
 
 @app.post("/api/records")
@@ -104,7 +135,7 @@ async def ask(question: str = Form(...)):
     question = question.strip()
     if not question:
         raise HTTPException(status_code=400, detail="问题不能为空")
-    records = await db.search_records(question)
+    records = await db.get_context_for_ask(question)
     answer = ask_llm(question, records)
     return {
         "answer": answer,
