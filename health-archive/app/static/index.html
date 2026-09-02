@@ -3,13 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>个人健康档案</title>
+  <title>{{APP_NAME}} · 个人健康档案</title>
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
   <header>
-    <h1>个人健康档案</h1>
-    <p class="sub">随手记症状 · 偶尔补报告 · AI 综合你自己的时间线</p>
+    <div class="header-row">
+      <div>
+        <h1>{{APP_NAME}}</h1>
+        <p class="sub">{{APP_TAGLINE}}</p>
+      </div>
+      <form method="post" action="/logout" class="logout-form">
+        <button type="submit" class="ghost">退出登录</button>
+      </form>
+    </div>
   </header>
 
   <main class="grid">

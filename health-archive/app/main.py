@@ -1,17 +1,31 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
+from urllib.parse import quote
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import db
-from app.config import HOST, PORT, ROOT
+from app.auth import auth_enabled, verify_credentials
+from app.config import APP_NAME, APP_TAGLINE, HOST, PORT, ROOT
 from app.ingest import SUPPORTED_EXTENSIONS, extract_text, save_upload
 from app.journal import symptom_title, today_str
 from app.llm import analyze_summary, ask_llm
+from app.middleware import (
+    AuthMiddleware,
+    clear_session_cookie,
+    render_login,
+    set_session_cookie,
+)
 
 STATIC_DIR = ROOT / "app" / "static"
+
+
+def _safe_next(path: str) -> str:
+    if path.startswith("/") and not path.startswith("//"):
+        return path
+    return "/"
 
 
 @asynccontextmanager
@@ -20,13 +34,56 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="Health Archive", lifespan=lifespan)
+app = FastAPI(title=APP_NAME, lifespan=lifespan)
+app.add_middleware(AuthMiddleware)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+@app.get("/api/health")
+async def health():
+    return {"ok": True, "auth": auth_enabled()}
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request, next: str = "/", error: str = ""):
+    if not auth_enabled():
+        return RedirectResponse(_safe_next(next), status_code=303)
+    from app.auth import verify_session_token
+
+    if verify_session_token(request.cookies.get("vitaring_session")):
+        return RedirectResponse(_safe_next(next), status_code=303)
+    return render_login(_safe_next(next), error)
+
+
+@app.post("/login")
+async def login_submit(
+    username: str = Form(...),
+    password: str = Form(...),
+    next: str = Form("/"),
+):
+    if not verify_credentials(username, password):
+        err = quote("用户名或密码错误")
+        nxt = quote(_safe_next(next))
+        return RedirectResponse(f"/login?next={nxt}&error={err}", status_code=303)
+    response = RedirectResponse(_safe_next(next), status_code=303)
+    set_session_cookie(response, username.strip())
+    return response
+
+
+@app.post("/logout")
+async def logout():
+    response = RedirectResponse("/login", status_code=303)
+    clear_session_cookie(response)
+    return response
 
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
-    return (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    return (
+        html.replace("{{APP_NAME}}", APP_NAME)
+        .replace("{{APP_TAGLINE}}", APP_TAGLINE)
+    )
 
 
 @app.get("/api/records")
@@ -60,7 +117,6 @@ async def log_symptom(
     region: str = Form("OTHER"),
     tags: str = Form(""),
 ):
-    """Quick symptom diary — like chatting with Doubao, but persisted."""
     body = text.strip()
     if not body:
         raise HTTPException(status_code=400, detail="内容不能为空")
@@ -132,7 +188,6 @@ async def create_record(
 
 @app.post("/api/analyze/summary")
 async def analyze_once():
-    """One-shot full analysis: recent symptoms + medical records → LLM → JSON to web."""
     records = await db.get_full_analysis_context()
     if not records:
         raise HTTPException(status_code=400, detail="还没有任何记录，先记一条症状")

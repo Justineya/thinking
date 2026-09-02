@@ -8,6 +8,15 @@ const typeLabel = {
   other: "其他",
 };
 
+async function apiFetch(url, options = {}) {
+  const res = await fetch(url, options);
+  if (res.status === 401) {
+    window.location.href = "/login?next=" + encodeURIComponent(window.location.pathname);
+    throw new Error("未登录");
+  }
+  return res;
+}
+
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -17,7 +26,7 @@ document.getElementById("journal-date").value = todayISO();
 async function loadTimeline() {
   const list = document.getElementById("timeline");
   list.innerHTML = "<li>加载中…</li>";
-  const res = await fetch("/api/records");
+  const res = await apiFetch("/api/records");
   const data = await res.json();
   if (!data.records.length) {
     list.innerHTML = "<li>还没有记录，先记一条今天的症状。</li>";
@@ -50,7 +59,7 @@ document.getElementById("journal-form").addEventListener("submit", async (e) => 
   const form = e.target;
   const body = new FormData(form);
   if (!body.get("visit_date")) body.set("visit_date", todayISO());
-  const res = await fetch("/api/journal", { method: "POST", body });
+  const res = await apiFetch("/api/journal", { method: "POST", body });
   const data = await res.json();
   if (!res.ok) {
     msg.textContent = data.detail || "保存失败";
@@ -67,7 +76,7 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
   msg.textContent = "上传中…";
   const form = e.target;
   const body = new FormData(form);
-  const res = await fetch("/api/records", { method: "POST", body });
+  const res = await apiFetch("/api/records", { method: "POST", body });
   const data = await res.json();
   if (!res.ok) {
     msg.textContent = data.detail || "上传失败";
@@ -88,7 +97,7 @@ document.getElementById("analyze-once-btn").addEventListener("click", async () =
   const sourcesEl = document.getElementById("sources");
   answerEl.textContent = "正在综合分析全部档案（约 10–30 秒）…";
   sourcesEl.innerHTML = "";
-  const res = await fetch("/api/analyze/summary", { method: "POST" });
+  const res = await apiFetch("/api/analyze/summary", { method: "POST" });
   const data = await res.json();
   if (!res.ok) {
     answerEl.textContent = data.detail || "分析失败";
@@ -117,7 +126,7 @@ async function runAsk(question) {
   sourcesEl.innerHTML = "";
   const body = new FormData();
   body.set("question", question);
-  const res = await fetch("/api/ask", { method: "POST", body });
+  const res = await apiFetch("/api/ask", { method: "POST", body });
   const data = await res.json();
   if (!res.ok) {
     answerEl.textContent = data.detail || "请求失败";
