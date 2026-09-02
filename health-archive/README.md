@@ -67,6 +67,7 @@ bash scripts/setup.sh
 
 ## 文档
 
+- [给新 Cursor Agent 的交接指令（复制粘贴）](docs/AGENT_HANDOFF.md)
 - [从本目录迁到新仓库](docs/SPIN_OUT.md)
 - [多人 / 家庭共享路线图](docs/ROADMAP.md)
 - [Cursor Automation 批处理（可选）](docs/CURSOR_AUTOMATION.md)
