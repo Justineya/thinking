@@ -1,39 +1,61 @@
-# 个人健康档案
+# VitaRing / Vita360
 
-本地优先：**随手记症状** + 偶尔补化验/就诊记录，AI 按**你自己的时间线**综合分析。港深跨境就医场景友好。
+本地个人健康档案：**随手记症状** + 可选化验报告 + AI 按你自己的时间线分析。
 
-> 仅供个人整理与健康咨询参考，不替代医生面诊。
+> 仅供个人整理参考，不替代医生面诊。
 
-## 功能（Phase 1 · 个人自用）
+## Windows 最快启动
 
-- **症状日记**：像闲聊一样记「今天胃胀、打嗝…」
-- **综合分析**：跨多条症状 + 报告做时间线梳理
-- **上传报告（可选）**：PDF / 文本
-- **一键综合分析**：`POST /api/analyze/summary`
+1. 安装 [Python 3.11+](https://www.python.org/downloads/)（安装时勾选 **Add python.exe to PATH**）
+2. 双击仓库里的 `start.bat`
+3. 浏览器打开 http://127.0.0.1:8765/login
+4. 账号 **admin**　密码 **vitaring**
 
-## 快速开始
+不要打开 GitHub 网页当 App 用（GitHub Pages 跑不了登录和数据库）。
+
+## Mac / Linux
 
 ```bash
-git clone <你的新仓库地址>
-cd <仓库名>
+cd Vita360-    # 或本仓库根目录
+bash start.sh
+```
 
-python3 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+## 手动启动
 
-cp .env.example .env
-# 编辑 .env，填入 LLM_API_KEY（通义 / DeepSeek / OpenAI 兼容）
-
+```bash
+python -m pip install -r requirements.txt
+copy .env.example .env     # Mac/Linux: cp .env.example .env
 python -m app.main
 ```
 
-必须在 **`health-archive/` 目录内**运行（不要在仓库根目录跑）。
+必须在**本仓库根目录**运行（能看到 `app/` 和 `start.bat` 的那一层）。
 
-浏览器打开：<http://127.0.0.1:8765>
+## 登录说明
 
-登录页：<http://127.0.0.1:8765/login>
+| 项 | 值 |
+|----|-----|
+| 地址 | http://127.0.0.1:8765/login |
+| 用户名 | `admin` |
+| 密码 | `vitaring` |
 
-默认账号 **admin** / 密码 **vitaring**（可在 `.env` 的 `APP_PASSWORD` 修改）。
+改密码：编辑 `.env` 里的 `APP_PASSWORD`，保存后重启 `start.bat`。
+
+## 功能
+
+- 症状日记（像闲聊一样写）
+- 时间轴
+- AI 综合分析（需在 `.env` 填 `LLM_API_KEY`）
+- 可选上传 PDF 报告
+
+## 数据
+
+保存在本机 `data/`，不要提交到 git。
+
+## 文档
+
+- [登录页模板](docs/LOGIN_TEMPLATE.md)
+- [路线图](docs/ROADMAP.md)
+
 
 或使用一键脚本：
 
