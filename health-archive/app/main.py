@@ -1,7 +1,5 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
-from urllib.parse import quote
-
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -46,25 +44,26 @@ async def health():
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, next: str = "/", error: str = ""):
-    if not auth_enabled():
-        return RedirectResponse(_safe_next(next), status_code=303)
     from app.auth import verify_session_token
 
+    if not auth_enabled():
+        return RedirectResponse(_safe_next(next), status_code=303)
     if verify_session_token(request.cookies.get("vitaring_session")):
         return RedirectResponse(_safe_next(next), status_code=303)
-    return render_login(_safe_next(next), error)
+    return HTMLResponse(render_login(_safe_next(next), error))
 
 
-@app.post("/login")
+@app.post("/login", response_class=HTMLResponse)
 async def login_submit(
     username: str = Form(...),
     password: str = Form(...),
     next: str = Form("/"),
 ):
     if not verify_credentials(username, password):
-        err = quote("用户名或密码错误")
-        nxt = quote(_safe_next(next))
-        return RedirectResponse(f"/login?next={nxt}&error={err}", status_code=303)
+        return HTMLResponse(
+            render_login(_safe_next(next), "用户名或密码错误。默认账号 admin / vitaring"),
+            status_code=401,
+        )
     response = RedirectResponse(_safe_next(next), status_code=303)
     set_session_cookie(response, username.strip())
     return response
@@ -231,6 +230,8 @@ async def ask(question: str = Form(...)):
 def run():
     import uvicorn
 
+    print(f"{APP_NAME}  http://{HOST}:{PORT}/login")
+    print(f"  账号 {APP_USERNAME}  （密码见 .env 的 APP_PASSWORD，默认 vitaring）")
     uvicorn.run("app.main:app", host=HOST, port=PORT, reload=True)
 
 

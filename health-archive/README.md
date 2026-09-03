@@ -27,7 +27,13 @@ cp .env.example .env
 python -m app.main
 ```
 
+必须在 **`health-archive/` 目录内**运行（不要在仓库根目录跑）。
+
 浏览器打开：<http://127.0.0.1:8765>
+
+登录页：<http://127.0.0.1:8765/login>
+
+默认账号 **admin** / 密码 **vitaring**（可在 `.env` 的 `APP_PASSWORD` 修改）。
 
 或使用一键脚本：
 

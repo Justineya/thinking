@@ -2,18 +2,17 @@ import base64
 import hashlib
 import hmac
 import json
-import secrets
 import time
 from typing import Any
 
-from app.config import APP_PASSWORD, APP_USERNAME, SECRET_KEY
+from app.config import APP_PASSWORD, APP_USERNAME, AUTH_DISABLED, SECRET_KEY
 
 COOKIE_NAME = "vitaring_session"
 SESSION_DAYS = 14
 
 
 def auth_enabled() -> bool:
-    return bool(APP_PASSWORD)
+    return not AUTH_DISABLED
 
 
 def _sign(data: str) -> str:
@@ -49,6 +48,15 @@ def verify_session_token(token: str | None) -> dict[str, Any] | None:
 def verify_credentials(username: str, password: str) -> bool:
     if not auth_enabled():
         return True
-    user_ok = username.strip().lower() == APP_USERNAME.lower()
-    pass_ok = secrets.compare_digest(password, APP_PASSWORD)
-    return user_ok and pass_ok
+    user_ok = hmac.compare_digest(
+        username.strip().lower().encode(),
+        APP_USERNAME.strip().lower().encode(),
+    )
+    expected = APP_PASSWORD.encode()
+    given = password.encode()
+    # compare_digest 要求等长，先哈希避免长度不同时报错或直接失败
+    pass_ok = hmac.compare_digest(
+        hashlib.sha256(given).digest(),
+        hashlib.sha256(expected).digest(),
+    )
+    return bool(user_ok and pass_ok)
