@@ -166,7 +166,7 @@ pitForm.addEventListener("submit", async (e) => {
     pinned: Boolean(fd.get("pinned")),
   };
   await api("/api/pits", { method: "POST", body: JSON.stringify(payload) });
-  pitDialog.close();
+  closeDialog(pitDialog);
   toast("已盖章。这条会钉在开盘前。");
   await refresh();
 });
@@ -246,7 +246,6 @@ $("#review-ack").addEventListener("click", async (e) => {
   await refresh();
 });
 
-pitForm.addEventListener("submit", () => {}); // keep reference for older caches
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (pitDialog.open) closeDialog(pitDialog);
