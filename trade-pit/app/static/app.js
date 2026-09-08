@@ -5,6 +5,9 @@ const pitList = $("#pit-list");
 const statsLine = $("#stats-line");
 const pitDialog = $("#pit-dialog");
 const pitForm = $("#pit-form");
+const storyDialog = $("#story-dialog");
+const storyForm = $("#story-form");
+const draftBox = $("#draft-box");
 const reviewDialog = $("#review-dialog");
 const reviewCard = $("#review-card");
 const reviewProgress = $("#review-progress");
@@ -143,6 +146,68 @@ $("#btn-new").addEventListener("click", (e) => {
   requestAnimationFrame(() => pitForm.title.focus());
 });
 
+$("#btn-story").addEventListener("click", (e) => {
+  e.preventDefault();
+  storyForm.reset();
+  draftBox.hidden = true;
+  $("#story-save").disabled = true;
+  openDialog(storyDialog);
+  requestAnimationFrame(() => storyForm.story.focus());
+});
+
+$("#story-cancel").addEventListener("click", (e) => {
+  e.preventDefault();
+  closeDialog(storyDialog);
+});
+
+$("#story-draft").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const story = String(new FormData(storyForm).get("story") || "").trim();
+  if (story.length < 8) {
+    toast("再说详细一点，至少把关键经过讲清楚。");
+    return;
+  }
+  const draft = await api("/api/pits/draft-story", {
+    method: "POST",
+    body: JSON.stringify({ story }),
+  });
+  storyForm.title.value = draft.title;
+  storyForm.rule.value = draft.rule;
+  storyForm.cost_note.value = draft.cost_note || "";
+  draftBox.hidden = false;
+  $("#story-save").disabled = false;
+  toast("铁律已抽出，确认后盖章。");
+});
+
+storyForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(storyForm);
+  const story = String(fd.get("story") || "").trim();
+  const rule = String(fd.get("rule") || "").trim();
+  const title = String(fd.get("title") || "").trim();
+  if (story.length < 8) {
+    toast("故事太短。");
+    return;
+  }
+  if (rule.length < 4) {
+    toast("先点「抽出铁律」，或自己写一条可执行铁律。");
+    return;
+  }
+  await api("/api/pits/from-story", {
+    method: "POST",
+    body: JSON.stringify({
+      story,
+      rule,
+      title: title || undefined,
+      cost_note: String(fd.get("cost_note") || ""),
+      pinned: true,
+    }),
+  });
+  closeDialog(storyDialog);
+  toast("已记下。开盘前会钉在墙上。");
+  await refresh();
+});
+
 $("#pit-cancel").addEventListener("click", (e) => {
   e.preventDefault();
   closeDialog(pitDialog);
@@ -249,6 +314,7 @@ $("#review-ack").addEventListener("click", async (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (pitDialog.open) closeDialog(pitDialog);
+  if (storyDialog.open) closeDialog(storyDialog);
   if (reviewDialog.open) closeDialog(reviewDialog);
 });
 

@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import db
+from .story import draft_from_story
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = Path(__file__).resolve().parent / "static"
@@ -23,6 +24,15 @@ class PitIn(BaseModel):
     rule: str = Field(min_length=4, max_length=200)
     tags: str = Field(default="", max_length=120)
     severity: int = Field(default=3, ge=1, le=5)
+    pinned: bool = True
+
+
+class StoryIn(BaseModel):
+    story: str = Field(min_length=8, max_length=2000)
+    rule: str | None = Field(default=None, max_length=200)
+    title: str | None = Field(default=None, max_length=80)
+    cost_note: str | None = Field(default=None, max_length=500)
+    severity: int | None = Field(default=None, ge=1, le=5)
     pinned: bool = True
 
 
@@ -65,6 +75,29 @@ def api_list_pits() -> list[dict]:
 def api_create_pit(body: PitIn) -> dict:
     return db.create_pit(body.model_dump())
 
+
+@app.post("/api/pits/draft-story")
+def api_draft_story(body: StoryIn) -> dict:
+    try:
+        draft = draft_from_story(body.story)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    if body.title:
+        draft["title"] = body.title
+    if body.rule and len(body.rule.strip()) >= 4:
+        draft["rule"] = body.rule.strip()
+    if body.cost_note is not None:
+        draft["cost_note"] = body.cost_note
+    if body.severity is not None:
+        draft["severity"] = body.severity
+    draft["pinned"] = body.pinned
+    return draft
+
+
+@app.post("/api/pits/from-story")
+def api_create_from_story(body: StoryIn) -> dict:
+    draft = api_draft_story(body)
+    return db.create_pit(draft)
 
 @app.patch("/api/pits/{pit_id}")
 def api_update_pit(pit_id: int, body: PitUpdate) -> dict:

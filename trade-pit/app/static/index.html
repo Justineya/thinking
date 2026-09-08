@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/style.css?v=2" />
+  <link rel="stylesheet" href="/static/style.css?v=3" />
 </head>
 <body>
   <div class="atmosphere" aria-hidden="true"></div>
@@ -15,18 +15,19 @@
   <header class="top">
     <div class="brand-block">
       <p class="brand">谨记</p>
-      <p class="brand-sub">炒股坑本 · 翻车一次，铁律一条</p>
+      <p class="brand-sub">炒股坑本 · 你说我记，翻车变铁律</p>
     </div>
     <div class="top-actions">
       <button type="button" class="ghost" id="btn-review">开盘前诵读</button>
-      <button type="button" class="primary" id="btn-new">记一坑</button>
+      <button type="button" class="ghost" id="btn-new">细表单</button>
+      <button type="button" class="primary" id="btn-story">我说你记</button>
     </div>
   </header>
 
   <section class="hero-rules" id="rules-wall">
     <div class="hero-head">
       <h1>今日必须谨记</h1>
-      <p class="lede">不是日记。是你亏过钱以后，不许再装忘的那几条。</p>
+      <p class="lede">不用填表。把今天怎么翻的车说出来，抽出一条下次必须照做的铁律。</p>
     </div>
     <div class="rules-rail" id="pinned-rules"></div>
     <p class="meta-line" id="stats-line"></p>
@@ -42,11 +43,46 @@
     </section>
   </main>
 
+  <dialog id="story-dialog">
+    <form method="dialog" id="story-form" class="sheet">
+      <header>
+        <h2>我说你记</h2>
+        <p>怎么说都行。先把故事甩出来，再确认铁律。</p>
+      </header>
+
+      <label>
+        今天发生了什么
+        <textarea name="story" rows="6" required minlength="8" maxlength="2000" placeholder="例如：美股夜盘最高全仓+7，盘前转绿，我还在+5的时候追进去…"></textarea>
+      </label>
+
+      <div class="draft-box" id="draft-box" hidden>
+        <label>
+          自动起的标题（可改）
+          <input name="title" maxlength="80" />
+        </label>
+        <label class="rule-field">
+          抽出的铁律（可改，但必须能执行）
+          <textarea name="rule" rows="2" required minlength="4" maxlength="200"></textarea>
+        </label>
+        <label>
+          代价
+          <input name="cost_note" maxlength="500" />
+        </label>
+      </div>
+
+      <footer class="sheet-actions">
+        <button type="button" class="ghost" id="story-cancel">取消</button>
+        <button type="button" class="ghost" id="story-draft">抽出铁律</button>
+        <button type="submit" class="primary" id="story-save" disabled>盖章谨记</button>
+      </footer>
+    </form>
+  </dialog>
+
   <dialog id="pit-dialog">
     <form method="dialog" id="pit-form" class="sheet">
       <header>
-        <h2>记一坑</h2>
-        <p>写不清铁律，就不许关。下次进场前会再甩到你脸上。</p>
+        <h2>细表单记坑</h2>
+        <p>写不清铁律，就不许关。</p>
       </header>
 
       <label>
@@ -107,6 +143,6 @@
   </dialog>
 
   <div class="toast" id="toast" hidden></div>
-  <script src="/static/app.js?v=2"></script>
+  <script src="/static/app.js?v=3"></script>
 </body>
 </html>
