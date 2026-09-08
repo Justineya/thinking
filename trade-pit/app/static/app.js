@@ -119,15 +119,34 @@ async function refresh() {
   statsLine.textContent = `铁律 ${stats.pinned} · 坑位 ${stats.total} · 累计再犯 ${stats.repeats} · 确认 ${stats.acknowledged} · ${latest}`;
 }
 
-$("#btn-new").addEventListener("click", () => {
+function openDialog(el) {
+  if (!el) return;
+  if (typeof el.showModal === "function") {
+    if (!el.open) el.showModal();
+  } else {
+    el.setAttribute("open", "");
+  }
+}
+
+function closeDialog(el) {
+  if (!el) return;
+  if (typeof el.close === "function") el.close();
+  else el.removeAttribute("open");
+}
+
+$("#btn-new").addEventListener("click", (e) => {
+  e.preventDefault();
   pitForm.reset();
   pitForm.pinned.checked = true;
   pitForm.severity.value = 4;
-  pitDialog.showModal();
-  pitForm.title.focus();
+  openDialog(pitDialog);
+  requestAnimationFrame(() => pitForm.title.focus());
 });
 
-$("#pit-cancel").addEventListener("click", () => pitDialog.close());
+$("#pit-cancel").addEventListener("click", (e) => {
+  e.preventDefault();
+  closeDialog(pitDialog);
+});
 
 pitForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -187,7 +206,7 @@ function startReview() {
   reviewIndex = 0;
   reviewAcked = [];
   showReviewCard();
-  reviewDialog.showModal();
+  openDialog(reviewDialog);
 }
 
 function showReviewCard() {
@@ -200,10 +219,17 @@ function showReviewCard() {
   `;
 }
 
-$("#btn-review").addEventListener("click", startReview);
-$("#review-skip").addEventListener("click", () => reviewDialog.close());
+$("#btn-review").addEventListener("click", (e) => {
+  e.preventDefault();
+  startReview();
+});
+$("#review-skip").addEventListener("click", (e) => {
+  e.preventDefault();
+  closeDialog(reviewDialog);
+});
 
-$("#review-ack").addEventListener("click", async () => {
+$("#review-ack").addEventListener("click", async (e) => {
+  e.preventDefault();
   const current = reviewQueue[reviewIndex];
   reviewAcked.push(current.id);
   if (reviewIndex < reviewQueue.length - 1) {
@@ -215,9 +241,16 @@ $("#review-ack").addEventListener("click", async () => {
     method: "POST",
     body: JSON.stringify({ pit_ids: reviewAcked, note: "开盘前诵读" }),
   });
-  reviewDialog.close();
+  closeDialog(reviewDialog);
   toast(`今日诵读完成：${reviewAcked.length} 条铁律`);
   await refresh();
+});
+
+pitForm.addEventListener("submit", () => {}); // keep reference for older caches
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (pitDialog.open) closeDialog(pitDialog);
+  if (reviewDialog.open) closeDialog(reviewDialog);
 });
 
 refresh().catch((err) => {

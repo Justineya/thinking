@@ -303,7 +303,21 @@ dialog {
   color: var(--paper);
   padding: 0;
   width: min(560px, calc(100vw - 1.5rem));
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  z-index: 80;
+}
+
+dialog:not([open]) {
+  display: none;
+}
+
+dialog[open] {
+  display: block;
 }
 
 dialog::backdrop {
