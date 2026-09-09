@@ -222,25 +222,58 @@
         SKUU: '000660.KS',
         AXTY: 'AXTI',
       };
+      const ZONE_CN = {
+        build: '建仓区',
+        hold: '持有区',
+        warning: '警惕区',
+        harvest: '收获区',
+      };
       const ZONE_COLORS = {
+        build: '#22c55e',
+        hold: '#eab308',
+        warning: '#f97316',
+        harvest: '#ef4444',
         '建仓区': '#22c55e',
         '持有区': '#eab308',
         '警惕区': '#f97316',
         '收获区': '#ef4444',
       };
       const ZONE_CLASS = {
+        build: 'build',
+        hold: 'hold',
+        warning: 'warn',
+        harvest: 'harvest',
         '建仓区': 'build',
         '持有区': 'hold',
         '警惕区': 'warn',
         '收获区': 'harvest',
       };
-      const ZONE_EN = {
-        '建仓区': 'build',
-        '持有区': 'hold',
-        '警惕区': 'warning',
-        '收获区': 'harvest',
-      };
       const API_KEY = 'cpt_api_base';
+
+      function zoneLabel(zone) {
+        return ZONE_CN[zone] || zone || '—';
+      }
+
+      function normalizeCycle(c) {
+        if (!c) return null;
+        const zone = c.zone;
+        return {
+          ticker: c.ticker,
+          symbol: c.ticker || c.symbol,
+          days: c.window_days || state.days,
+          current: Number(c.current_price != null ? c.current_price : c.current),
+          high: Number(c.period_high != null ? c.period_high : c.high30 || c.high),
+          low: Number(c.period_low != null ? c.period_low : c.low30 || c.low),
+          score: Number(c.score),
+          zone: zone,
+          zoneLabel: zoneLabel(zone),
+          distanceToHighPct: Number(
+            c.distance_to_high_pct != null ? c.distance_to_high_pct : c.distanceToHighPct
+          ),
+          asOf: c.asOf || null,
+          updated_at: c.updated_at,
+        };
+      }
 
       const state = {
         days: 30,
@@ -302,22 +335,14 @@
         if (state.quotes[symbol] && state.quotes[symbol].days === state.days) {
           return state.quotes[symbol];
         }
-        const cycle = await apiJson(
-          '/api/cycle/' + encodeURIComponent(symbol) + '?days=' + state.days
+        const cycle = normalizeCycle(
+          await apiJson(
+            '/api/cycle/' + encodeURIComponent(symbol) +
+            '?window_days=' + state.days + '&refresh=true'
+          )
         );
         const bars = await fetchBars(symbol, state.days);
-        const summary = {
-          symbol: symbol,
-          days: state.days,
-          bars: bars,
-          current: cycle.current,
-          high: cycle.high30,
-          low: cycle.low30,
-          score: cycle.score,
-          zone: cycle.zone,
-          distanceToHighPct: cycle.distanceToHighPct,
-          asOf: cycle.asOf,
-        };
+        const summary = Object.assign({ bars: bars }, cycle, { symbol: symbol, days: state.days });
         state.quotes[symbol] = summary;
         return summary;
       }
@@ -328,7 +353,8 @@
           '<div class="stat"><label>现价</label><strong>' + s.current.toFixed(2) + '</strong></div>' +
           '<div class="stat"><label>区间高</label><strong>' + s.high.toFixed(2) + '</strong></div>' +
           '<div class="stat"><label>区间低</label><strong>' + s.low.toFixed(2) + '</strong></div>' +
-          '<div class="stat"><label>周期分</label><strong class="' + ZONE_CLASS[s.zone] + '">' + s.score + ' · ' + s.zone + '</strong></div>';
+          '<div class="stat"><label>周期分</label><strong class="' + ZONE_CLASS[s.zone] + '">' +
+            s.score + ' · ' + zoneLabel(s.zone) + '</strong></div>';
       }
 
       function renderPrice(bars, summary) {
@@ -381,7 +407,8 @@
       }
 
       function renderGauge(summary) {
-        const color = ZONE_COLORS[summary.zone];
+        const label = zoneLabel(summary.zone);
+        const color = ZONE_COLORS[summary.zone] || ZONE_COLORS[label];
         gaugeChart.setOption({
           series: [{
             type: 'gauge',
@@ -400,7 +427,7 @@
             axisLabel: { color: '#9aab9e', distance: 18, fontSize: 11 },
             detail: {
               valueAnimation: true,
-              formatter: '{value}\n' + summary.zone,
+              formatter: '{value}\n' + label,
               color: color,
               fontSize: 22,
               offsetCenter: [0, '70%'],
@@ -415,7 +442,7 @@
           const sym = r.ticker || r.symbol;
           if (state.search && String(sym).indexOf(state.search.toUpperCase()) === -1) return false;
           if (state.filter === 'all') return true;
-          return ZONE_EN[r.zone] === state.filter;
+          return r.zone === state.filter;
         });
       }
 
@@ -425,26 +452,29 @@
         body.innerHTML = rows.map(function (r) {
           const symbol = r.ticker || r.symbol;
           const active = symbol === state.symbol ? 'active' : '';
-          const dist = r.distanceToHighPct == null ? '—' : r.distanceToHighPct + '%';
+          const dist = r.distanceToHighPct == null || Number.isNaN(r.distanceToHighPct)
+            ? '—'
+            : r.distanceToHighPct + '%';
           const px = r.current == null ? '—' : Number(r.current).toFixed(2);
+          const zlabel = zoneLabel(r.zone);
           return '<tr class="clickable ' + active + '" data-symbol="' + symbol + '">' +
             '<td><strong>' + symbol + '</strong></td>' +
             '<td>' + r.score + '</td>' +
-            '<td><span class="zone ' + ZONE_CLASS[r.zone] + '">' + r.zone + '</span></td>' +
+            '<td><span class="zone ' + ZONE_CLASS[r.zone] + '">' + zlabel + '</span></td>' +
             '<td>' + px + '</td>' +
             '<td>' + dist + '</td></tr>';
         }).join('');
       }
 
       function renderHeat() {
-        const groups = { '建仓区': [], '持有区': [], '警惕区': [], '收获区': [] };
+        const groups = { build: [], hold: [], warning: [], harvest: [] };
         state.rows.forEach(function (r) {
           if (groups[r.zone]) groups[r.zone].push(r);
         });
         const data = Object.keys(groups).map(function (zone) {
           const list = groups[zone];
           return {
-            name: zone,
+            name: zoneLabel(zone),
             value: Math.max(list.length, 0.01),
             itemStyle: { color: ZONE_COLORS[zone] },
             children: list.map(function (r) {
@@ -481,24 +511,22 @@
         let totalMv = 0;
 
         body.innerHTML = state.portfolio.map(function (p) {
-          const costTotal = p.cost_total != null
-            ? Number(p.cost_total)
-            : Number(p.shares) * Number(p.cost_price);
+          const costTotal = Number(p.shares) * Number(p.cost_price);
           const mv = p.market_value != null ? Number(p.market_value) : null;
-          const pnl = p.pnl != null ? Number(p.pnl) : null;
-          const pnlPct = p.pnl_pct != null ? Number(p.pnl_pct) : null;
+          const pnl = p.unrealized_pnl != null ? Number(p.unrealized_pnl) : null;
+          const pnlPct = p.unrealized_pnl_pct != null ? Number(p.unrealized_pnl_pct) : null;
           totalCost += costTotal;
           if (mv != null) totalMv += mv;
 
           const score = p.cycle_score != null ? p.cycle_score : '—';
           const zone = p.zone
-            ? ('<span class="zone ' + ZONE_CLASS[p.zone] + '">' + p.zone + '</span>')
+            ? ('<span class="zone ' + ZONE_CLASS[p.zone] + '">' + zoneLabel(p.zone) + '</span>')
             : '—';
           const mvCell = mv == null ? '—' : mv.toFixed(2);
           const pnlCell = pnl == null
             ? '—'
             : ('<span class="' + (pnl >= 0 ? 'up' : 'down') + '">' +
-               pnl.toFixed(2) + ' (' + (pnlPct >= 0 ? '+' : '') + Number(pnlPct).toFixed(1) + '%)</span>');
+               pnl.toFixed(2) + ' (' + (pnlPct >= 0 ? '+' : '') + Number(pnlPct || 0).toFixed(1) + '%)</span>');
 
           return '<tr class="clickable" data-symbol="' + p.underlying + '">' +
             '<td><strong>' + p.symbol + '</strong></td>' +
@@ -525,19 +553,17 @@
       async function loadWatchlist() {
         const rows = await apiJson('/api/watchlist');
         state.watchlist = (rows || []).map(function (r) { return String(r.ticker).toUpperCase(); });
-        if (!state.watchlist.length) {
-          state.watchlist = ['COHR', 'AAOI', 'AXTI', 'WOLF', 'CRDO', 'SNDK', 'MU', 'RKLB', 'CRWV'];
-        }
       }
 
       async function loadPortfolio() {
-        const rows = await apiJson('/api/portfolio?enrich=true&days=' + state.days);
+        const rows = await apiJson('/api/portfolio?window_days=' + state.days);
         state.portfolio = rows || [];
       }
 
       async function loadScanner() {
-        const rows = await apiJson('/api/cycle/filter?zone=all&days=' + state.days);
-        state.rows = (rows || []).slice().sort(function (a, b) { return a.score - b.score; });
+        await apiJson('/api/cycle/refresh?window_days=' + state.days, { method: 'POST' });
+        const rows = await apiJson('/api/cycle?window_days=' + state.days);
+        state.rows = (rows || []).map(normalizeCycle).sort(function (a, b) { return a.score - b.score; });
       }
 
       async function selectSymbol(symbol) {
