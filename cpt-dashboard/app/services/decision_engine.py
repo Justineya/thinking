@@ -167,8 +167,10 @@ def decide(
 
     if drop < add_gap:
         need = f"{add_gap * 100:.0f}%"
+        if drop < 0:
+            return card("持有", f"价格高于上次买入，未形成加仓回撤（需跌≥{need}），继续观望")
         got = f"{drop * 100:.1f}%"
-        return card("持有", f"尚未达到加仓间隔（已跌{got}，需≥{need}），继续观望")
+        return card("持有", f"尚未达到加仓间隔（已回撤{got}，需≥{need}），继续观望")
 
     if usage >= 0.75:
         return card("持有", "已达加仓间隔，但仓位预算仅剩极端区预留，观望")
