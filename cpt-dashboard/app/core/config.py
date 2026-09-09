@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     seed_on_startup: bool = True
     session_secret: str = "cpt-dev-session-secret-change-me"
     admin_username: str = "admin"
-    admin_password: str = "123456"
+    admin_password: str = "123456"  # bootstrap only; never expose in UI
 
     # Futu OpenD — run locally next to FutuOpenD.exe (default 127.0.0.1:11111)
     futu_opend_host: str = "127.0.0.1"
