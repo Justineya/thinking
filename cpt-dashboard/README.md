@@ -46,6 +46,29 @@ bash start.sh
 | GET/POST/DELETE | `/api/watchlist` | 观察池 |
 | GET | `/api/market/bars` | K 线（图表用） |
 
-## 设计说明
+## 富途 OpenD 打通
 
-上传包把行情写入与评分解耦（`PUT /api/cycle`）。本仓库额外提供 `POST /api/cycle/refresh`，用 Yahoo 填 `cycle_scores`，这样 Cycle Scanner 开箱可用。以后可换成 Polygon / 富途夜盘适配器，只改 refresh，前端不变。
+本机先启动 **FutuOpenD**（默认 `127.0.0.1:11111`），在富途 App 建自定义自选分组（默认名 `CPT`），然后：
+
+```bash
+# .env
+FUTU_OPEND_HOST=127.0.0.1
+FUTU_OPEND_PORT=11111
+FUTU_TRD_ENV=REAL
+FUTU_WATCHLIST_GROUP=CPT
+# 若 OpenD 要求解锁交易才可读持仓：
+# FUTU_UNLOCK_PASSWORD=你的解锁密码
+```
+
+| Method | Path | 说明 |
+|--------|------|------|
+| GET | `/api/futu/status` | OpenD 连通性 |
+| GET | `/api/futu/positions` | 预览富途持仓 |
+| POST | `/api/futu/portfolio/sync` | 同步持仓入库（可 `replace`） |
+| GET | `/api/futu/watchlist/groups` | 自选分组 |
+| GET | `/api/futu/watchlist?group=CPT` | 读富途自选 |
+| POST | `/api/futu/watchlist/add` | 加自选（可同时写富途 App + CPT 观察池） |
+| POST | `/api/futu/watchlist/import` | 把富途分组导入 CPT |
+
+前端持仓区有「从富途同步持仓 / 加自选」。**CPT 后端需与 OpenD 同机**（或能访问 OpenD 端口）；云端 Demo 连不到你家里的 OpenD。
+

@@ -9,6 +9,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes.cycle import router as cycle_router
+from app.api.routes.futu import router as futu_router
 from app.api.routes.portfolio import router as portfolio_router
 from app.core.config import get_settings
 from app.core.database import SessionLocal, engine
@@ -41,6 +42,7 @@ app.add_middleware(
 )
 app.include_router(portfolio_router, prefix="/api")
 app.include_router(cycle_router, prefix="/api")
+app.include_router(futu_router, prefix="/api")
 
 
 @app.get("/health")

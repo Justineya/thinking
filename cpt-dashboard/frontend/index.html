@@ -128,6 +128,12 @@
 
       <div class="panel">
         <h2>持仓管理</h2>
+        <div class="filters" style="margin-bottom:0.7rem">
+          <button type="button" id="btnFutuStatus" class="chip">OpenD 状态</button>
+          <button type="button" id="btnFutuSync" class="primary">从富途同步持仓</button>
+          <button type="button" id="btnFutuPreview" class="chip">预览富途持仓</button>
+          <span class="pill" id="futuStatusPill">OpenD: —</span>
+        </div>
         <form id="portfolioForm" class="form-grid">
           <label>持仓代码
             <input name="ticker" id="pfTicker" required placeholder="COHX" maxlength="12" />
@@ -162,7 +168,36 @@
           </table>
         </div>
         <div class="meta" id="portfolioSummary" style="margin-top:0.7rem"></div>
-        <p class="hint">杠杆产品：COHX→COHR · AAOX→AAOI · SNXX→SNDK · MULL→MU。评分按底层算，持仓表保留实际买入代码。持仓存后端数据库（SQLite/Postgres）。</p>
+        <p class="hint">杠杆：COHX→COHR · AAOX→AAOI · SNXX→SNDK。市值按持仓代码；评分按底层。富途同步需本机 <code>FutuOpenD</code>（默认 127.0.0.1:11111）。</p>
+      </div>
+
+      <div class="panel">
+        <h2>自选 / Watchlist</h2>
+        <form id="watchForm" class="form-grid" style="grid-template-columns: 1.2fr 1fr auto auto;">
+          <label>代码（可多个，逗号分隔）
+            <input id="wlTickers" required placeholder="WOLF, CRDO, AXTI" />
+          </label>
+          <label>富途分组
+            <input id="wlGroup" placeholder="CPT" />
+          </label>
+          <button type="submit" class="primary">加自选</button>
+          <button type="button" id="btnImportFutuWl" class="chip">导入富途分组</button>
+        </form>
+        <div class="filters">
+          <label style="display:flex;align-items:center;gap:0.35rem;color:var(--mute);font-size:0.8rem">
+            <input type="checkbox" id="wlAlsoFutu" checked /> 同步到富途 App
+          </label>
+          <label style="display:flex;align-items:center;gap:0.35rem;color:var(--mute);font-size:0.8rem">
+            <input type="checkbox" id="wlAlsoCpt" checked /> 写入 CPT 观察池
+          </label>
+        </div>
+        <div class="scroll" style="max-height:160px">
+          <table>
+            <thead><tr><th>CPT 观察池</th><th></th></tr></thead>
+            <tbody id="watchBody"></tbody>
+          </table>
+        </div>
+        <p class="hint">富途自定义分组名需先在 App 建好（默认 <code>CPT</code>）。加自选会把杠杆代码映射到底层再进 CPT Scanner。</p>
       </div>
 
       <div class="panel">
@@ -553,6 +588,64 @@
       async function loadWatchlist() {
         const rows = await apiJson('/api/watchlist');
         state.watchlist = (rows || []).map(function (r) { return String(r.ticker).toUpperCase(); });
+        renderWatchlist();
+      }
+
+      function renderWatchlist() {
+        const body = document.getElementById('watchBody');
+        if (!body) return;
+        body.innerHTML = state.watchlist.map(function (t) {
+          return '<tr class="clickable" data-symbol="' + t + '">' +
+            '<td><strong>' + t + '</strong></td>' +
+            '<td><button type="button" class="danger" data-wl-del="' + t + '">移除</button></td></tr>';
+        }).join('') || '<tr><td colspan="2" style="color:var(--mute)">暂无观察池</td></tr>';
+      }
+
+      async function refreshFutuStatus() {
+        const pill = document.getElementById('futuStatusPill');
+        try {
+          const s = await apiJson('/api/futu/status');
+          if (s.ok) {
+            pill.textContent = 'OpenD: 已连接 ' + (s.host || '') + ':' + (s.port || '');
+            pill.style.color = 'var(--build)';
+          } else {
+            pill.textContent = 'OpenD: 未连接 — ' + (s.error || '检查本机 FutuOpenD');
+            pill.style.color = 'var(--warn)';
+          }
+          return s;
+        } catch (e) {
+          pill.textContent = 'OpenD: 错误 ' + (e.message || e);
+          pill.style.color = 'var(--harvest)';
+          return null;
+        }
+      }
+
+      async function syncFromFutu(replace) {
+        showErr('');
+        try {
+          const res = await apiJson('/api/futu/portfolio/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ replace: !!replace, dry_run: false }),
+          });
+          await loadPortfolio();
+          await loadWatchlist();
+          renderPortfolio();
+          showErr('已从富途同步 ' + (res.count || 0) + ' 条持仓' +
+            (res.removed && res.removed.length ? '；移除 ' + res.removed.join(',') : ''));
+          await refreshScoresSoft();
+        } catch (e) {
+          showErr('富途同步失败：' + (e.message || e));
+        }
+      }
+
+      async function refreshScoresSoft() {
+        try {
+          await loadScanner();
+          renderTable();
+          renderHeat();
+          renderPortfolio();
+        } catch (_) {}
       }
 
       async function loadPortfolio() {
@@ -695,6 +788,79 @@
         refreshAll();
       });
 
+      document.getElementById('btnFutuStatus').addEventListener('click', refreshFutuStatus);
+      document.getElementById('btnFutuPreview').addEventListener('click', async function () {
+        try {
+          const rows = await apiJson('/api/futu/positions');
+          const msg = (rows || []).map(function (p) {
+            return p.symbol + ' ' + p.shares + '@' + p.cost_price;
+          }).join(' · ') || '（空仓）';
+          showErr('富途持仓预览：' + msg);
+        } catch (e) {
+          showErr('预览失败：' + (e.message || e));
+        }
+      });
+      document.getElementById('btnFutuSync').addEventListener('click', function () {
+        if (!confirm('从富途 OpenD 同步持仓到 CPT 数据库？\n（同代码会覆盖股数/成本；底层会自动加入观察池）')) return;
+        syncFromFutu(false);
+      });
+
+      document.getElementById('watchForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const raw = document.getElementById('wlTickers').value.trim();
+        const tickers = raw.split(/[\s,，;；]+/).map(function (x) { return x.trim().toUpperCase(); }).filter(Boolean);
+        if (!tickers.length) {
+          showErr('请填写自选代码');
+          return;
+        }
+        const group = document.getElementById('wlGroup').value.trim() || null;
+        const also_futu = document.getElementById('wlAlsoFutu').checked;
+        const also_cpt = document.getElementById('wlAlsoCpt').checked;
+        try {
+          const res = await apiJson('/api/futu/watchlist/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tickers: tickers, group: group, also_futu: also_futu, also_cpt: also_cpt }),
+          });
+          document.getElementById('wlTickers').value = '';
+          await loadWatchlist();
+          showErr('已加自选：' + tickers.join(',') +
+            (res.cpt_added && res.cpt_added.length ? ' → CPT ' + res.cpt_added.join(',') : ''));
+          await refreshScoresSoft();
+        } catch (err) {
+          showErr('加自选失败：' + (err.message || err));
+        }
+      });
+
+      document.getElementById('btnImportFutuWl').addEventListener('click', async function () {
+        const group = document.getElementById('wlGroup').value.trim();
+        const q = group ? ('?group=' + encodeURIComponent(group)) : '';
+        try {
+          const res = await apiJson('/api/futu/watchlist/import' + q, { method: 'POST' });
+          await loadWatchlist();
+          showErr('已导入富途分组「' + (res.group || group || 'CPT') + '」新增 ' + (res.added || []).length + ' 只');
+          await refreshScoresSoft();
+        } catch (err) {
+          showErr('导入失败：' + (err.message || err));
+        }
+      });
+
+      document.getElementById('watchBody').addEventListener('click', async function (e) {
+        const del = e.target.closest('button[data-wl-del]');
+        if (del) {
+          const t = del.getAttribute('data-wl-del');
+          try {
+            await apiJson('/api/watchlist/' + encodeURIComponent(t), { method: 'DELETE' });
+            await loadWatchlist();
+          } catch (err) {
+            showErr('移除失败：' + (err.message || err));
+          }
+          return;
+        }
+        const tr = e.target.closest('tr[data-symbol]');
+        if (tr) selectSymbol(tr.dataset.symbol);
+      });
+
       document.getElementById('apiBase').value = localStorage.getItem(API_KEY) || '';
       window.addEventListener('resize', function () {
         priceChart.resize();
@@ -702,6 +868,7 @@
         heatChart.resize();
       });
 
+      refreshFutuStatus();
       refreshAll();
     })();
   </script>

@@ -8,3 +8,4 @@ alembic==1.16.5
 yfinance==0.2.66
 pandas==2.2.3
 python-dotenv==1.0.1
+futu-api>=9.0
