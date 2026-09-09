@@ -10,3 +10,7 @@
 | [降智爽文](噜噜/降智爽文/) | 独立梗 |
 
 旧情侣垂类已归档：[`_archive/噜噜情侣垂类_2026-07/`](_archive/噜噜情侣垂类_2026-07/)
+
+---
+
+**个人健康档案** 已拆分为独立项目，见 [`health-archive/`](health-archive/)（可复制为新仓库，说明见 `health-archive/docs/SPIN_OUT.md`）。

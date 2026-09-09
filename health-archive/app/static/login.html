@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>登录 · {{APP_NAME}}</title>
+  <link rel="stylesheet" href="/static/auth.css" />
+</head>
+<body class="auth-page">
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="auth-logo">
+        <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="3" opacity="0.35"/>
+          <circle cx="24" cy="24" r="10" stroke="#52b788" stroke-width="3"/>
+          <circle cx="24" cy="24" r="3" fill="#52b788"/>
+        </svg>
+        <span>{{APP_NAME}}</span>
+      </div>
+      <p class="auth-tagline">{{APP_TAGLINE}}</p>
+    </div>
+
+    <div class="auth-card">
+      <h1>登录</h1>
+      <p class="lead">请输入账号密码以继续。</p>
+
+      {{ERROR_BLOCK}}
+
+      <form method="post" action="/login">
+        <input type="hidden" name="next" value="{{NEXT}}" />
+        <label class="auth-field">
+          用户名
+          <input name="username" type="text" autocomplete="username" required autofocus />
+        </label>
+        <label class="auth-field">
+          密码
+          <input name="password" type="password" autocomplete="current-password" required />
+        </label>
+        <button type="submit" class="auth-submit">登录</button>
+      </form>
+    </div>
+
+    <div class="auth-note">
+      默认账号：<strong>admin</strong>　密码：<strong>vitaring</strong><br />
+      在 <code>.env</code> 里改 <code>APP_PASSWORD</code> 后重启生效。
+    </div>
+    <p class="auth-foot">数据保存在你的服务器 / 本机，不上传至第三方。</p>
+  </div>
+</body>
+</html>
