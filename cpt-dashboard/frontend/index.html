@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CPT · 周期位置交易仪表盘</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b0f0e;
+      --panel: #121916;
+      --line: rgba(210, 220, 210, 0.14);
+      --text: #e7eee8;
+      --mute: #8fa094;
+      --build: #22c55e;
+      --hold: #eab308;
+      --warn: #f97316;
+      --harvest: #ef4444;
+      --accent: #7dd3a7;
+      --serif: "Noto Serif SC", "Songti SC", serif;
+      --sans: "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+      --mono: ui-monospace, "IBM Plex Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(900px 420px at 10% -10%, rgba(34, 197, 94, 0.12), transparent 55%),
+        radial-gradient(700px 380px at 90% 0%, rgba(249, 115, 22, 0.08), transparent 50%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 1.2rem clamp(1rem, 3vw, 2rem) 0.8rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      letter-spacing: 0.06em;
+    }
+    .sub { margin: 0.25rem 0 0; color: var(--mute); font-size: 0.92rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; }
+    button, select, input {
+      font: inherit;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      padding: 0.55rem 0.8rem;
+      border-radius: 0;
+    }
+    button.active, button:hover { border-color: var(--accent); }
+    button.primary { background: #1a3d2a; border-color: #2f6b4a; }
+    main {
+      display: grid;
+      grid-template-columns: 1.4fr 0.9fr;
+      gap: 1rem;
+      padding: 1rem clamp(1rem, 3vw, 2rem) 2rem;
+    }
+    @media (max-width: 960px) {
+      main { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: rgba(18, 25, 22, 0.88);
+      border: 1px solid var(--line);
+      padding: 0.9rem;
+    }
+    .panel h2 {
+      margin: 0 0 0.7rem;
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .chart { width: 100%; height: 360px; }
+    .gauge { width: 100%; height: 280px; }
+    .heatmap { width: 100%; height: 220px; }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 0.7rem;
+    }
+    @media (max-width: 720px) {
+      .meta { grid-template-columns: repeat(2, 1fr); }
+      .chart, .gauge { height: 280px; }
+    }
+    .stat {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.65rem;
+    }
+    .stat label { display: block; color: var(--mute); font-size: 0.75rem; }
+    .stat strong { font-family: var(--mono); font-size: 1.05rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th, td { padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--line); text-align: left; }
+    th { color: var(--mute); font-weight: 500; font-size: 0.78rem; }
+    tr { cursor: pointer; }
+    tr:hover, tr.active { background: rgba(125, 211, 167, 0.08); }
+    .zone {
+      display: inline-block;
+      padding: 0.12rem 0.4rem;
+      font-size: 0.78rem;
+      border: 1px solid currentColor;
+    }
+    .build { color: var(--build); }
+    .hold { color: var(--hold); }
+    .warn { color: var(--warn); }
+    .harvest { color: var(--harvest); }
+    .api-row {
+      display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem;
+    }
+    .api-row input { flex: 1; min-width: 180px; font-family: var(--mono); font-size: 0.82rem; }
+    .hint { color: var(--mute); font-size: 0.8rem; margin-top: 0.5rem; }
+    .err { color: var(--harvest); font-size: 0.85rem; margin-top: 0.4rem; }
+    .stack { display: grid; gap: 1rem; }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <div>
+      <h1 class="brand">CPT</h1>
+      <p class="sub">周期位置交易仪表盘 · 只看现价在区间高低中的位置 · 无 MACD / MA / RSI</p>
+    </div>
+    <div class="controls">
+      <span style="color:var(--mute);font-size:0.85rem">窗口</span>
+      <button type="button" data-days="15" id="btn15">15 交易日</button>
+      <button type="button" data-days="30" id="btn30" class="active primary">30 交易日</button>
+      <button type="button" id="btnRefresh" class="primary">刷新</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stack">
+      <div class="panel">
+        <h2 id="chartTitle">价格曲线</h2>
+        <div class="meta" id="meta"></div>
+        <div id="priceChart" class="chart"></div>
+        <p class="hint">区间高/低用标记线；悬停看日期与价格。点击右侧表格切换标的。</p>
+        <p class="err" id="err" hidden></p>
+      </div>
+      <div class="panel">
+        <h2>周期热力图</h2>
+        <div id="heatChart" class="heatmap"></div>
+      </div>
+    </section>
+
+    <section class="stack">
+      <div class="panel">
+        <h2>周期位置</h2>
+        <div id="gaugeChart" class="gauge"></div>
+      </div>
+      <div class="panel">
+        <h2>自选股评分（低→高）</h2>
+        <div style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>代码</th>
+                <th>评分</th>
+                <th>分区</th>
+                <th>现价</th>
+                <th>距高点</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="api-row">
+          <input id="apiBase" spellcheck="false" placeholder="API Base，默认当前域名" />
+          <button type="button" id="btnSaveApi">保存 API</button>
+        </div>
+        <p class="hint">请求：<code>/api/market/bars?symbol=COHR&amp;days=30</code> · Key 只放后端</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const WATCHLIST = ['COHR', 'AAOI', 'AXTI', 'WOLF', 'CRDO', 'SNDK', 'MU', 'RKLB', 'CRWV'];
+    const ZONE_COLORS = {
+      '建仓区': '#22c55e',
+      '持有区': '#eab308',
+      '警惕区': '#f97316',
+      '收获区': '#ef4444',
+    };
+    const ZONE_CLASS = {
+      '建仓区': 'build',
+      '持有区': 'hold',
+      '警惕区': 'warn',
+      '收获区': 'harvest',
+    };
+
+    const state = {
+      days: 30,
+      symbol: 'COHR',
+      rows: [],
+      barsCache: {},
+    };
+
+    const priceChart = echarts.init(document.getElementById('priceChart'));
+    const gaugeChart = echarts.init(document.getElementById('gaugeChart'));
+    const heatChart = echarts.init(document.getElementById('heatChart'));
+
+    function apiBase() {
+      const saved = localStorage.getItem('cpt_api_base');
+      const input = document.getElementById('apiBase').value.trim();
+      return (input || saved || window.location.origin).replace(/\/$/, '');
+    }
+
+    function cycleScore(current, low, high) {
+      if (high === low) return 5;
+      return Math.round(((current - low) / (high - low)) * 10 * 100) / 100;
+    }
+
+    function scoreLabel(score) {
+      if (score <= 3) return '建仓区';
+      if (score <= 6) return '持有区';
+      if (score <= 8) return '警惕区';
+      return '收获区';
+    }
+
+    function summarize(bars) {
+      const high = Math.max(...bars.map((b) => b.high));
+      const low = Math.min(...bars.map((b) => b.low));
+      const current = bars[bars.length - 1].close;
+      const score = cycleScore(current, low, high);
+      const zone = scoreLabel(score);
+      const distanceToHighPct = high ? Math.round((current / high - 1) * 10000) / 100 : null;
+      return { current, high, low, score, zone, distanceToHighPct, asOf: bars[bars.length - 1].date };
+    }
+
+    async function fetchBars(symbol, days) {
+      const key = `${symbol}:${days}`;
+      const url = `${apiBase()}/api/market/bars?symbol=${encodeURIComponent(symbol)}&days=${days}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`${symbol} ${res.status}`);
+      const data = await res.json();
+      if (!data.bars || !data.bars.length) throw new Error(`${symbol} empty bars`);
+      state.barsCache[key] = data.bars;
+      return data.bars;
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('err');
+      if (!msg) { el.hidden = true; el.textContent = ''; return; }
+      el.hidden = false;
+      el.textContent = msg;
+    }
+
+    function renderMeta(s, symbol) {
+      document.getElementById('chartTitle').textContent = `${symbol} · ${state.days} 交易日`;
+      document.getElementById('meta').innerHTML = `
+        <div class="stat"><label>现价</label><strong>${s.current.toFixed(2)}</strong></div>
+        <div class="stat"><label>区间高</label><strong>${s.high.toFixed(2)}</strong></div>
+        <div class="stat"><label>区间低</label><strong>${s.low.toFixed(2)}</strong></div>
+        <div class="stat"><label>周期分</label><strong class="${ZONE_CLASS[s.zone]}">${s.score} · ${s.zone}</strong></div>
+      `;
+    }
+
+    function renderPrice(bars, summary) {
+      const dates = bars.map((b) => b.date);
+      const closes = bars.map((b) => b.close);
+      priceChart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: {
+          trigger: 'axis',
+          formatter(params) {
+            const p = params[0];
+            const b = bars[p.dataIndex];
+            return `${b.date}<br/>收 ${b.close}<br/>高 ${b.high} / 低 ${b.low}`;
+          },
+        },
+        grid: { left: 48, right: 18, top: 24, bottom: 36 },
+        xAxis: {
+          type: 'category',
+          data: dates,
+          axisLabel: { color: '#8fa094', fontSize: 10 },
+          axisLine: { lineStyle: { color: '#333' } },
+        },
+        yAxis: {
+          type: 'value',
+          scale: true,
+          axisLabel: { color: '#8fa094' },
+          splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+        },
+        series: [
+          {
+            type: 'line',
+            data: closes,
+            showSymbol: false,
+            lineStyle: { width: 2, color: '#7dd3a7' },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(125,211,167,0.28)' },
+                { offset: 1, color: 'rgba(125,211,167,0.02)' },
+              ]),
+            },
+            markLine: {
+              symbol: 'none',
+              label: { color: '#c8d4cb', formatter: '{b}' },
+              data: [
+                { yAxis: summary.high, name: '高', lineStyle: { color: '#ef4444', type: 'dashed' } },
+                { yAxis: summary.low, name: '低', lineStyle: { color: '#22c55e', type: 'dashed' } },
+              ],
+            },
+          },
+        ],
+      });
+    }
+
+    function renderGauge(summary) {
+      const color = ZONE_COLORS[summary.zone];
+      gaugeChart.setOption({
+        series: [
+          {
+            type: 'gauge',
+            min: 0,
+            max: 10,
+            splitNumber: 10,
+            axisLine: {
+              lineStyle: {
+                width: 14,
+                color: [
+                  [0.3, '#22c55e'],
+                  [0.6, '#eab308'],
+                  [0.8, '#f97316'],
+                  [1, '#ef4444'],
+                ],
+              },
+            },
+            pointer: { itemStyle: { color } },
+            axisTick: { distance: -14, length: 6, lineStyle: { color: '#fff' } },
+            splitLine: { distance: -18, length: 14, lineStyle: { color: '#fff', width: 2 } },
+            axisLabel: { color: '#9aab9e', distance: 18, fontSize: 11 },
+            detail: {
+              valueAnimation: true,
+              formatter: `{value}\n${summary.zone}`,
+              color: color,
+              fontSize: 22,
+              offsetCenter: [0, '70%'],
+            },
+            data: [{ value: summary.score }],
+          },
+        ],
+      });
+    }
+
+    function renderTable(rows) {
+      const body = document.getElementById('tableBody');
+      body.innerHTML = rows
+        .map((r) => {
+          const active = r.symbol === state.symbol ? 'active' : '';
+          const zc = ZONE_CLASS[r.zone];
+          const dist = r.distanceToHighPct == null ? '—' : `${r.distanceToHighPct}%`;
+          return `<tr class="${active}" data-symbol="${r.symbol}">
+            <td><strong>${r.symbol}</strong></td>
+            <td>${r.score}</td>
+            <td><span class="zone ${zc}">${r.zone}</span></td>
+            <td>${r.current.toFixed(2)}</td>
+            <td>${dist}</td>
+          </tr>`;
+        })
+        .join('');
+    }
+
+    function renderHeat(rows) {
+      const groups = {
+        '建仓区': [],
+        '持有区': [],
+        '警惕区': [],
+        '收获区': [],
+      };
+      rows.forEach((r) => groups[r.zone].push(r));
+      const data = Object.entries(groups).map(([zone, list]) => ({
+        name: zone,
+        value: Math.max(list.length, 0.01),
+        itemStyle: { color: ZONE_COLORS[zone] },
+        children: list.map((r) => ({
+          name: `${r.symbol}\n${r.score}`,
+          value: Math.max(10 - r.score, 0.5),
+          itemStyle: { color: ZONE_COLORS[zone] },
+        })),
+      }));
+      heatChart.setOption({
+        tooltip: {
+          formatter(info) {
+            const d = info.data;
+            if (!d) return '';
+            return d.name.replace('\n', ' · ');
+          },
+        },
+        series: [
+          {
+            type: 'treemap',
+            roam: false,
+            nodeClick: false,
+            breadcrumb: { show: false },
+            label: { show: true, formatter: '{b}', color: '#0b0f0e', fontWeight: 700 },
+            upperLabel: { show: true, height: 24, color: '#fff' },
+            data,
+          },
+        ],
+      });
+    }
+
+    async function selectSymbol(symbol) {
+      state.symbol = symbol;
+      showErr('');
+      try {
+        const bars = await fetchBars(symbol, state.days);
+        const summary = summarize(bars);
+        renderMeta(summary, symbol);
+        renderPrice(bars, summary);
+        renderGauge(summary);
+        renderTable(state.rows);
+      } catch (e) {
+        showErr(String(e.message || e));
+      }
+    }
+
+    async function refreshAll() {
+      showErr('');
+      const rows = [];
+      const errors = [];
+      await Promise.all(
+        WATCHLIST.map(async (symbol) => {
+          try {
+            const bars = await fetchBars(symbol, state.days);
+            rows.push({ symbol, ...summarize(bars) });
+          } catch (e) {
+            errors.push(`${symbol}: ${e.message || e}`);
+          }
+        })
+      );
+      rows.sort((a, b) => a.score - b.score);
+      state.rows = rows;
+      renderTable(rows);
+      renderHeat(rows);
+      if (!rows.find((r) => r.symbol === state.symbol) && rows[0]) {
+        state.symbol = rows[0].symbol;
+      }
+      if (state.symbol) await selectSymbol(state.symbol);
+      if (errors.length) showErr(`部分失败：${errors.join('；')}`);
+    }
+
+    document.getElementById('tableBody').addEventListener('click', (e) => {
+      const tr = e.target.closest('tr[data-symbol]');
+      if (tr) selectSymbol(tr.dataset.symbol);
+    });
+
+    document.getElementById('btn15').addEventListener('click', () => {
+      state.days = 15;
+      document.getElementById('btn15').classList.add('active', 'primary');
+      document.getElementById('btn30').classList.remove('active', 'primary');
+      refreshAll();
+    });
+    document.getElementById('btn30').addEventListener('click', () => {
+      state.days = 30;
+      document.getElementById('btn30').classList.add('active', 'primary');
+      document.getElementById('btn15').classList.remove('active', 'primary');
+      refreshAll();
+    });
+    document.getElementById('btnRefresh').addEventListener('click', refreshAll);
+    document.getElementById('btnSaveApi').addEventListener('click', () => {
+      localStorage.setItem('cpt_api_base', document.getElementById('apiBase').value.trim());
+      refreshAll();
+    });
+
+    document.getElementById('apiBase').value = localStorage.getItem('cpt_api_base') || '';
+    window.addEventListener('resize', () => {
+      priceChart.resize();
+      gaugeChart.resize();
+      heatChart.resize();
+    });
+
+    refreshAll();
+  </script>
+</body>
+</html>
