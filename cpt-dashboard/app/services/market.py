@@ -145,4 +145,5 @@ LEVERAGE_MAP = {
     "MULL": "MU",
     "SKUU": "000660.KS",
     "AXTY": "AXTI",
+    "AXTX": "AXTI",
 }
