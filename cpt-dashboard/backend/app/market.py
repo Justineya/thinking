@@ -1,9 +1,18 @@
 from __future__ import annotations
 
+import threading
+import time
 from datetime import datetime, timezone
+from typing import Any
 
 import pandas as pd
 import yfinance as yf
+
+# Limit concurrent Yahoo calls — Promise.all from the UI otherwise trips 502s.
+_FETCH_SEM = threading.Semaphore(2)
+_CACHE_LOCK = threading.Lock()
+_BAR_CACHE: dict[tuple[str, int], tuple[float, list[dict]]] = {}
+_CACHE_TTL_SEC = 5 * 60
 
 
 def fetch_daily_bars(symbol: str, days: int = 30) -> list[dict]:
@@ -12,22 +21,67 @@ def fetch_daily_bars(symbol: str, days: int = 30) -> list[dict]:
     if not symbol:
         raise ValueError("symbol required")
     days = max(5, min(int(days), 120))
+    key = (symbol, days)
 
-    # Pull extra calendar days so we still have enough trading sessions.
+    cached = _cache_get(key)
+    if cached is not None:
+        return cached
+
+    last_err: Exception | None = None
+    for attempt in range(3):
+        try:
+            bars = _download_bars(symbol, days)
+            _cache_set(key, bars)
+            return bars
+        except Exception as exc:  # noqa: BLE001
+            last_err = exc
+            time.sleep(0.6 * (attempt + 1))
+
+    assert last_err is not None
+    raise last_err
+
+
+def _cache_get(key: tuple[str, int]) -> list[dict] | None:
+    with _CACHE_LOCK:
+        item = _BAR_CACHE.get(key)
+        if not item:
+            return None
+        ts, bars = item
+        if time.time() - ts > _CACHE_TTL_SEC:
+            return None
+        return [dict(b) for b in bars]
+
+
+def _cache_set(key: tuple[str, int], bars: list[dict]) -> None:
+    with _CACHE_LOCK:
+        _BAR_CACHE[key] = (time.time(), [dict(b) for b in bars])
+
+
+def _download_bars(symbol: str, days: int) -> list[dict]:
     period_days = min(days * 3 + 20, 400)
-    df = yf.download(
-        symbol,
-        period=f"{period_days}d",
-        interval="1d",
-        auto_adjust=True,
-        progress=False,
-        threads=False,
-    )
+    with _FETCH_SEM:
+        df = yf.download(
+            symbol,
+            period=f"{period_days}d",
+            interval="1d",
+            auto_adjust=True,
+            progress=False,
+            threads=False,
+        )
+    if df is None or df.empty:
+        # Fallback single-ticker history API
+        with _FETCH_SEM:
+            t = yf.Ticker(symbol)
+            df = t.history(period=f"{period_days}d", auto_adjust=True)
     if df is None or df.empty:
         raise LookupError(f"no data for {symbol}")
 
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
+
+    needed = {"Open", "High", "Low", "Close"}
+    if not needed.issubset(set(df.columns)):
+        raise LookupError(f"incomplete OHLCV for {symbol}")
 
     df = df.dropna(subset=["Open", "High", "Low", "Close"]).tail(days)
     bars: list[dict] = []
@@ -64,7 +118,7 @@ def score_label(score: float) -> str:
     return "收获区"
 
 
-def summarize_cycle(bars: list[dict]) -> dict:
+def summarize_cycle(bars: list[dict]) -> dict[str, Any]:
     highs = [b["high"] for b in bars]
     lows = [b["low"] for b in bars]
     current = bars[-1]["close"]
@@ -84,12 +138,11 @@ def summarize_cycle(bars: list[dict]) -> dict:
     }
 
 
-# Leveraged ETF -> underlying for portfolio display
 LEVERAGE_MAP = {
     "COHX": "COHR",
     "AAOX": "AAOI",
     "SNXX": "SNDK",
     "MULL": "MU",
-    "SKUU": "000660.KS",  # SK Hynix proxy; may be sparse via Yahoo
+    "SKUU": "000660.KS",
     "AXTY": "AXTI",
 }

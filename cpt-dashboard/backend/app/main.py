@@ -36,7 +36,10 @@ def market_bars(
     except LookupError as exc:
         raise HTTPException(404, str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
-        raise HTTPException(502, f"market fetch failed: {exc}") from exc
+        raise HTTPException(
+            502,
+            f"market fetch failed for {symbol.upper()}: {exc}",
+        ) from exc
     return {"symbol": symbol.upper(), "days": days, "bars": bars}
 
 
