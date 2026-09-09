@@ -3,7 +3,10 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import get_settings
+from app.core.security import hash_password
 from app.models.portfolio import PortfolioHolding
+from app.models.user import User
 from app.models.watchlist import WatchlistItem
 
 DEFAULT_WATCHLIST = [
@@ -36,6 +39,20 @@ DEFAULT_PORTFOLIO = [
 
 
 async def seed_if_empty(db: AsyncSession) -> None:
+    settings = get_settings()
+    admin = (
+        await db.execute(select(User).where(User.username == settings.admin_username))
+    ).scalar_one_or_none()
+    if admin is None:
+        db.add(
+            User(
+                username=settings.admin_username,
+                password_hash=hash_password(settings.admin_password),
+                is_active=True,
+            )
+        )
+        await db.commit()
+
     has_watch = (await db.execute(select(WatchlistItem.id).limit(1))).scalar_one_or_none()
     if has_watch is None:
         for ticker in DEFAULT_WATCHLIST:

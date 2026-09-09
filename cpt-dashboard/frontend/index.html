@@ -109,6 +109,8 @@
       <p class="sub">持仓入库 · 周期筛选 API · 无 MACD / MA / RSI</p>
     </div>
     <div class="controls">
+      <span class="pill" id="userPill">—</span>
+      <button type="button" id="btnLogout">退出</button>
       <span class="pill">窗口</span>
       <button type="button" id="btn15">15 交易日</button>
       <button type="button" id="btn30" class="active primary">30 交易日</button>
@@ -333,7 +335,12 @@
       }
 
       async function apiJson(path, options) {
-        const res = await fetch(apiBase() + path, options);
+        const opts = Object.assign({ credentials: 'include' }, options || {});
+        const res = await fetch(apiBase() + path, opts);
+        if (res.status === 401) {
+          window.location.href = '/login';
+          throw new Error('未登录');
+        }
         if (!res.ok) {
           let detail = String(res.status);
           try {
@@ -870,7 +877,22 @@
       });
 
       refreshFutuStatus();
-      refreshAll();
+      (async function boot() {
+        try {
+          const me = await apiJson('/api/auth/me');
+          document.getElementById('userPill').textContent = me.username;
+        } catch (_) {
+          return;
+        }
+        refreshAll();
+      })();
+
+      document.getElementById('btnLogout').addEventListener('click', async function () {
+        try {
+          await apiJson('/api/auth/logout', { method: 'POST' });
+        } catch (_) {}
+        window.location.href = '/login';
+      });
     })();
   </script>
 </body>

@@ -3,11 +3,13 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 
+from app.api.routes.auth import router as auth_router
 from app.api.routes.cycle import router as cycle_router
 from app.api.routes.futu import router as futu_router
 from app.api.routes.portfolio import router as portfolio_router
@@ -19,6 +21,16 @@ from app.services.seed import seed_if_empty
 
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = ROOT / "frontend"
+
+PUBLIC_PATHS = {
+    "/login",
+    "/api/auth/login",
+    "/api/health",
+    "/health",
+    "/docs",
+    "/openapi.json",
+    "/redoc",
+}
 
 
 @asynccontextmanager
@@ -33,6 +45,24 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="CPT Dashboard API", version="2.0.0", lifespan=lifespan, docs_url="/docs")
+
+
+@app.middleware("http")
+async def auth_gate(request: Request, call_next):
+    # Runs inside SessionMiddleware (registered later = outer).
+    path = request.url.path
+    if path in PUBLIC_PATHS or path.startswith("/static") or path.startswith("/api/auth/"):
+        return await call_next(request)
+
+    logged_in = bool(request.session.get("user"))
+    if not logged_in:
+        if path.startswith("/api/"):
+            return JSONResponse({"detail": "未登录"}, status_code=401)
+        if path == "/" or path.endswith(".html"):
+            return RedirectResponse("/login", status_code=302)
+    return await call_next(request)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_settings().cors_origin_list or ["*"],
@@ -40,6 +70,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Outermost so session is available to auth_gate
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=get_settings().session_secret,
+    session_cookie="cpt_session",
+    same_site="lax",
+    https_only=False,
+    max_age=60 * 60 * 24 * 14,
+)
+
+app.include_router(auth_router, prefix="/api")
 app.include_router(portfolio_router, prefix="/api")
 app.include_router(cycle_router, prefix="/api")
 app.include_router(futu_router, prefix="/api")
@@ -77,6 +118,13 @@ async def market_bars(
 @app.get("/api/meta/leverage-map")
 async def leverage_map():
     return {"map": LEVERAGE_MAP}
+
+
+@app.get("/login")
+async def login_page(request: Request):
+    if request.session.get("user"):
+        return RedirectResponse("/", status_code=302)
+    return FileResponse(FRONTEND / "login.html")
 
 
 @app.get("/")
