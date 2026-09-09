@@ -9,7 +9,7 @@ Next.js/HTML Dashboard  →  FastAPI  →  PostgreSQL / SQLite
                          Portfolio / Market / Cycle / Watchlist
 ```
 
-默认本地用 **SQLite**（`data/cpt.db`），设 `DATABASE_URL` 即可切 Postgres。
+**目标数据库是 PostgreSQL**。未设置 `DATABASE_URL` 时回退到本地 SQLite（`data/cpt.db`），方便无 Docker 试跑。
 
 ## 公式
 
@@ -33,15 +33,18 @@ bash start.sh
 
 打开 http://127.0.0.1:8787/
 
-### Postgres（可选）
+### PostgreSQL（推荐）
 
 ```bash
+cp .env.example .env
 docker compose up -d db
-export DATABASE_URL=postgresql+psycopg2://cpt:cpt@127.0.0.1:5432/cpt
+# .env 已含 DATABASE_URL=postgresql+psycopg2://cpt:cpt@127.0.0.1:5432/cpt
 bash start.sh
 ```
 
 或一键：`docker compose up`（api + db）。
+
+健康检查会回传数据库方言：`GET /api/health` → `"db":"postgresql"`。
 
 ## API
 

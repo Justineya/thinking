@@ -3,12 +3,15 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+load_dotenv(ROOT / ".env")
 
 # Prefer Postgres when DATABASE_URL is set; otherwise local SQLite so MVP runs without Docker.
 DATABASE_URL = os.getenv(
@@ -23,6 +26,16 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, futu
 
 class Base(DeclarativeBase):
     pass
+
+
+def db_dialect() -> str:
+    return engine.dialect.name
+
+
+def db_ping() -> bool:
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+    return True
 
 
 def get_db():

@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .api.cycle import router as cycle_router
 from .api.portfolio import router as portfolio_router
-from .db.database import init_db
+from .db.database import DATABASE_URL, db_dialect, db_ping, init_db
 from .market import LEVERAGE_MAP, fetch_daily_bars
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -33,7 +33,26 @@ def _startup() -> None:
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"ok": True, "service": "cpt-dashboard"}
+    dialect = db_dialect()
+    try:
+        db_ok = db_ping()
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "ok": False,
+            "service": "cpt-dashboard",
+            "db": dialect,
+            "db_ok": False,
+            "error": str(exc),
+        }
+    # Never leak credentials — only scheme + dialect.
+    scheme = DATABASE_URL.split("://", 1)[0]
+    return {
+        "ok": True,
+        "service": "cpt-dashboard",
+        "db": dialect,
+        "db_ok": db_ok,
+        "db_scheme": scheme,
+    }
 
 
 @app.get("/api/market/bars")
