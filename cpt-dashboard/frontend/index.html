@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CPT V2 · 周期位置交易仪表盘</title>
+  <title>CPT V2 · 数据库持仓 · 周期位置</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
@@ -106,7 +106,7 @@
   <header>
     <div>
       <h1 class="brand">CPT V2</h1>
-      <p class="sub">周期位置交易 · 持仓管理 · 评分筛选 · 无 MACD / MA / RSI</p>
+      <p class="sub">持仓入库 · 周期筛选 API · 无 MACD / MA / RSI</p>
     </div>
     <div class="controls">
       <span class="pill">窗口</span>
@@ -162,7 +162,7 @@
           </table>
         </div>
         <div class="meta" id="portfolioSummary" style="margin-top:0.7rem"></div>
-        <p class="hint">杠杆产品：COHX→COHR · AAOX→AAOI · SNXX→SNDK · MULL→MU。评分按底层算，持仓表保留实际买入代码。数据存 localStorage。</p>
+        <p class="hint">杠杆产品：COHX→COHR · AAOX→AAOI · SNXX→SNDK · MULL→MU。评分按底层算，持仓表保留实际买入代码。持仓存后端数据库（SQLite/Postgres）。</p>
       </div>
 
       <div class="panel">
@@ -178,12 +178,12 @@
       </div>
 
       <div class="panel">
-        <h2>自选股评分</h2>
+        <h2>Cycle Scanner</h2>
         <div class="filters">
           <button type="button" class="chip active" data-filter="all">全部</button>
           <button type="button" class="chip" data-filter="build">0–3 建仓</button>
           <button type="button" class="chip" data-filter="hold">>3–6 持有</button>
-          <button type="button" class="chip" data-filter="warn">>6–8 警惕</button>
+          <button type="button" class="chip" data-filter="warning">>6–8 警惕</button>
           <button type="button" class="chip" data-filter="harvest">>8–10 收获</button>
           <input type="search" id="searchBox" placeholder="搜索代码，如 COHR" />
         </div>
@@ -205,7 +205,7 @@
           <input id="apiBase" spellcheck="false" placeholder="API Base，默认当前域名" />
           <button type="button" id="btnSaveApi">保存 API</button>
         </div>
-        <p class="hint">请求 <code>/api/market/bars?symbol=COHR&amp;days=30</code> · Key 只放后端</p>
+        <p class="hint">持仓 / 观察池 / 周期评分均走数据库 API：<code>/api/portfolio</code> · <code>/api/watchlist</code> · <code>/api/cycle/filter</code></p>
       </div>
     </section>
   </main>
@@ -214,7 +214,6 @@
     (function () {
       'use strict';
 
-      const WATCHLIST = ['COHR', 'AAOI', 'AXTI', 'WOLF', 'CRDO', 'SNDK', 'MU', 'RKLB', 'CRWV'];
       const LEVERAGE_MAP = {
         COHX: 'COHR',
         AAOX: 'AAOI',
@@ -235,7 +234,12 @@
         '警惕区': 'warn',
         '收获区': 'harvest',
       };
-      const PORTFOLIO_KEY = 'cpt_portfolio_v2';
+      const ZONE_EN = {
+        '建仓区': 'build',
+        '持有区': 'hold',
+        '警惕区': 'warning',
+        '收获区': 'harvest',
+      };
       const API_KEY = 'cpt_api_base';
 
       const state = {
@@ -245,26 +249,13 @@
         search: '',
         rows: [],
         quotes: {},
-        portfolio: loadPortfolio(),
+        portfolio: [],
+        watchlist: [],
       };
 
       const priceChart = echarts.init(document.getElementById('priceChart'));
       const gaugeChart = echarts.init(document.getElementById('gaugeChart'));
       const heatChart = echarts.init(document.getElementById('heatChart'));
-
-      function loadPortfolio() {
-        try {
-          const raw = localStorage.getItem(PORTFOLIO_KEY);
-          const list = raw ? JSON.parse(raw) : [];
-          return Array.isArray(list) ? list : [];
-        } catch (e) {
-          return [];
-        }
-      }
-
-      function savePortfolio() {
-        localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(state.portfolio));
-      }
 
       function apiBase() {
         const saved = localStorage.getItem(API_KEY) || '';
@@ -272,33 +263,20 @@
         return (input || saved || window.location.origin).replace(/\/$/, '');
       }
 
-      function cycleScore(current, low, high) {
-        if (high === low) return 5;
-        return Math.round(((current - low) / (high - low)) * 1000) / 100;
-      }
-
-      function scoreLabel(score) {
-        if (score <= 3) return '建仓区';
-        if (score <= 6) return '持有区';
-        if (score <= 8) return '警惕区';
-        return '收获区';
-      }
-
-      function zoneKey(zone) {
-        if (zone === '建仓区') return 'build';
-        if (zone === '持有区') return 'hold';
-        if (zone === '警惕区') return 'warn';
-        return 'harvest';
-      }
-
-      function summarize(bars) {
-        const high = Math.max.apply(null, bars.map(function (b) { return b.high; }));
-        const low = Math.min.apply(null, bars.map(function (b) { return b.low; }));
-        const current = bars[bars.length - 1].close;
-        const score = cycleScore(current, low, high);
-        const zone = scoreLabel(score);
-        const distanceToHighPct = high ? Math.round((current / high - 1) * 10000) / 100 : null;
-        return { current: current, high: high, low: low, score: score, zone: zone, distanceToHighPct: distanceToHighPct, asOf: bars[bars.length - 1].date };
+      async function apiJson(path, options) {
+        const res = await fetch(apiBase() + path, options);
+        if (!res.ok) {
+          let detail = String(res.status);
+          try {
+            const j = await res.json();
+            detail = j.detail || JSON.stringify(j);
+          } catch (_) {}
+          throw new Error(detail);
+        }
+        if (res.status === 204) return null;
+        const text = await res.text();
+        if (!text) return null;
+        return JSON.parse(text);
       }
 
       function showErr(msg) {
@@ -312,47 +290,36 @@
         el.textContent = msg;
       }
 
-      async function mapPool(items, limit, worker) {
-        const ret = new Array(items.length);
-        let i = 0;
-        async function run() {
-          while (i < items.length) {
-            const idx = i;
-            i += 1;
-            ret[idx] = await worker(items[idx], idx);
-          }
-        }
-        const n = Math.max(1, Math.min(limit, items.length));
-        await Promise.all(Array.from({ length: n }, function () { return run(); }));
-        return ret;
-      }
-
       async function fetchBars(symbol, days) {
-        const url = apiBase() + '/api/market/bars?symbol=' + encodeURIComponent(symbol) + '&days=' + days;
-        let lastErr = null;
-        for (let attempt = 0; attempt < 3; attempt++) {
-          try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(symbol + ' ' + res.status);
-            const data = await res.json();
-            if (!data.bars || !data.bars.length) throw new Error(symbol + ' empty bars');
-            return data.bars;
-          } catch (e) {
-            lastErr = e;
-            await new Promise(function (r) { setTimeout(r, 400 * (attempt + 1)); });
-          }
-        }
-        throw lastErr;
+        const data = await apiJson(
+          '/api/market/bars?symbol=' + encodeURIComponent(symbol) + '&days=' + days
+        );
+        if (!data.bars || !data.bars.length) throw new Error(symbol + ' empty bars');
+        return data.bars;
       }
 
       async function ensureQuote(symbol) {
         if (state.quotes[symbol] && state.quotes[symbol].days === state.days) {
           return state.quotes[symbol];
         }
+        const cycle = await apiJson(
+          '/api/cycle/' + encodeURIComponent(symbol) + '?days=' + state.days
+        );
         const bars = await fetchBars(symbol, state.days);
-        const summary = summarize(bars);
-        state.quotes[symbol] = Object.assign({ symbol: symbol, days: state.days, bars: bars }, summary);
-        return state.quotes[symbol];
+        const summary = {
+          symbol: symbol,
+          days: state.days,
+          bars: bars,
+          current: cycle.current,
+          high: cycle.high30,
+          low: cycle.low30,
+          score: cycle.score,
+          zone: cycle.zone,
+          distanceToHighPct: cycle.distanceToHighPct,
+          asOf: cycle.asOf,
+        };
+        state.quotes[symbol] = summary;
+        return summary;
       }
 
       function renderMeta(s, symbol) {
@@ -445,9 +412,10 @@
 
       function filteredRows() {
         return state.rows.filter(function (r) {
-          if (state.search && r.symbol.indexOf(state.search.toUpperCase()) === -1) return false;
+          const sym = r.ticker || r.symbol;
+          if (state.search && String(sym).indexOf(state.search.toUpperCase()) === -1) return false;
           if (state.filter === 'all') return true;
-          return zoneKey(r.zone) === state.filter;
+          return ZONE_EN[r.zone] === state.filter;
         });
       }
 
@@ -455,20 +423,24 @@
         const rows = filteredRows();
         const body = document.getElementById('tableBody');
         body.innerHTML = rows.map(function (r) {
-          const active = r.symbol === state.symbol ? 'active' : '';
+          const symbol = r.ticker || r.symbol;
+          const active = symbol === state.symbol ? 'active' : '';
           const dist = r.distanceToHighPct == null ? '—' : r.distanceToHighPct + '%';
-          return '<tr class="clickable ' + active + '" data-symbol="' + r.symbol + '">' +
-            '<td><strong>' + r.symbol + '</strong></td>' +
+          const px = r.current == null ? '—' : Number(r.current).toFixed(2);
+          return '<tr class="clickable ' + active + '" data-symbol="' + symbol + '">' +
+            '<td><strong>' + symbol + '</strong></td>' +
             '<td>' + r.score + '</td>' +
             '<td><span class="zone ' + ZONE_CLASS[r.zone] + '">' + r.zone + '</span></td>' +
-            '<td>' + r.current.toFixed(2) + '</td>' +
+            '<td>' + px + '</td>' +
             '<td>' + dist + '</td></tr>';
         }).join('');
       }
 
       function renderHeat() {
         const groups = { '建仓区': [], '持有区': [], '警惕区': [], '收获区': [] };
-        state.rows.forEach(function (r) { groups[r.zone].push(r); });
+        state.rows.forEach(function (r) {
+          if (groups[r.zone]) groups[r.zone].push(r);
+        });
         const data = Object.keys(groups).map(function (zone) {
           const list = groups[zone];
           return {
@@ -476,8 +448,9 @@
             value: Math.max(list.length, 0.01),
             itemStyle: { color: ZONE_COLORS[zone] },
             children: list.map(function (r) {
+              const symbol = r.ticker || r.symbol;
               return {
-                name: r.symbol + '\n' + r.score,
+                name: symbol + '\n' + r.score,
                 value: Math.max(10 - r.score, 0.5),
                 itemStyle: { color: ZONE_COLORS[zone] },
               };
@@ -507,35 +480,36 @@
         let totalCost = 0;
         let totalMv = 0;
 
-        body.innerHTML = state.portfolio.map(function (p, idx) {
-          const holdQ = state.quotes[p.ticker];
-          const undQ = state.quotes[p.underlying];
-          const px = holdQ ? holdQ.current : (undQ ? undQ.current : null);
-          const costTotal = Number(p.shares) * Number(p.cost);
-          const mv = px == null ? null : Number(p.shares) * px;
-          const pnl = mv == null ? null : mv - costTotal;
-          const pnlPct = costTotal ? (pnl / costTotal) * 100 : null;
+        body.innerHTML = state.portfolio.map(function (p) {
+          const costTotal = p.cost_total != null
+            ? Number(p.cost_total)
+            : Number(p.shares) * Number(p.cost_price);
+          const mv = p.market_value != null ? Number(p.market_value) : null;
+          const pnl = p.pnl != null ? Number(p.pnl) : null;
+          const pnlPct = p.pnl_pct != null ? Number(p.pnl_pct) : null;
           totalCost += costTotal;
           if (mv != null) totalMv += mv;
 
-          const score = undQ ? undQ.score : '—';
-          const zone = undQ ? ('<span class="zone ' + ZONE_CLASS[undQ.zone] + '">' + undQ.zone + '</span>') : '—';
+          const score = p.cycle_score != null ? p.cycle_score : '—';
+          const zone = p.zone
+            ? ('<span class="zone ' + ZONE_CLASS[p.zone] + '">' + p.zone + '</span>')
+            : '—';
           const mvCell = mv == null ? '—' : mv.toFixed(2);
           const pnlCell = pnl == null
             ? '—'
             : ('<span class="' + (pnl >= 0 ? 'up' : 'down') + '">' +
-               pnl.toFixed(2) + ' (' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)</span>');
+               pnl.toFixed(2) + ' (' + (pnlPct >= 0 ? '+' : '') + Number(pnlPct).toFixed(1) + '%)</span>');
 
           return '<tr class="clickable" data-symbol="' + p.underlying + '">' +
-            '<td><strong>' + p.ticker + '</strong></td>' +
+            '<td><strong>' + p.symbol + '</strong></td>' +
             '<td>' + p.underlying + '</td>' +
             '<td>' + p.shares + '</td>' +
-            '<td>' + Number(p.cost).toFixed(4) + '</td>' +
+            '<td>' + Number(p.cost_price).toFixed(4) + '</td>' +
             '<td>' + mvCell + '</td>' +
             '<td>' + pnlCell + '</td>' +
             '<td>' + score + '</td>' +
             '<td>' + zone + '</td>' +
-            '<td><button type="button" class="danger" data-del="' + idx + '">删除</button></td></tr>';
+            '<td><button type="button" class="danger" data-del-id="' + p.id + '">删除</button></td></tr>';
         }).join('');
 
         const pnlAll = totalMv - totalCost;
@@ -546,6 +520,24 @@
           '<div class="stat"><label>浮动盈亏</label><strong class="' + (pnlAll >= 0 ? 'up' : 'down') + '">' +
             pnlAll.toFixed(2) + ' (' + (pnlAllPct >= 0 ? '+' : '') + pnlAllPct.toFixed(1) + '%)</strong></div>' +
           '<div class="stat"><label>持仓数</label><strong>' + state.portfolio.length + '</strong></div>';
+      }
+
+      async function loadWatchlist() {
+        const rows = await apiJson('/api/watchlist');
+        state.watchlist = (rows || []).map(function (r) { return String(r.ticker).toUpperCase(); });
+        if (!state.watchlist.length) {
+          state.watchlist = ['COHR', 'AAOI', 'AXTI', 'WOLF', 'CRDO', 'SNDK', 'MU', 'RKLB', 'CRWV'];
+        }
+      }
+
+      async function loadPortfolio() {
+        const rows = await apiJson('/api/portfolio?enrich=true&days=' + state.days);
+        state.portfolio = rows || [];
+      }
+
+      async function loadScanner() {
+        const rows = await apiJson('/api/cycle/filter?zone=all&days=' + state.days);
+        state.rows = (rows || []).slice().sort(function (a, b) { return a.score - b.score; });
       }
 
       async function selectSymbol(symbol) {
@@ -565,38 +557,22 @@
       async function refreshAll() {
         showErr('');
         state.quotes = {};
-        const need = {};
-        WATCHLIST.forEach(function (s) { need[s] = true; });
-        state.portfolio.forEach(function (p) {
-          need[p.underlying] = true;
-          need[p.ticker] = true; // 杠杆产品用自身现价算市值
-        });
+        try {
+          await loadWatchlist();
+          await loadPortfolio();
+          await loadScanner();
+          renderTable();
+          renderHeat();
+          renderPortfolio();
 
-        const symbols = Object.keys(need);
-        const rows = [];
-        const errors = [];
-        await mapPool(symbols, 2, async function (symbol) {
-          try {
-            const q = await ensureQuote(symbol);
-            if (WATCHLIST.indexOf(symbol) !== -1) {
-              rows.push(q);
-            }
-          } catch (e) {
-            errors.push(symbol + ': ' + (e.message || e));
+          if (!state.rows.find(function (r) { return (r.ticker || r.symbol) === state.symbol; }) && state.rows[0]) {
+            state.symbol = state.rows[0].ticker || state.rows[0].symbol;
           }
-        });
-
-        rows.sort(function (a, b) { return a.score - b.score; });
-        state.rows = rows;
-        renderTable();
-        renderHeat();
-        renderPortfolio();
-
-        if (!rows.find(function (r) { return r.symbol === state.symbol; }) && rows[0]) {
-          state.symbol = rows[0].symbol;
+          if (state.symbol) await selectSymbol(state.symbol);
+        } catch (e) {
+          showErr(String(e.message || e));
+          renderPortfolio();
         }
-        if (state.symbol) await selectSymbol(state.symbol);
-        if (errors.length) showErr('部分失败：' + errors.join('；'));
       }
 
       document.getElementById('tableBody').addEventListener('click', function (e) {
@@ -604,13 +580,17 @@
         if (tr) selectSymbol(tr.dataset.symbol);
       });
 
-      document.getElementById('portfolioBody').addEventListener('click', function (e) {
-        const del = e.target.closest('button[data-del]');
+      document.getElementById('portfolioBody').addEventListener('click', async function (e) {
+        const del = e.target.closest('button[data-del-id]');
         if (del) {
-          const idx = Number(del.getAttribute('data-del'));
-          state.portfolio.splice(idx, 1);
-          savePortfolio();
-          renderPortfolio();
+          const id = Number(del.getAttribute('data-del-id'));
+          try {
+            await apiJson('/api/portfolio/' + id, { method: 'DELETE' });
+            await loadPortfolio();
+            renderPortfolio();
+          } catch (err) {
+            showErr('删除失败：' + (err.message || err));
+          }
           return;
         }
         const tr = e.target.closest('tr[data-symbol]');
@@ -628,20 +608,26 @@
           showErr('持仓信息不完整');
           return;
         }
-        const existing = state.portfolio.findIndex(function (p) { return p.ticker === ticker; });
-        const item = { ticker: ticker, underlying: underlying, shares: shares, cost: cost };
-        if (existing >= 0) state.portfolio[existing] = item;
-        else state.portfolio.push(item);
-        savePortfolio();
-        e.target.reset();
-        document.getElementById('pfTicker').value = '';
-        document.getElementById('pfUnderlying').value = '';
         try {
-          await ensureQuote(underlying);
+          await apiJson('/api/portfolio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              symbol: ticker,
+              underlying: underlying,
+              shares: shares,
+              cost_price: cost,
+            }),
+          });
+          e.target.reset();
+          document.getElementById('pfTicker').value = '';
+          document.getElementById('pfUnderlying').value = '';
+          await loadPortfolio();
+          renderPortfolio();
+          showErr('');
         } catch (err) {
-          showErr(String(err.message || err));
+          showErr('保存失败：' + (err.message || err));
         }
-        renderPortfolio();
       });
 
       document.getElementById('pfTicker').addEventListener('input', function (e) {
