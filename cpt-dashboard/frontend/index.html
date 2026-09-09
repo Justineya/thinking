@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CPT V2 · 数据库持仓 · 周期位置</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0f0e;
+      --panel: #121916;
+      --line: rgba(210, 220, 210, 0.14);
+      --text: #e7eee8;
+      --mute: #8fa094;
+      --build: #22c55e;
+      --hold: #eab308;
+      --warn: #f97316;
+      --harvest: #ef4444;
+      --accent: #7dd3a7;
+      --serif: "Noto Serif SC", "Songti SC", serif;
+      --sans: "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+      --mono: ui-monospace, "IBM Plex Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(900px 420px at 10% -10%, rgba(34, 197, 94, 0.12), transparent 55%),
+        radial-gradient(700px 380px at 90% 0%, rgba(249, 115, 22, 0.08), transparent 50%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    header {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      justify-content: space-between; align-items: flex-end;
+      padding: 1.2rem clamp(1rem, 3vw, 2rem) 0.8rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { margin: 0; font-family: var(--serif); font-size: clamp(1.8rem, 4vw, 2.4rem); letter-spacing: 0.06em; }
+    .sub { margin: 0.25rem 0 0; color: var(--mute); font-size: 0.92rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; }
+    button, select, input {
+      font: inherit; border: 1px solid var(--line); background: var(--panel);
+      color: var(--text); padding: 0.55rem 0.8rem; border-radius: 0;
+    }
+    button.active, button:hover { border-color: var(--accent); }
+    button.primary { background: #1a3d2a; border-color: #2f6b4a; }
+    button.danger { border-color: rgba(239,68,68,0.5); color: #ffb4b4; }
+    main {
+      display: grid; grid-template-columns: 1.35fr 0.95fr; gap: 1rem;
+      padding: 1rem clamp(1rem, 3vw, 2rem) 2rem;
+    }
+    main > .stack.full { grid-column: 1 / -1; }
+    @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
+    .panel {
+      background: rgba(18, 25, 22, 0.88); border: 1px solid var(--line); padding: 0.9rem;
+    }
+    .panel h2 {
+      margin: 0 0 0.7rem; font-family: var(--serif); font-size: 1.1rem; font-weight: 700;
+    }
+    .stack { display: grid; gap: 1rem; }
+    .chart { width: 100%; height: 340px; }
+    .gauge { width: 100%; height: 260px; }
+    .heatmap { width: 100%; height: 210px; }
+    .meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 0.7rem; }
+    @media (max-width: 720px) {
+      .meta { grid-template-columns: repeat(2, 1fr); }
+      .chart, .gauge { height: 260px; }
+    }
+    .stat { border: 1px solid var(--line); padding: 0.55rem 0.65rem; }
+    .stat label { display: block; color: var(--mute); font-size: 0.75rem; }
+    .stat strong { font-family: var(--mono); font-size: 1.05rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 0.5rem 0.35rem; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+    th { color: var(--mute); font-weight: 500; font-size: 0.74rem; }
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover, tr.active { background: rgba(125, 211, 167, 0.08); }
+    .zone { display: inline-block; padding: 0.1rem 0.35rem; font-size: 0.74rem; border: 1px solid currentColor; }
+    .build { color: var(--build); }
+    .hold { color: var(--hold); }
+    .warn { color: var(--warn); }
+    .harvest { color: var(--harvest); }
+    .up { color: var(--harvest); }
+    .down { color: var(--build); }
+    .filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.7rem; align-items: center; }
+    .filters input[type="search"] { min-width: 140px; flex: 1; }
+    .chip { font-size: 0.8rem; padding: 0.4rem 0.65rem; }
+    .chip.active { border-color: var(--accent); background: rgba(125,211,167,0.12); }
+    .form-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 0.45rem; margin-bottom: 0.7rem;
+    }
+    @media (max-width: 900px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    .form-grid label { display: grid; gap: 0.25rem; color: var(--mute); font-size: 0.75rem; }
+    .scroll { overflow: auto; max-height: 360px; }
+    .api-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .api-row input { flex: 1; min-width: 160px; font-family: var(--mono); font-size: 0.82rem; }
+    .hint { color: var(--mute); font-size: 0.8rem; margin-top: 0.45rem; }
+    .err { color: var(--harvest); font-size: 0.85rem; margin-top: 0.4rem; }
+    .pill { font-family: var(--mono); font-size: 0.75rem; color: var(--mute); }
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+    .dcard {
+      border: 1px solid var(--line);
+      padding: 0.9rem 0.85rem 0.8rem;
+      background: rgba(10, 14, 12, 0.55);
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .dcard .sym { font-family: var(--mono); font-size: 0.95rem; color: var(--mute); }
+    .dcard .act {
+      font-family: var(--serif);
+      font-size: 1.55rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-top: 0.15rem;
+    }
+    .dcard .pct { font-family: var(--mono); font-size: 1.35rem; margin: 0.1rem 0 0.35rem; }
+    .dcard .meta-line { color: var(--mute); font-size: 0.78rem; }
+    .dcard .why { margin-top: auto; padding-top: 0.45rem; font-size: 0.82rem; line-height: 1.45; color: var(--text); border-top: 1px solid var(--line); }
+    .act-hold { color: var(--hold); }
+    .act-buy { color: var(--build); }
+    .act-add { color: var(--accent); }
+    .act-trim { color: var(--warn); }
+    .act-cut { color: var(--harvest); }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1 class="brand">CPT V2</h1>
+      <p class="sub">持仓入库 · 周期筛选 API · 无 MACD / MA / RSI</p>
+    </div>
+    <div class="controls">
+      <span class="pill" id="userPill">—</span>
+      <button type="button" id="btnLogout">退出</button>
+      <span class="pill">窗口</span>
+      <button type="button" id="btn15">15 交易日</button>
+      <button type="button" id="btn30" class="active primary">30 交易日</button>
+      <button type="button" id="btnRefresh" class="primary">刷新</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stack full">
+      <div class="panel">
+        <h2>执行决策 · 只看动作</h2>
+        <p class="hint" style="margin-top:-0.35rem;margin-bottom:0.7rem">
+          低位分批买 · 中位不操作 · 高位分批卖 · 板块过热不新增 · 仓位打满不再补。观望并入「持有 0%」。
+        </p>
+        <div id="decisionGrid" class="decision-grid"></div>
+      </div>
+    </section>
+
+    <section class="stack">
+      <div class="panel">
+        <h2 id="chartTitle">价格曲线</h2>
+        <div class="meta" id="meta"></div>
+        <div id="priceChart" class="chart"></div>
+        <p class="hint">区间高/低标记线；悬停看日期价格。点击表格切换标的。</p>
+        <p class="err" id="err" hidden></p>
+      </div>
+
+      <div class="panel">
+        <h2>持仓管理</h2>
+        <div class="filters" style="margin-bottom:0.7rem">
+          <button type="button" id="btnFutuStatus" class="chip">OpenD 状态</button>
+          <button type="button" id="btnFutuSync" class="primary">从富途同步持仓</button>
+          <button type="button" id="btnFutuPreview" class="chip">预览富途持仓</button>
+          <span class="pill" id="futuStatusPill">OpenD: —</span>
+        </div>
+        <form id="portfolioForm" class="form-grid">
+          <label>持仓代码
+            <input name="ticker" id="pfTicker" required placeholder="COHX" maxlength="12" />
+          </label>
+          <label>底层代码
+            <input name="underlying" id="pfUnderlying" required placeholder="COHR" maxlength="16" />
+          </label>
+          <label>股数
+            <input name="shares" type="number" min="0" step="any" required placeholder="100" />
+          </label>
+          <label>成本价
+            <input name="cost" type="number" min="0" step="any" required placeholder="12.5" />
+          </label>
+          <button type="submit" class="primary">添加/更新</button>
+        </form>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>持仓</th>
+                <th>底层</th>
+                <th>股数</th>
+                <th>成本</th>
+                <th>市值</th>
+                <th>盈亏</th>
+                <th>周期分</th>
+                <th>分区</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="portfolioBody"></tbody>
+          </table>
+        </div>
+        <div class="meta" id="portfolioSummary" style="margin-top:0.7rem"></div>
+        <p class="hint">杠杆：COHX→COHR · AAOX→AAOI · SNXX→SNDK。市值按持仓代码；评分按底层。富途同步需本机 <code>FutuOpenD</code>（默认 127.0.0.1:11111）。</p>
+      </div>
+
+      <div class="panel">
+        <h2>自选 / Watchlist</h2>
+        <form id="watchForm" class="form-grid" style="grid-template-columns: 1.2fr 1fr auto auto;">
+          <label>代码（可多个，逗号分隔）
+            <input id="wlTickers" required placeholder="WOLF, CRDO, AXTI" />
+          </label>
+          <label>富途分组
+            <input id="wlGroup" placeholder="CPT" />
+          </label>
+          <button type="submit" class="primary">加自选</button>
+          <button type="button" id="btnImportFutuWl" class="chip">导入富途分组</button>
+        </form>
+        <div class="filters">
+          <label style="display:flex;align-items:center;gap:0.35rem;color:var(--mute);font-size:0.8rem">
+            <input type="checkbox" id="wlAlsoFutu" checked /> 同步到富途 App
+          </label>
+          <label style="display:flex;align-items:center;gap:0.35rem;color:var(--mute);font-size:0.8rem">
+            <input type="checkbox" id="wlAlsoCpt" checked /> 写入 CPT 观察池
+          </label>
+        </div>
+        <div class="scroll" style="max-height:160px">
+          <table>
+            <thead><tr><th>CPT 观察池</th><th></th></tr></thead>
+            <tbody id="watchBody"></tbody>
+          </table>
+        </div>
+        <p class="hint">富途自定义分组名需先在 App 建好（默认 <code>CPT</code>）。加自选会把杠杆代码映射到底层再进 CPT Scanner。</p>
+      </div>
+
+      <div class="panel">
+        <h2>周期热力图</h2>
+        <div id="heatChart" class="heatmap"></div>
+      </div>
+    </section>
+
+    <section class="stack">
+      <div class="panel">
+        <h2>周期位置</h2>
+        <div id="gaugeChart" class="gauge"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Cycle Scanner</h2>
+        <div class="filters">
+          <button type="button" class="chip active" data-filter="all">全部</button>
+          <button type="button" class="chip" data-filter="build">0–3 建仓</button>
+          <button type="button" class="chip" data-filter="hold">>3–6 持有</button>
+          <button type="button" class="chip" data-filter="warning">>6–8 警惕</button>
+          <button type="button" class="chip" data-filter="harvest">>8–10 收获</button>
+          <input type="search" id="searchBox" placeholder="搜索代码，如 COHR" />
+        </div>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>代码</th>
+                <th>评分</th>
+                <th>分区</th>
+                <th>现价</th>
+                <th>距高点</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="api-row">
+          <input id="apiBase" spellcheck="false" placeholder="API Base，默认当前域名" />
+          <button type="button" id="btnSaveApi">保存 API</button>
+        </div>
+        <p class="hint">持仓 / 观察池 / 周期评分均走数据库 API：<code>/api/portfolio</code> · <code>/api/watchlist</code> · <code>/api/cycle/filter</code></p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const LEVERAGE_MAP = {
+        COHX: 'COHR',
+        AAOX: 'AAOI',
+        SNXX: 'SNDK',
+        MULL: 'MU',
+        SKUU: '000660.KS',
+        AXTY: 'AXTI',
+        AXTX: 'AXTI',
+      };
+      const ZONE_CN = {
+        build: '建仓区',
+        hold: '持有区',
+        warning: '警惕区',
+        harvest: '收获区',
+      };
+      const ZONE_COLORS = {
+        build: '#22c55e',
+        hold: '#eab308',
+        warning: '#f97316',
+        harvest: '#ef4444',
+        '建仓区': '#22c55e',
+        '持有区': '#eab308',
+        '警惕区': '#f97316',
+        '收获区': '#ef4444',
+      };
+      const ZONE_CLASS = {
+        build: 'build',
+        hold: 'hold',
+        warning: 'warn',
+        harvest: 'harvest',
+        '建仓区': 'build',
+        '持有区': 'hold',
+        '警惕区': 'warn',
+        '收获区': 'harvest',
+      };
+      const API_KEY = 'cpt_api_base';
+
+      function zoneLabel(zone) {
+        return ZONE_CN[zone] || zone || '—';
+      }
+
+      function normalizeCycle(c) {
+        if (!c) return null;
+        const zone = c.zone;
+        return {
+          ticker: c.ticker,
+          symbol: c.ticker || c.symbol,
+          days: c.window_days || state.days,
+          current: Number(c.current_price != null ? c.current_price : c.current),
+          high: Number(c.period_high != null ? c.period_high : c.high30 || c.high),
+          low: Number(c.period_low != null ? c.period_low : c.low30 || c.low),
+          score: Number(c.score),
+          zone: zone,
+          zoneLabel: zoneLabel(zone),
+          distanceToHighPct: Number(
+            c.distance_to_high_pct != null ? c.distance_to_high_pct : c.distanceToHighPct
+          ),
+          asOf: c.asOf || null,
+          updated_at: c.updated_at,
+        };
+      }
+
+      const state = {
+        days: 30,
+        symbol: 'COHR',
+        filter: 'all',
+        search: '',
+        rows: [],
+        quotes: {},
+        portfolio: [],
+        watchlist: [],
+      };
+
+      const priceChart = echarts.init(document.getElementById('priceChart'));
+      const gaugeChart = echarts.init(document.getElementById('gaugeChart'));
+      const heatChart = echarts.init(document.getElementById('heatChart'));
+
+      function apiBase() {
+        const saved = localStorage.getItem(API_KEY) || '';
+        const input = document.getElementById('apiBase').value.trim();
+        return (input || saved || window.location.origin).replace(/\/$/, '');
+      }
+
+      async function apiJson(path, options) {
+        const opts = Object.assign({ credentials: 'include' }, options || {});
+        const res = await fetch(apiBase() + path, opts);
+        if (res.status === 401) {
+          window.location.href = '/login';
+          throw new Error('未登录');
+        }
+        if (!res.ok) {
+          let detail = String(res.status);
+          try {
+            const j = await res.json();
+            detail = j.detail || JSON.stringify(j);
+          } catch (_) {}
+          throw new Error(detail);
+        }
+        if (res.status === 204) return null;
+        const text = await res.text();
+        if (!text) return null;
+        return JSON.parse(text);
+      }
+
+      function showErr(msg) {
+        const el = document.getElementById('err');
+        if (!msg) {
+          el.hidden = true;
+          el.textContent = '';
+          return;
+        }
+        el.hidden = false;
+        el.textContent = msg;
+      }
+
+      async function fetchBars(symbol, days) {
+        const data = await apiJson(
+          '/api/market/bars?symbol=' + encodeURIComponent(symbol) + '&days=' + days
+        );
+        if (!data.bars || !data.bars.length) throw new Error(symbol + ' empty bars');
+        return data.bars;
+      }
+
+      async function ensureQuote(symbol) {
+        if (state.quotes[symbol] && state.quotes[symbol].days === state.days) {
+          return state.quotes[symbol];
+        }
+        const cycle = normalizeCycle(
+          await apiJson(
+            '/api/cycle/' + encodeURIComponent(symbol) +
+            '?window_days=' + state.days + '&refresh=true'
+          )
+        );
+        const bars = await fetchBars(symbol, state.days);
+        const summary = Object.assign({ bars: bars }, cycle, { symbol: symbol, days: state.days });
+        state.quotes[symbol] = summary;
+        return summary;
+      }
+
+      function renderMeta(s, symbol) {
+        document.getElementById('chartTitle').textContent = symbol + ' · ' + state.days + ' 交易日';
+        document.getElementById('meta').innerHTML =
+          '<div class="stat"><label>现价</label><strong>' + s.current.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>区间高</label><strong>' + s.high.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>区间低</label><strong>' + s.low.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>周期分</label><strong class="' + ZONE_CLASS[s.zone] + '">' +
+            s.score + ' · ' + zoneLabel(s.zone) + '</strong></div>';
+      }
+
+      function renderPrice(bars, summary) {
+        const dates = bars.map(function (b) { return b.date; });
+        const closes = bars.map(function (b) { return b.close; });
+        priceChart.setOption({
+          backgroundColor: 'transparent',
+          tooltip: {
+            trigger: 'axis',
+            formatter: function (params) {
+              const p = params[0];
+              const b = bars[p.dataIndex];
+              return b.date + '<br/>收 ' + b.close + '<br/>高 ' + b.high + ' / 低 ' + b.low;
+            },
+          },
+          grid: { left: 48, right: 18, top: 24, bottom: 36 },
+          xAxis: {
+            type: 'category',
+            data: dates,
+            axisLabel: { color: '#8fa094', fontSize: 10 },
+            axisLine: { lineStyle: { color: '#333' } },
+          },
+          yAxis: {
+            type: 'value',
+            scale: true,
+            axisLabel: { color: '#8fa094' },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+          },
+          series: [{
+            type: 'line',
+            data: closes,
+            showSymbol: false,
+            lineStyle: { width: 2, color: '#7dd3a7' },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(125,211,167,0.28)' },
+                { offset: 1, color: 'rgba(125,211,167,0.02)' },
+              ]),
+            },
+            markLine: {
+              symbol: 'none',
+              label: { color: '#c8d4cb', formatter: '{b}' },
+              data: [
+                { yAxis: summary.high, name: '高', lineStyle: { color: '#ef4444', type: 'dashed' } },
+                { yAxis: summary.low, name: '低', lineStyle: { color: '#22c55e', type: 'dashed' } },
+              ],
+            },
+          }],
+        });
+      }
+
+      function renderGauge(summary) {
+        const label = zoneLabel(summary.zone);
+        const color = ZONE_COLORS[summary.zone] || ZONE_COLORS[label];
+        gaugeChart.setOption({
+          series: [{
+            type: 'gauge',
+            min: 0,
+            max: 10,
+            splitNumber: 10,
+            axisLine: {
+              lineStyle: {
+                width: 14,
+                color: [[0.3, '#22c55e'], [0.6, '#eab308'], [0.8, '#f97316'], [1, '#ef4444']],
+              },
+            },
+            pointer: { itemStyle: { color: color } },
+            axisTick: { distance: -14, length: 6, lineStyle: { color: '#fff' } },
+            splitLine: { distance: -18, length: 14, lineStyle: { color: '#fff', width: 2 } },
+            axisLabel: { color: '#9aab9e', distance: 18, fontSize: 11 },
+            detail: {
+              valueAnimation: true,
+              formatter: '{value}\n' + label,
+              color: color,
+              fontSize: 22,
+              offsetCenter: [0, '70%'],
+            },
+            data: [{ value: summary.score }],
+          }],
+        });
+      }
+
+      function filteredRows() {
+        return state.rows.filter(function (r) {
+          const sym = r.ticker || r.symbol;
+          if (state.search && String(sym).indexOf(state.search.toUpperCase()) === -1) return false;
+          if (state.filter === 'all') return true;
+          return r.zone === state.filter;
+        });
+      }
+
+      function renderTable() {
+        const rows = filteredRows();
+        const body = document.getElementById('tableBody');
+        body.innerHTML = rows.map(function (r) {
+          const symbol = r.ticker || r.symbol;
+          const active = symbol === state.symbol ? 'active' : '';
+          const dist = r.distanceToHighPct == null || Number.isNaN(r.distanceToHighPct)
+            ? '—'
+            : r.distanceToHighPct + '%';
+          const px = r.current == null ? '—' : Number(r.current).toFixed(2);
+          const zlabel = zoneLabel(r.zone);
+          return '<tr class="clickable ' + active + '" data-symbol="' + symbol + '">' +
+            '<td><strong>' + symbol + '</strong></td>' +
+            '<td>' + r.score + '</td>' +
+            '<td><span class="zone ' + ZONE_CLASS[r.zone] + '">' + zlabel + '</span></td>' +
+            '<td>' + px + '</td>' +
+            '<td>' + dist + '</td></tr>';
+        }).join('');
+      }
+
+      function renderHeat() {
+        const groups = { build: [], hold: [], warning: [], harvest: [] };
+        state.rows.forEach(function (r) {
+          if (groups[r.zone]) groups[r.zone].push(r);
+        });
+        const data = Object.keys(groups).map(function (zone) {
+          const list = groups[zone];
+          return {
+            name: zoneLabel(zone),
+            value: Math.max(list.length, 0.01),
+            itemStyle: { color: ZONE_COLORS[zone] },
+            children: list.map(function (r) {
+              const symbol = r.ticker || r.symbol;
+              return {
+                name: symbol + '\n' + r.score,
+                value: Math.max(10 - r.score, 0.5),
+                itemStyle: { color: ZONE_COLORS[zone] },
+              };
+            }),
+          };
+        });
+        heatChart.setOption({
+          tooltip: {
+            formatter: function (info) {
+              return info.data && info.data.name ? String(info.data.name).replace('\n', ' · ') : '';
+            },
+          },
+          series: [{
+            type: 'treemap',
+            roam: false,
+            nodeClick: false,
+            breadcrumb: { show: false },
+            label: { show: true, formatter: '{b}', color: '#0b0f0e', fontWeight: 700 },
+            upperLabel: { show: true, height: 24, color: '#fff' },
+            data: data,
+          }],
+        });
+      }
+
+      function renderPortfolio() {
+        const body = document.getElementById('portfolioBody');
+        let totalCost = 0;
+        let totalMv = 0;
+
+        body.innerHTML = state.portfolio.map(function (p) {
+          const costTotal = Number(p.shares) * Number(p.cost_price);
+          const mv = p.market_value != null ? Number(p.market_value) : null;
+          const pnl = p.unrealized_pnl != null ? Number(p.unrealized_pnl) : null;
+          const pnlPct = p.unrealized_pnl_pct != null ? Number(p.unrealized_pnl_pct) : null;
+          totalCost += costTotal;
+          if (mv != null) totalMv += mv;
+
+          const score = p.cycle_score != null ? p.cycle_score : '—';
+          const zone = p.zone
+            ? ('<span class="zone ' + ZONE_CLASS[p.zone] + '">' + zoneLabel(p.zone) + '</span>')
+            : '—';
+          const mvCell = mv == null ? '—' : mv.toFixed(2);
+          const pnlCell = pnl == null
+            ? '—'
+            : ('<span class="' + (pnl >= 0 ? 'up' : 'down') + '">' +
+               pnl.toFixed(2) + ' (' + (pnlPct >= 0 ? '+' : '') + Number(pnlPct || 0).toFixed(1) + '%)</span>');
+
+          return '<tr class="clickable" data-symbol="' + p.underlying + '">' +
+            '<td><strong>' + p.symbol + '</strong></td>' +
+            '<td>' + p.underlying + '</td>' +
+            '<td>' + p.shares + '</td>' +
+            '<td>' + Number(p.cost_price).toFixed(4) + '</td>' +
+            '<td>' + mvCell + '</td>' +
+            '<td>' + pnlCell + '</td>' +
+            '<td>' + score + '</td>' +
+            '<td>' + zone + '</td>' +
+            '<td><button type="button" class="danger" data-del-id="' + p.id + '">删除</button></td></tr>';
+        }).join('');
+
+        const pnlAll = totalMv - totalCost;
+        const pnlAllPct = totalCost ? (pnlAll / totalCost) * 100 : 0;
+        document.getElementById('portfolioSummary').innerHTML =
+          '<div class="stat"><label>总成本</label><strong>' + totalCost.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>当前市值</label><strong>' + totalMv.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>浮动盈亏</label><strong class="' + (pnlAll >= 0 ? 'up' : 'down') + '">' +
+            pnlAll.toFixed(2) + ' (' + (pnlAllPct >= 0 ? '+' : '') + pnlAllPct.toFixed(1) + '%)</strong></div>' +
+          '<div class="stat"><label>持仓数</label><strong>' + state.portfolio.length + '</strong></div>';
+      }
+
+      async function loadWatchlist() {
+        const rows = await apiJson('/api/watchlist');
+        state.watchlist = (rows || []).map(function (r) { return String(r.ticker).toUpperCase(); });
+        renderWatchlist();
+      }
+
+      function renderWatchlist() {
+        const body = document.getElementById('watchBody');
+        if (!body) return;
+        body.innerHTML = state.watchlist.map(function (t) {
+          return '<tr class="clickable" data-symbol="' + t + '">' +
+            '<td><strong>' + t + '</strong></td>' +
+            '<td><button type="button" class="danger" data-wl-del="' + t + '">移除</button></td></tr>';
+        }).join('') || '<tr><td colspan="2" style="color:var(--mute)">暂无观察池</td></tr>';
+      }
+
+      async function refreshFutuStatus() {
+        const pill = document.getElementById('futuStatusPill');
+        try {
+          const s = await apiJson('/api/futu/status');
+          if (s.ok) {
+            pill.textContent = 'OpenD: 已连接 ' + (s.host || '') + ':' + (s.port || '');
+            pill.style.color = 'var(--build)';
+          } else {
+            pill.textContent = 'OpenD: 未连接 — ' + (s.error || '检查本机 FutuOpenD');
+            pill.style.color = 'var(--warn)';
+          }
+          return s;
+        } catch (e) {
+          pill.textContent = 'OpenD: 错误 ' + (e.message || e);
+          pill.style.color = 'var(--harvest)';
+          return null;
+        }
+      }
+
+      async function syncFromFutu(replace) {
+        showErr('');
+        try {
+          const res = await apiJson('/api/futu/portfolio/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ replace: !!replace, dry_run: false }),
+          });
+          await loadPortfolio();
+          await loadWatchlist();
+          renderPortfolio();
+          showErr('已从富途同步 ' + (res.count || 0) + ' 条持仓' +
+            (res.removed && res.removed.length ? '；移除 ' + res.removed.join(',') : ''));
+          await refreshScoresSoft();
+        } catch (e) {
+          showErr('富途同步失败：' + (e.message || e));
+        }
+      }
+
+      async function refreshScoresSoft() {
+        try {
+          await loadScanner();
+          renderTable();
+          renderHeat();
+          renderPortfolio();
+        } catch (_) {}
+      }
+
+      async function loadPortfolio() {
+        const rows = await apiJson('/api/portfolio?window_days=' + state.days);
+        state.portfolio = rows || [];
+      }
+
+      async function loadScanner() {
+        await apiJson('/api/cycle/refresh?window_days=' + state.days, { method: 'POST' });
+        const rows = await apiJson('/api/cycle?window_days=' + state.days);
+        state.rows = (rows || []).map(normalizeCycle).sort(function (a, b) { return a.score - b.score; });
+      }
+
+      function actionClass(action) {
+        if (action === '明显减仓') return 'act-cut';
+        if (action === '部分止盈') return 'act-trim';
+        if (action === '加仓') return 'act-add';
+        if (action === '试探建仓' || action === '正常建仓') return 'act-buy';
+        return 'act-hold';
+      }
+
+      function renderDecisions(cards) {
+        const grid = document.getElementById('decisionGrid');
+        if (!grid) return;
+        if (!cards || !cards.length) {
+          grid.innerHTML = '<p class="hint">暂无决策卡</p>';
+          return;
+        }
+        grid.innerHTML = cards.map(function (c) {
+          const pct = c.size_pct_display || ((c.size_pct || 0) * 100).toFixed(0) + '%';
+          const usage = c.position_usage == null ? '—' : Math.round(c.position_usage * 100) + '%';
+          const drop = c.change_from_last_buy == null ? '—' : (c.change_from_last_buy * 100).toFixed(1) + '%';
+          const need = c.add_gap == null ? '—' : (c.add_gap * 100).toFixed(0) + '%';
+          const tprog = c.time_progress == null ? '—' : Math.round(c.time_progress * 100) + '%';
+          return '<article class="dcard clickable" data-symbol="' + (c.underlying || c.symbol) + '">' +
+            '<div class="sym">' + c.symbol + (c.underlying && c.underlying !== c.symbol ? ' → ' + c.underlying : '') + '</div>' +
+            '<div class="act ' + actionClass(c.action) + '">' + c.action + '</div>' +
+            '<div class="pct ' + actionClass(c.action) + '">' + pct + '</div>' +
+            '<div class="meta-line">个股位置 ' + (c.position_score ?? '—') +
+              ' · 板块 ' + (c.sector_label || '—') +
+              (c.sector_score != null ? ' (' + c.sector_score + ')' : '') + '</div>' +
+            '<div class="meta-line">仓位使用 ' + usage + ' · 时间进度 ' + tprog + '</div>' +
+            '<div class="meta-line">距上次买 ' + drop + ' / 需间隔 ' + need +
+              (c.failed_breakout ? ' · 冲顶失败' : '') + '</div>' +
+            '<div class="why">' + (c.reason || '') + '</div>' +
+            '</article>';
+        }).join('');
+      }
+
+      async function loadDecisions() {
+        const data = await apiJson('/api/decision/cards?window_days=' + state.days);
+        state.decisions = data.cards || [];
+        renderDecisions(state.decisions);
+      }
+
+      async function selectSymbol(symbol) {
+        state.symbol = symbol;
+        showErr('');
+        try {
+          const q = await ensureQuote(symbol);
+          renderMeta(q, symbol);
+          renderPrice(q.bars, q);
+          renderGauge(q);
+          renderTable();
+        } catch (e) {
+          showErr(String(e.message || e));
+        }
+      }
+
+      async function refreshAll() {
+        showErr('');
+        state.quotes = {};
+        try {
+          await loadWatchlist();
+          await loadPortfolio();
+          await loadScanner();
+          renderTable();
+          renderHeat();
+          renderPortfolio();
+          try {
+            await loadDecisions();
+          } catch (de) {
+            console.warn(de);
+            document.getElementById('decisionGrid').innerHTML =
+              '<p class="err">决策引擎暂不可用：' + (de.message || de) + '</p>';
+          }
+
+          if (!state.rows.find(function (r) { return (r.ticker || r.symbol) === state.symbol; }) && state.rows[0]) {
+            state.symbol = state.rows[0].ticker || state.rows[0].symbol;
+          }
+          if (state.symbol) await selectSymbol(state.symbol);
+        } catch (e) {
+          showErr(String(e.message || e));
+          renderPortfolio();
+        }
+      }
+
+      document.getElementById('decisionGrid').addEventListener('click', function (e) {
+        const card = e.target.closest('[data-symbol]');
+        if (card) selectSymbol(card.dataset.symbol);
+      });
+
+      document.getElementById('tableBody').addEventListener('click', function (e) {
+        const tr = e.target.closest('tr[data-symbol]');
+        if (tr) selectSymbol(tr.dataset.symbol);
+      });
+
+      document.getElementById('portfolioBody').addEventListener('click', async function (e) {
+        const del = e.target.closest('button[data-del-id]');
+        if (del) {
+          const id = Number(del.getAttribute('data-del-id'));
+          try {
+            await apiJson('/api/portfolio/' + id, { method: 'DELETE' });
+            await loadPortfolio();
+            renderPortfolio();
+          } catch (err) {
+            showErr('删除失败：' + (err.message || err));
+          }
+          return;
+        }
+        const tr = e.target.closest('tr[data-symbol]');
+        if (tr) selectSymbol(tr.dataset.symbol);
+      });
+
+      document.getElementById('portfolioForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const ticker = String(fd.get('ticker') || '').trim().toUpperCase();
+        let underlying = String(fd.get('underlying') || '').trim().toUpperCase();
+        const shares = Number(fd.get('shares'));
+        const cost = Number(fd.get('cost'));
+        if (!ticker || !underlying || !(shares > 0) || !(cost >= 0)) {
+          showErr('持仓信息不完整');
+          return;
+        }
+        try {
+          await apiJson('/api/portfolio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              symbol: ticker,
+              underlying: underlying,
+              shares: shares,
+              cost_price: cost,
+            }),
+          });
+          e.target.reset();
+          document.getElementById('pfTicker').value = '';
+          document.getElementById('pfUnderlying').value = '';
+          await loadPortfolio();
+          renderPortfolio();
+          showErr('');
+        } catch (err) {
+          showErr('保存失败：' + (err.message || err));
+        }
+      });
+
+      document.getElementById('pfTicker').addEventListener('input', function (e) {
+        const t = e.target.value.trim().toUpperCase();
+        if (LEVERAGE_MAP[t]) {
+          document.getElementById('pfUnderlying').value = LEVERAGE_MAP[t];
+        }
+      });
+
+      document.querySelectorAll('.chip[data-filter]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.chip[data-filter]').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          state.filter = btn.getAttribute('data-filter');
+          renderTable();
+        });
+      });
+
+      document.getElementById('searchBox').addEventListener('input', function (e) {
+        state.search = e.target.value.trim();
+        renderTable();
+      });
+
+      document.getElementById('btn15').addEventListener('click', function () {
+        state.days = 15;
+        document.getElementById('btn15').classList.add('active', 'primary');
+        document.getElementById('btn30').classList.remove('active', 'primary');
+        refreshAll();
+      });
+      document.getElementById('btn30').addEventListener('click', function () {
+        state.days = 30;
+        document.getElementById('btn30').classList.add('active', 'primary');
+        document.getElementById('btn15').classList.remove('active', 'primary');
+        refreshAll();
+      });
+      document.getElementById('btnRefresh').addEventListener('click', refreshAll);
+      document.getElementById('btnSaveApi').addEventListener('click', function () {
+        localStorage.setItem(API_KEY, document.getElementById('apiBase').value.trim());
+        refreshAll();
+      });
+
+      document.getElementById('btnFutuStatus').addEventListener('click', refreshFutuStatus);
+      document.getElementById('btnFutuPreview').addEventListener('click', async function () {
+        try {
+          const rows = await apiJson('/api/futu/positions');
+          const msg = (rows || []).map(function (p) {
+            return p.symbol + ' ' + p.shares + '@' + p.cost_price;
+          }).join(' · ') || '（空仓）';
+          showErr('富途持仓预览：' + msg);
+        } catch (e) {
+          showErr('预览失败：' + (e.message || e));
+        }
+      });
+      document.getElementById('btnFutuSync').addEventListener('click', function () {
+        if (!confirm('从富途 OpenD 同步持仓到 CPT 数据库？\n（同代码会覆盖股数/成本；底层会自动加入观察池）')) return;
+        syncFromFutu(false);
+      });
+
+      document.getElementById('watchForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const raw = document.getElementById('wlTickers').value.trim();
+        const tickers = raw.split(/[\s,，;；]+/).map(function (x) { return x.trim().toUpperCase(); }).filter(Boolean);
+        if (!tickers.length) {
+          showErr('请填写自选代码');
+          return;
+        }
+        const group = document.getElementById('wlGroup').value.trim() || null;
+        const also_futu = document.getElementById('wlAlsoFutu').checked;
+        const also_cpt = document.getElementById('wlAlsoCpt').checked;
+        try {
+          const res = await apiJson('/api/futu/watchlist/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tickers: tickers, group: group, also_futu: also_futu, also_cpt: also_cpt }),
+          });
+          document.getElementById('wlTickers').value = '';
+          await loadWatchlist();
+          showErr('已加自选：' + tickers.join(',') +
+            (res.cpt_added && res.cpt_added.length ? ' → CPT ' + res.cpt_added.join(',') : ''));
+          await refreshScoresSoft();
+        } catch (err) {
+          showErr('加自选失败：' + (err.message || err));
+        }
+      });
+
+      document.getElementById('btnImportFutuWl').addEventListener('click', async function () {
+        const group = document.getElementById('wlGroup').value.trim();
+        const q = group ? ('?group=' + encodeURIComponent(group)) : '';
+        try {
+          const res = await apiJson('/api/futu/watchlist/import' + q, { method: 'POST' });
+          await loadWatchlist();
+          showErr('已导入富途分组「' + (res.group || group || 'CPT') + '」新增 ' + (res.added || []).length + ' 只');
+          await refreshScoresSoft();
+        } catch (err) {
+          showErr('导入失败：' + (err.message || err));
+        }
+      });
+
+      document.getElementById('watchBody').addEventListener('click', async function (e) {
+        const del = e.target.closest('button[data-wl-del]');
+        if (del) {
+          const t = del.getAttribute('data-wl-del');
+          try {
+            await apiJson('/api/watchlist/' + encodeURIComponent(t), { method: 'DELETE' });
+            await loadWatchlist();
+          } catch (err) {
+            showErr('移除失败：' + (err.message || err));
+          }
+          return;
+        }
+        const tr = e.target.closest('tr[data-symbol]');
+        if (tr) selectSymbol(tr.dataset.symbol);
+      });
+
+      document.getElementById('apiBase').value = localStorage.getItem(API_KEY) || '';
+      window.addEventListener('resize', function () {
+        priceChart.resize();
+        gaugeChart.resize();
+        heatChart.resize();
+      });
+
+      refreshFutuStatus();
+      (async function boot() {
+        try {
+          const me = await apiJson('/api/auth/me');
+          document.getElementById('userPill').textContent = me.username;
+        } catch (_) {
+          return;
+        }
+        refreshAll();
+      })();
+
+      document.getElementById('btnLogout').addEventListener('click', async function () {
+        try {
+          await apiJson('/api/auth/logout', { method: 'POST' });
+        } catch (_) {}
+        window.location.href = '/login';
+      });
+    })();
+  </script>
+</body>
+</html>

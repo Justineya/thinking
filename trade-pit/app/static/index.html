@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>谨记 · 炒股坑本</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css?v=3" />
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand-block">
+      <p class="brand">谨记</p>
+      <p class="brand-sub">炒股坑本 · 你说我记，翻车变铁律</p>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="ghost" id="btn-review">开盘前诵读</button>
+      <button type="button" class="ghost" id="btn-new">细表单</button>
+      <button type="button" class="primary" id="btn-story">我说你记</button>
+    </div>
+  </header>
+
+  <section class="hero-rules" id="rules-wall">
+    <div class="hero-head">
+      <h1>今日必须谨记</h1>
+      <p class="lede">不用填表。把今天怎么翻的车说出来，抽出一条下次必须照做的铁律。</p>
+    </div>
+    <div class="rules-rail" id="pinned-rules"></div>
+    <p class="meta-line" id="stats-line"></p>
+  </section>
+
+  <main>
+    <section class="ledger">
+      <div class="section-head">
+        <h2>坑账本</h2>
+        <p>再犯一次就盖章加重，别给自己找台阶。</p>
+      </div>
+      <div class="pit-list" id="pit-list"></div>
+    </section>
+  </main>
+
+  <dialog id="story-dialog">
+    <form method="dialog" id="story-form" class="sheet">
+      <header>
+        <h2>我说你记</h2>
+        <p>怎么说都行。先把故事甩出来，再确认铁律。</p>
+      </header>
+
+      <label>
+        今天发生了什么
+        <textarea name="story" rows="6" required minlength="8" maxlength="2000" placeholder="例如：美股夜盘最高全仓+7，盘前转绿，我还在+5的时候追进去…"></textarea>
+      </label>
+
+      <div class="draft-box" id="draft-box" hidden>
+        <label>
+          自动起的标题（可改）
+          <input name="title" maxlength="80" />
+        </label>
+        <label class="rule-field">
+          抽出的铁律（可改，但必须能执行）
+          <textarea name="rule" rows="2" required minlength="4" maxlength="200"></textarea>
+        </label>
+        <label>
+          代价
+          <input name="cost_note" maxlength="500" />
+        </label>
+      </div>
+
+      <footer class="sheet-actions">
+        <button type="button" class="ghost" id="story-cancel">取消</button>
+        <button type="button" class="ghost" id="story-draft">抽出铁律</button>
+        <button type="submit" class="primary" id="story-save" disabled>盖章谨记</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="pit-dialog">
+    <form method="dialog" id="pit-form" class="sheet">
+      <header>
+        <h2>细表单记坑</h2>
+        <p>写不清铁律，就不许关。</p>
+      </header>
+
+      <label>
+        这一坑叫什么
+        <input name="title" maxlength="80" required placeholder="例如：利空一出就交筹码" />
+      </label>
+
+      <label>
+        发生了什么
+        <textarea name="what_happened" rows="3" required placeholder="当时怎么想、怎么下单、怎么翻车"></textarea>
+      </label>
+
+      <label>
+        代价（可写金额或感受）
+        <input name="cost_note" maxlength="500" placeholder="亏了多少，或情绪怎么崩的" />
+      </label>
+
+      <label class="rule-field">
+        下次铁律（一句话，必须能执行）
+        <textarea name="rule" rows="2" required minlength="4" maxlength="200" placeholder="没有事先写好的止损位，就不许因为标题党割肉。"></textarea>
+      </label>
+
+      <div class="row">
+        <label>
+          痛感 1–5
+          <input name="severity" type="number" min="1" max="5" value="4" />
+        </label>
+        <label>
+          标签
+          <input name="tags" maxlength="120" placeholder="追涨,杀跌,消息" />
+        </label>
+      </div>
+
+      <label class="check">
+        <input name="pinned" type="checkbox" checked />
+        钉上铁律墙（开盘前必须看到）
+      </label>
+
+      <footer class="sheet-actions">
+        <button type="button" class="ghost" id="pit-cancel" value="cancel">取消</button>
+        <button type="submit" class="primary" id="pit-save">盖章谨记</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="review-dialog">
+    <div class="sheet review-sheet">
+      <header>
+        <h2>开盘前诵读</h2>
+        <p id="review-progress">逐条确认。跳过等于没看。</p>
+      </header>
+      <div class="review-card" id="review-card"></div>
+      <footer class="sheet-actions">
+        <button type="button" class="ghost" id="review-skip">稍后再说</button>
+        <button type="button" class="primary" id="review-ack">我谨记了</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" hidden></div>
+  <script src="/static/app.js?v=3"></script>
+</body>
+</html>

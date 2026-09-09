@@ -1,0 +1,22 @@
+from datetime import datetime
+from decimal import Decimal
+
+from sqlalchemy import DateTime, Numeric, String, func
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models.base import Base
+
+
+class CycleScore(Base):
+    __tablename__ = "cycle_scores"
+
+    ticker: Mapped[str] = mapped_column(String(20), primary_key=True)
+    window_days: Mapped[int] = mapped_column(primary_key=True, default=30)
+    current_price: Mapped[Decimal] = mapped_column(Numeric(18, 6))
+    period_low: Mapped[Decimal] = mapped_column(Numeric(18, 6))
+    period_high: Mapped[Decimal] = mapped_column(Numeric(18, 6))
+    score: Mapped[Decimal] = mapped_column(Numeric(5, 2), index=True)
+    zone: Mapped[str] = mapped_column(String(20), index=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
