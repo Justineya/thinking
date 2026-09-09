@@ -14,10 +14,11 @@ from app.api.routes.cycle import router as cycle_router
 from app.api.routes.futu import router as futu_router
 from app.api.routes.portfolio import router as portfolio_router
 from app.core.config import get_settings
-from app.core.database import SessionLocal, engine
+from app.core.database import SessionLocal, engine, ensure_schema
 from app.models import Base
 from app.services.market import LEVERAGE_MAP, fetch_daily_bars
 from app.services.seed import seed_if_empty
+from app.api.routes.decision import router as decision_router
 
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = ROOT / "frontend"
@@ -37,6 +38,7 @@ PUBLIC_PATHS = {
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    await ensure_schema()
     if get_settings().seed_on_startup:
         async with SessionLocal() as db:
             await seed_if_empty(db)
@@ -84,6 +86,7 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(portfolio_router, prefix="/api")
 app.include_router(cycle_router, prefix="/api")
 app.include_router(futu_router, prefix="/api")
+app.include_router(decision_router, prefix="/api")
 
 
 @app.get("/health")

@@ -52,6 +52,7 @@ async def create_holding(payload: HoldingCreate, db: AsyncSession = Depends(get_
         existing.underlying = underlying
         existing.shares = payload.shares
         existing.cost_price = payload.cost_price
+        existing.last_buy_price = payload.cost_price
         await db.commit()
         await db.refresh(existing)
         item = existing
@@ -61,6 +62,8 @@ async def create_holding(payload: HoldingCreate, db: AsyncSession = Depends(get_
             underlying=underlying,
             shares=payload.shares,
             cost_price=payload.cost_price,
+            last_buy_price=payload.cost_price,
+            budget_used_pct=Decimal("0.10"),
         )
         db.add(item)
         await db.commit()
