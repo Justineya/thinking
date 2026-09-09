@@ -40,18 +40,19 @@ DEFAULT_PORTFOLIO = [
 
 async def seed_if_empty(db: AsyncSession) -> None:
     settings = get_settings()
-    admin = (
-        await db.execute(select(User).where(User.username == settings.admin_username))
-    ).scalar_one_or_none()
-    if admin is None:
-        db.add(
-            User(
-                username=settings.admin_username,
-                password_hash=hash_password(settings.admin_password),
-                is_active=True,
+    if settings.admin_username and settings.admin_password:
+        admin = (
+            await db.execute(select(User).where(User.username == settings.admin_username))
+        ).scalar_one_or_none()
+        if admin is None:
+            db.add(
+                User(
+                    username=settings.admin_username,
+                    password_hash=hash_password(settings.admin_password),
+                    is_active=True,
+                )
             )
-        )
-        await db.commit()
+            await db.commit()
 
     has_watch = (await db.execute(select(WatchlistItem.id).limit(1))).scalar_one_or_none()
     if has_watch is None:
