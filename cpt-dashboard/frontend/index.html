@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CPT · 周期位置交易仪表盘</title>
+  <title>CPT V2 · 周期位置交易仪表盘</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #0b0f0e;
@@ -33,107 +35,83 @@
       min-height: 100vh;
     }
     header {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: space-between;
-      align-items: flex-end;
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      justify-content: space-between; align-items: flex-end;
       padding: 1.2rem clamp(1rem, 3vw, 2rem) 0.8rem;
       border-bottom: 1px solid var(--line);
     }
-    .brand {
-      margin: 0;
-      font-family: var(--serif);
-      font-size: clamp(1.8rem, 4vw, 2.4rem);
-      letter-spacing: 0.06em;
-    }
+    .brand { margin: 0; font-family: var(--serif); font-size: clamp(1.8rem, 4vw, 2.4rem); letter-spacing: 0.06em; }
     .sub { margin: 0.25rem 0 0; color: var(--mute); font-size: 0.92rem; }
     .controls { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; }
     button, select, input {
-      font: inherit;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: var(--text);
-      padding: 0.55rem 0.8rem;
-      border-radius: 0;
+      font: inherit; border: 1px solid var(--line); background: var(--panel);
+      color: var(--text); padding: 0.55rem 0.8rem; border-radius: 0;
     }
     button.active, button:hover { border-color: var(--accent); }
     button.primary { background: #1a3d2a; border-color: #2f6b4a; }
+    button.danger { border-color: rgba(239,68,68,0.5); color: #ffb4b4; }
     main {
-      display: grid;
-      grid-template-columns: 1.4fr 0.9fr;
-      gap: 1rem;
+      display: grid; grid-template-columns: 1.35fr 0.95fr; gap: 1rem;
       padding: 1rem clamp(1rem, 3vw, 2rem) 2rem;
     }
-    @media (max-width: 960px) {
-      main { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
     .panel {
-      background: rgba(18, 25, 22, 0.88);
-      border: 1px solid var(--line);
-      padding: 0.9rem;
+      background: rgba(18, 25, 22, 0.88); border: 1px solid var(--line); padding: 0.9rem;
     }
     .panel h2 {
-      margin: 0 0 0.7rem;
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      font-weight: 700;
+      margin: 0 0 0.7rem; font-family: var(--serif); font-size: 1.1rem; font-weight: 700;
     }
-    .chart { width: 100%; height: 360px; }
-    .gauge { width: 100%; height: 280px; }
-    .heatmap { width: 100%; height: 220px; }
-    .meta {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
-      margin-bottom: 0.7rem;
-    }
+    .stack { display: grid; gap: 1rem; }
+    .chart { width: 100%; height: 340px; }
+    .gauge { width: 100%; height: 260px; }
+    .heatmap { width: 100%; height: 210px; }
+    .meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 0.7rem; }
     @media (max-width: 720px) {
       .meta { grid-template-columns: repeat(2, 1fr); }
-      .chart, .gauge { height: 280px; }
+      .chart, .gauge { height: 260px; }
     }
-    .stat {
-      border: 1px solid var(--line);
-      padding: 0.55rem 0.65rem;
-    }
+    .stat { border: 1px solid var(--line); padding: 0.55rem 0.65rem; }
     .stat label { display: block; color: var(--mute); font-size: 0.75rem; }
     .stat strong { font-family: var(--mono); font-size: 1.05rem; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-    th, td { padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--line); text-align: left; }
-    th { color: var(--mute); font-weight: 500; font-size: 0.78rem; }
-    tr { cursor: pointer; }
-    tr:hover, tr.active { background: rgba(125, 211, 167, 0.08); }
-    .zone {
-      display: inline-block;
-      padding: 0.12rem 0.4rem;
-      font-size: 0.78rem;
-      border: 1px solid currentColor;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 0.5rem 0.35rem; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+    th { color: var(--mute); font-weight: 500; font-size: 0.74rem; }
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover, tr.active { background: rgba(125, 211, 167, 0.08); }
+    .zone { display: inline-block; padding: 0.1rem 0.35rem; font-size: 0.74rem; border: 1px solid currentColor; }
     .build { color: var(--build); }
     .hold { color: var(--hold); }
     .warn { color: var(--warn); }
     .harvest { color: var(--harvest); }
-    .api-row {
-      display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem;
+    .up { color: var(--harvest); }
+    .down { color: var(--build); }
+    .filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.7rem; align-items: center; }
+    .filters input[type="search"] { min-width: 140px; flex: 1; }
+    .chip { font-size: 0.8rem; padding: 0.4rem 0.65rem; }
+    .chip.active { border-color: var(--accent); background: rgba(125,211,167,0.12); }
+    .form-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 0.45rem; margin-bottom: 0.7rem;
     }
-    .api-row input { flex: 1; min-width: 180px; font-family: var(--mono); font-size: 0.82rem; }
-    .hint { color: var(--mute); font-size: 0.8rem; margin-top: 0.5rem; }
+    @media (max-width: 900px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    .form-grid label { display: grid; gap: 0.25rem; color: var(--mute); font-size: 0.75rem; }
+    .scroll { overflow: auto; max-height: 360px; }
+    .api-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .api-row input { flex: 1; min-width: 160px; font-family: var(--mono); font-size: 0.82rem; }
+    .hint { color: var(--mute); font-size: 0.8rem; margin-top: 0.45rem; }
     .err { color: var(--harvest); font-size: 0.85rem; margin-top: 0.4rem; }
-    .stack { display: grid; gap: 1rem; }
+    .pill { font-family: var(--mono); font-size: 0.75rem; color: var(--mute); }
   </style>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <header>
     <div>
-      <h1 class="brand">CPT</h1>
-      <p class="sub">周期位置交易仪表盘 · 只看现价在区间高低中的位置 · 无 MACD / MA / RSI</p>
+      <h1 class="brand">CPT V2</h1>
+      <p class="sub">周期位置交易 · 持仓管理 · 评分筛选 · 无 MACD / MA / RSI</p>
     </div>
     <div class="controls">
-      <span style="color:var(--mute);font-size:0.85rem">窗口</span>
-      <button type="button" data-days="15" id="btn15">15 交易日</button>
-      <button type="button" data-days="30" id="btn30" class="active primary">30 交易日</button>
+      <span class="pill">窗口</span>
+      <button type="button" id="btn15">15 交易日</button>
+      <button type="button" id="btn30" class="active primary">30 交易日</button>
       <button type="button" id="btnRefresh" class="primary">刷新</button>
     </div>
   </header>
@@ -144,9 +122,49 @@
         <h2 id="chartTitle">价格曲线</h2>
         <div class="meta" id="meta"></div>
         <div id="priceChart" class="chart"></div>
-        <p class="hint">区间高/低用标记线；悬停看日期与价格。点击右侧表格切换标的。</p>
+        <p class="hint">区间高/低标记线；悬停看日期价格。点击表格切换标的。</p>
         <p class="err" id="err" hidden></p>
       </div>
+
+      <div class="panel">
+        <h2>持仓管理</h2>
+        <form id="portfolioForm" class="form-grid">
+          <label>持仓代码
+            <input name="ticker" id="pfTicker" required placeholder="COHX" maxlength="12" />
+          </label>
+          <label>底层代码
+            <input name="underlying" id="pfUnderlying" required placeholder="COHR" maxlength="16" />
+          </label>
+          <label>股数
+            <input name="shares" type="number" min="0" step="any" required placeholder="100" />
+          </label>
+          <label>成本价
+            <input name="cost" type="number" min="0" step="any" required placeholder="12.5" />
+          </label>
+          <button type="submit" class="primary">添加/更新</button>
+        </form>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>持仓</th>
+                <th>底层</th>
+                <th>股数</th>
+                <th>成本</th>
+                <th>市值</th>
+                <th>盈亏</th>
+                <th>周期分</th>
+                <th>分区</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="portfolioBody"></tbody>
+          </table>
+        </div>
+        <div class="meta" id="portfolioSummary" style="margin-top:0.7rem"></div>
+        <p class="hint">杠杆产品：COHX→COHR · AAOX→AAOI · SNXX→SNDK · MULL→MU。评分按底层算，持仓表保留实际买入代码。数据存 localStorage。</p>
+      </div>
+
       <div class="panel">
         <h2>周期热力图</h2>
         <div id="heatChart" class="heatmap"></div>
@@ -158,9 +176,18 @@
         <h2>周期位置</h2>
         <div id="gaugeChart" class="gauge"></div>
       </div>
+
       <div class="panel">
-        <h2>自选股评分（低→高）</h2>
-        <div style="overflow:auto">
+        <h2>自选股评分</h2>
+        <div class="filters">
+          <button type="button" class="chip active" data-filter="all">全部</button>
+          <button type="button" class="chip" data-filter="build">0–3 建仓</button>
+          <button type="button" class="chip" data-filter="hold">>3–6 持有</button>
+          <button type="button" class="chip" data-filter="warn">>6–8 警惕</button>
+          <button type="button" class="chip" data-filter="harvest">>8–10 收获</button>
+          <input type="search" id="searchBox" placeholder="搜索代码，如 COHR" />
+        </div>
+        <div class="scroll">
           <table>
             <thead>
               <tr>
@@ -178,121 +205,168 @@
           <input id="apiBase" spellcheck="false" placeholder="API Base，默认当前域名" />
           <button type="button" id="btnSaveApi">保存 API</button>
         </div>
-        <p class="hint">请求：<code>/api/market/bars?symbol=COHR&amp;days=30</code> · Key 只放后端</p>
+        <p class="hint">请求 <code>/api/market/bars?symbol=COHR&amp;days=30</code> · Key 只放后端</p>
       </div>
     </section>
   </main>
 
   <script>
-    const WATCHLIST = ['COHR', 'AAOI', 'AXTI', 'WOLF', 'CRDO', 'SNDK', 'MU', 'RKLB', 'CRWV'];
-    const ZONE_COLORS = {
-      '建仓区': '#22c55e',
-      '持有区': '#eab308',
-      '警惕区': '#f97316',
-      '收获区': '#ef4444',
-    };
-    const ZONE_CLASS = {
-      '建仓区': 'build',
-      '持有区': 'hold',
-      '警惕区': 'warn',
-      '收获区': 'harvest',
-    };
+    (function () {
+      'use strict';
 
-    const state = {
-      days: 30,
-      symbol: 'COHR',
-      rows: [],
-      barsCache: {},
-    };
+      const WATCHLIST = ['COHR', 'AAOI', 'AXTI', 'WOLF', 'CRDO', 'SNDK', 'MU', 'RKLB', 'CRWV'];
+      const LEVERAGE_MAP = {
+        COHX: 'COHR',
+        AAOX: 'AAOI',
+        SNXX: 'SNDK',
+        MULL: 'MU',
+        SKUU: '000660.KS',
+        AXTY: 'AXTI',
+      };
+      const ZONE_COLORS = {
+        '建仓区': '#22c55e',
+        '持有区': '#eab308',
+        '警惕区': '#f97316',
+        '收获区': '#ef4444',
+      };
+      const ZONE_CLASS = {
+        '建仓区': 'build',
+        '持有区': 'hold',
+        '警惕区': 'warn',
+        '收获区': 'harvest',
+      };
+      const PORTFOLIO_KEY = 'cpt_portfolio_v2';
+      const API_KEY = 'cpt_api_base';
 
-    const priceChart = echarts.init(document.getElementById('priceChart'));
-    const gaugeChart = echarts.init(document.getElementById('gaugeChart'));
-    const heatChart = echarts.init(document.getElementById('heatChart'));
+      const state = {
+        days: 30,
+        symbol: 'COHR',
+        filter: 'all',
+        search: '',
+        rows: [],
+        quotes: {},
+        portfolio: loadPortfolio(),
+      };
 
-    function apiBase() {
-      const saved = localStorage.getItem('cpt_api_base');
-      const input = document.getElementById('apiBase').value.trim();
-      return (input || saved || window.location.origin).replace(/\/$/, '');
-    }
+      const priceChart = echarts.init(document.getElementById('priceChart'));
+      const gaugeChart = echarts.init(document.getElementById('gaugeChart'));
+      const heatChart = echarts.init(document.getElementById('heatChart'));
 
-    function cycleScore(current, low, high) {
-      if (high === low) return 5;
-      return Math.round(((current - low) / (high - low)) * 10 * 100) / 100;
-    }
+      function loadPortfolio() {
+        try {
+          const raw = localStorage.getItem(PORTFOLIO_KEY);
+          const list = raw ? JSON.parse(raw) : [];
+          return Array.isArray(list) ? list : [];
+        } catch (e) {
+          return [];
+        }
+      }
 
-    function scoreLabel(score) {
-      if (score <= 3) return '建仓区';
-      if (score <= 6) return '持有区';
-      if (score <= 8) return '警惕区';
-      return '收获区';
-    }
+      function savePortfolio() {
+        localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(state.portfolio));
+      }
 
-    function summarize(bars) {
-      const high = Math.max(...bars.map((b) => b.high));
-      const low = Math.min(...bars.map((b) => b.low));
-      const current = bars[bars.length - 1].close;
-      const score = cycleScore(current, low, high);
-      const zone = scoreLabel(score);
-      const distanceToHighPct = high ? Math.round((current / high - 1) * 10000) / 100 : null;
-      return { current, high, low, score, zone, distanceToHighPct, asOf: bars[bars.length - 1].date };
-    }
+      function apiBase() {
+        const saved = localStorage.getItem(API_KEY) || '';
+        const input = document.getElementById('apiBase').value.trim();
+        return (input || saved || window.location.origin).replace(/\/$/, '');
+      }
 
-    async function fetchBars(symbol, days) {
-      const key = `${symbol}:${days}`;
-      const url = `${apiBase()}/api/market/bars?symbol=${encodeURIComponent(symbol)}&days=${days}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`${symbol} ${res.status}`);
-      const data = await res.json();
-      if (!data.bars || !data.bars.length) throw new Error(`${symbol} empty bars`);
-      state.barsCache[key] = data.bars;
-      return data.bars;
-    }
+      function cycleScore(current, low, high) {
+        if (high === low) return 5;
+        return Math.round(((current - low) / (high - low)) * 1000) / 100;
+      }
 
-    function showErr(msg) {
-      const el = document.getElementById('err');
-      if (!msg) { el.hidden = true; el.textContent = ''; return; }
-      el.hidden = false;
-      el.textContent = msg;
-    }
+      function scoreLabel(score) {
+        if (score <= 3) return '建仓区';
+        if (score <= 6) return '持有区';
+        if (score <= 8) return '警惕区';
+        return '收获区';
+      }
 
-    function renderMeta(s, symbol) {
-      document.getElementById('chartTitle').textContent = `${symbol} · ${state.days} 交易日`;
-      document.getElementById('meta').innerHTML = `
-        <div class="stat"><label>现价</label><strong>${s.current.toFixed(2)}</strong></div>
-        <div class="stat"><label>区间高</label><strong>${s.high.toFixed(2)}</strong></div>
-        <div class="stat"><label>区间低</label><strong>${s.low.toFixed(2)}</strong></div>
-        <div class="stat"><label>周期分</label><strong class="${ZONE_CLASS[s.zone]}">${s.score} · ${s.zone}</strong></div>
-      `;
-    }
+      function zoneKey(zone) {
+        if (zone === '建仓区') return 'build';
+        if (zone === '持有区') return 'hold';
+        if (zone === '警惕区') return 'warn';
+        return 'harvest';
+      }
 
-    function renderPrice(bars, summary) {
-      const dates = bars.map((b) => b.date);
-      const closes = bars.map((b) => b.close);
-      priceChart.setOption({
-        backgroundColor: 'transparent',
-        tooltip: {
-          trigger: 'axis',
-          formatter(params) {
-            const p = params[0];
-            const b = bars[p.dataIndex];
-            return `${b.date}<br/>收 ${b.close}<br/>高 ${b.high} / 低 ${b.low}`;
+      function summarize(bars) {
+        const high = Math.max.apply(null, bars.map(function (b) { return b.high; }));
+        const low = Math.min.apply(null, bars.map(function (b) { return b.low; }));
+        const current = bars[bars.length - 1].close;
+        const score = cycleScore(current, low, high);
+        const zone = scoreLabel(score);
+        const distanceToHighPct = high ? Math.round((current / high - 1) * 10000) / 100 : null;
+        return { current: current, high: high, low: low, score: score, zone: zone, distanceToHighPct: distanceToHighPct, asOf: bars[bars.length - 1].date };
+      }
+
+      function showErr(msg) {
+        const el = document.getElementById('err');
+        if (!msg) {
+          el.hidden = true;
+          el.textContent = '';
+          return;
+        }
+        el.hidden = false;
+        el.textContent = msg;
+      }
+
+      async function fetchBars(symbol, days) {
+        const url = apiBase() + '/api/market/bars?symbol=' + encodeURIComponent(symbol) + '&days=' + days;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(symbol + ' ' + res.status);
+        const data = await res.json();
+        if (!data.bars || !data.bars.length) throw new Error(symbol + ' empty bars');
+        return data.bars;
+      }
+
+      async function ensureQuote(symbol) {
+        if (state.quotes[symbol] && state.quotes[symbol].days === state.days) {
+          return state.quotes[symbol];
+        }
+        const bars = await fetchBars(symbol, state.days);
+        const summary = summarize(bars);
+        state.quotes[symbol] = Object.assign({ symbol: symbol, days: state.days, bars: bars }, summary);
+        return state.quotes[symbol];
+      }
+
+      function renderMeta(s, symbol) {
+        document.getElementById('chartTitle').textContent = symbol + ' · ' + state.days + ' 交易日';
+        document.getElementById('meta').innerHTML =
+          '<div class="stat"><label>现价</label><strong>' + s.current.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>区间高</label><strong>' + s.high.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>区间低</label><strong>' + s.low.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>周期分</label><strong class="' + ZONE_CLASS[s.zone] + '">' + s.score + ' · ' + s.zone + '</strong></div>';
+      }
+
+      function renderPrice(bars, summary) {
+        const dates = bars.map(function (b) { return b.date; });
+        const closes = bars.map(function (b) { return b.close; });
+        priceChart.setOption({
+          backgroundColor: 'transparent',
+          tooltip: {
+            trigger: 'axis',
+            formatter: function (params) {
+              const p = params[0];
+              const b = bars[p.dataIndex];
+              return b.date + '<br/>收 ' + b.close + '<br/>高 ' + b.high + ' / 低 ' + b.low;
+            },
           },
-        },
-        grid: { left: 48, right: 18, top: 24, bottom: 36 },
-        xAxis: {
-          type: 'category',
-          data: dates,
-          axisLabel: { color: '#8fa094', fontSize: 10 },
-          axisLine: { lineStyle: { color: '#333' } },
-        },
-        yAxis: {
-          type: 'value',
-          scale: true,
-          axisLabel: { color: '#8fa094' },
-          splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
-        },
-        series: [
-          {
+          grid: { left: 48, right: 18, top: 24, bottom: 36 },
+          xAxis: {
+            type: 'category',
+            data: dates,
+            axisLabel: { color: '#8fa094', fontSize: 10 },
+            axisLine: { lineStyle: { color: '#333' } },
+          },
+          yAxis: {
+            type: 'value',
+            scale: true,
+            axisLabel: { color: '#8fa094' },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+          },
+          series: [{
             type: 'line',
             data: closes,
             showSymbol: false,
@@ -311,16 +385,14 @@
                 { yAxis: summary.low, name: '低', lineStyle: { color: '#22c55e', type: 'dashed' } },
               ],
             },
-          },
-        ],
-      });
-    }
+          }],
+        });
+      }
 
-    function renderGauge(summary) {
-      const color = ZONE_COLORS[summary.zone];
-      gaugeChart.setOption({
-        series: [
-          {
+      function renderGauge(summary) {
+        const color = ZONE_COLORS[summary.zone];
+        gaugeChart.setOption({
+          series: [{
             type: 'gauge',
             min: 0,
             max: 10,
@@ -328,160 +400,274 @@
             axisLine: {
               lineStyle: {
                 width: 14,
-                color: [
-                  [0.3, '#22c55e'],
-                  [0.6, '#eab308'],
-                  [0.8, '#f97316'],
-                  [1, '#ef4444'],
-                ],
+                color: [[0.3, '#22c55e'], [0.6, '#eab308'], [0.8, '#f97316'], [1, '#ef4444']],
               },
             },
-            pointer: { itemStyle: { color } },
+            pointer: { itemStyle: { color: color } },
             axisTick: { distance: -14, length: 6, lineStyle: { color: '#fff' } },
             splitLine: { distance: -18, length: 14, lineStyle: { color: '#fff', width: 2 } },
             axisLabel: { color: '#9aab9e', distance: 18, fontSize: 11 },
             detail: {
               valueAnimation: true,
-              formatter: `{value}\n${summary.zone}`,
+              formatter: '{value}\n' + summary.zone,
               color: color,
               fontSize: 22,
               offsetCenter: [0, '70%'],
             },
             data: [{ value: summary.score }],
-          },
-        ],
-      });
-    }
+          }],
+        });
+      }
 
-    function renderTable(rows) {
-      const body = document.getElementById('tableBody');
-      body.innerHTML = rows
-        .map((r) => {
+      function filteredRows() {
+        return state.rows.filter(function (r) {
+          if (state.search && r.symbol.indexOf(state.search.toUpperCase()) === -1) return false;
+          if (state.filter === 'all') return true;
+          return zoneKey(r.zone) === state.filter;
+        });
+      }
+
+      function renderTable() {
+        const rows = filteredRows();
+        const body = document.getElementById('tableBody');
+        body.innerHTML = rows.map(function (r) {
           const active = r.symbol === state.symbol ? 'active' : '';
-          const zc = ZONE_CLASS[r.zone];
-          const dist = r.distanceToHighPct == null ? '—' : `${r.distanceToHighPct}%`;
-          return `<tr class="${active}" data-symbol="${r.symbol}">
-            <td><strong>${r.symbol}</strong></td>
-            <td>${r.score}</td>
-            <td><span class="zone ${zc}">${r.zone}</span></td>
-            <td>${r.current.toFixed(2)}</td>
-            <td>${dist}</td>
-          </tr>`;
-        })
-        .join('');
-    }
+          const dist = r.distanceToHighPct == null ? '—' : r.distanceToHighPct + '%';
+          return '<tr class="clickable ' + active + '" data-symbol="' + r.symbol + '">' +
+            '<td><strong>' + r.symbol + '</strong></td>' +
+            '<td>' + r.score + '</td>' +
+            '<td><span class="zone ' + ZONE_CLASS[r.zone] + '">' + r.zone + '</span></td>' +
+            '<td>' + r.current.toFixed(2) + '</td>' +
+            '<td>' + dist + '</td></tr>';
+        }).join('');
+      }
 
-    function renderHeat(rows) {
-      const groups = {
-        '建仓区': [],
-        '持有区': [],
-        '警惕区': [],
-        '收获区': [],
-      };
-      rows.forEach((r) => groups[r.zone].push(r));
-      const data = Object.entries(groups).map(([zone, list]) => ({
-        name: zone,
-        value: Math.max(list.length, 0.01),
-        itemStyle: { color: ZONE_COLORS[zone] },
-        children: list.map((r) => ({
-          name: `${r.symbol}\n${r.score}`,
-          value: Math.max(10 - r.score, 0.5),
-          itemStyle: { color: ZONE_COLORS[zone] },
-        })),
-      }));
-      heatChart.setOption({
-        tooltip: {
-          formatter(info) {
-            const d = info.data;
-            if (!d) return '';
-            return d.name.replace('\n', ' · ');
+      function renderHeat() {
+        const groups = { '建仓区': [], '持有区': [], '警惕区': [], '收获区': [] };
+        state.rows.forEach(function (r) { groups[r.zone].push(r); });
+        const data = Object.keys(groups).map(function (zone) {
+          const list = groups[zone];
+          return {
+            name: zone,
+            value: Math.max(list.length, 0.01),
+            itemStyle: { color: ZONE_COLORS[zone] },
+            children: list.map(function (r) {
+              return {
+                name: r.symbol + '\n' + r.score,
+                value: Math.max(10 - r.score, 0.5),
+                itemStyle: { color: ZONE_COLORS[zone] },
+              };
+            }),
+          };
+        });
+        heatChart.setOption({
+          tooltip: {
+            formatter: function (info) {
+              return info.data && info.data.name ? String(info.data.name).replace('\n', ' · ') : '';
+            },
           },
-        },
-        series: [
-          {
+          series: [{
             type: 'treemap',
             roam: false,
             nodeClick: false,
             breadcrumb: { show: false },
             label: { show: true, formatter: '{b}', color: '#0b0f0e', fontWeight: 700 },
             upperLabel: { show: true, height: 24, color: '#fff' },
-            data,
-          },
-        ],
-      });
-    }
-
-    async function selectSymbol(symbol) {
-      state.symbol = symbol;
-      showErr('');
-      try {
-        const bars = await fetchBars(symbol, state.days);
-        const summary = summarize(bars);
-        renderMeta(summary, symbol);
-        renderPrice(bars, summary);
-        renderGauge(summary);
-        renderTable(state.rows);
-      } catch (e) {
-        showErr(String(e.message || e));
+            data: data,
+          }],
+        });
       }
-    }
 
-    async function refreshAll() {
-      showErr('');
-      const rows = [];
-      const errors = [];
-      await Promise.all(
-        WATCHLIST.map(async (symbol) => {
+      function renderPortfolio() {
+        const body = document.getElementById('portfolioBody');
+        let totalCost = 0;
+        let totalMv = 0;
+
+        body.innerHTML = state.portfolio.map(function (p, idx) {
+          const holdQ = state.quotes[p.ticker];
+          const undQ = state.quotes[p.underlying];
+          const px = holdQ ? holdQ.current : (undQ ? undQ.current : null);
+          const costTotal = Number(p.shares) * Number(p.cost);
+          const mv = px == null ? null : Number(p.shares) * px;
+          const pnl = mv == null ? null : mv - costTotal;
+          const pnlPct = costTotal ? (pnl / costTotal) * 100 : null;
+          totalCost += costTotal;
+          if (mv != null) totalMv += mv;
+
+          const score = undQ ? undQ.score : '—';
+          const zone = undQ ? ('<span class="zone ' + ZONE_CLASS[undQ.zone] + '">' + undQ.zone + '</span>') : '—';
+          const mvCell = mv == null ? '—' : mv.toFixed(2);
+          const pnlCell = pnl == null
+            ? '—'
+            : ('<span class="' + (pnl >= 0 ? 'up' : 'down') + '">' +
+               pnl.toFixed(2) + ' (' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)</span>');
+
+          return '<tr class="clickable" data-symbol="' + p.underlying + '">' +
+            '<td><strong>' + p.ticker + '</strong></td>' +
+            '<td>' + p.underlying + '</td>' +
+            '<td>' + p.shares + '</td>' +
+            '<td>' + Number(p.cost).toFixed(4) + '</td>' +
+            '<td>' + mvCell + '</td>' +
+            '<td>' + pnlCell + '</td>' +
+            '<td>' + score + '</td>' +
+            '<td>' + zone + '</td>' +
+            '<td><button type="button" class="danger" data-del="' + idx + '">删除</button></td></tr>';
+        }).join('');
+
+        const pnlAll = totalMv - totalCost;
+        const pnlAllPct = totalCost ? (pnlAll / totalCost) * 100 : 0;
+        document.getElementById('portfolioSummary').innerHTML =
+          '<div class="stat"><label>总成本</label><strong>' + totalCost.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>当前市值</label><strong>' + totalMv.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>浮动盈亏</label><strong class="' + (pnlAll >= 0 ? 'up' : 'down') + '">' +
+            pnlAll.toFixed(2) + ' (' + (pnlAllPct >= 0 ? '+' : '') + pnlAllPct.toFixed(1) + '%)</strong></div>' +
+          '<div class="stat"><label>持仓数</label><strong>' + state.portfolio.length + '</strong></div>';
+      }
+
+      async function selectSymbol(symbol) {
+        state.symbol = symbol;
+        showErr('');
+        try {
+          const q = await ensureQuote(symbol);
+          renderMeta(q, symbol);
+          renderPrice(q.bars, q);
+          renderGauge(q);
+          renderTable();
+        } catch (e) {
+          showErr(String(e.message || e));
+        }
+      }
+
+      async function refreshAll() {
+        showErr('');
+        state.quotes = {};
+        const need = {};
+        WATCHLIST.forEach(function (s) { need[s] = true; });
+        state.portfolio.forEach(function (p) {
+          need[p.underlying] = true;
+          need[p.ticker] = true; // 杠杆产品用自身现价算市值
+        });
+
+        const symbols = Object.keys(need);
+        const rows = [];
+        const errors = [];
+        await Promise.all(symbols.map(async function (symbol) {
           try {
-            const bars = await fetchBars(symbol, state.days);
-            rows.push({ symbol, ...summarize(bars) });
+            const q = await ensureQuote(symbol);
+            if (WATCHLIST.indexOf(symbol) !== -1) {
+              rows.push(q);
+            }
           } catch (e) {
-            errors.push(`${symbol}: ${e.message || e}`);
+            errors.push(symbol + ': ' + (e.message || e));
           }
-        })
-      );
-      rows.sort((a, b) => a.score - b.score);
-      state.rows = rows;
-      renderTable(rows);
-      renderHeat(rows);
-      if (!rows.find((r) => r.symbol === state.symbol) && rows[0]) {
-        state.symbol = rows[0].symbol;
+        }));
+
+        rows.sort(function (a, b) { return a.score - b.score; });
+        state.rows = rows;
+        renderTable();
+        renderHeat();
+        renderPortfolio();
+
+        if (!rows.find(function (r) { return r.symbol === state.symbol; }) && rows[0]) {
+          state.symbol = rows[0].symbol;
+        }
+        if (state.symbol) await selectSymbol(state.symbol);
+        if (errors.length) showErr('部分失败：' + errors.join('；'));
       }
-      if (state.symbol) await selectSymbol(state.symbol);
-      if (errors.length) showErr(`部分失败：${errors.join('；')}`);
-    }
 
-    document.getElementById('tableBody').addEventListener('click', (e) => {
-      const tr = e.target.closest('tr[data-symbol]');
-      if (tr) selectSymbol(tr.dataset.symbol);
-    });
+      document.getElementById('tableBody').addEventListener('click', function (e) {
+        const tr = e.target.closest('tr[data-symbol]');
+        if (tr) selectSymbol(tr.dataset.symbol);
+      });
 
-    document.getElementById('btn15').addEventListener('click', () => {
-      state.days = 15;
-      document.getElementById('btn15').classList.add('active', 'primary');
-      document.getElementById('btn30').classList.remove('active', 'primary');
+      document.getElementById('portfolioBody').addEventListener('click', function (e) {
+        const del = e.target.closest('button[data-del]');
+        if (del) {
+          const idx = Number(del.getAttribute('data-del'));
+          state.portfolio.splice(idx, 1);
+          savePortfolio();
+          renderPortfolio();
+          return;
+        }
+        const tr = e.target.closest('tr[data-symbol]');
+        if (tr) selectSymbol(tr.dataset.symbol);
+      });
+
+      document.getElementById('portfolioForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const ticker = String(fd.get('ticker') || '').trim().toUpperCase();
+        let underlying = String(fd.get('underlying') || '').trim().toUpperCase();
+        const shares = Number(fd.get('shares'));
+        const cost = Number(fd.get('cost'));
+        if (!ticker || !underlying || !(shares > 0) || !(cost >= 0)) {
+          showErr('持仓信息不完整');
+          return;
+        }
+        const existing = state.portfolio.findIndex(function (p) { return p.ticker === ticker; });
+        const item = { ticker: ticker, underlying: underlying, shares: shares, cost: cost };
+        if (existing >= 0) state.portfolio[existing] = item;
+        else state.portfolio.push(item);
+        savePortfolio();
+        e.target.reset();
+        document.getElementById('pfTicker').value = '';
+        document.getElementById('pfUnderlying').value = '';
+        try {
+          await ensureQuote(underlying);
+        } catch (err) {
+          showErr(String(err.message || err));
+        }
+        renderPortfolio();
+      });
+
+      document.getElementById('pfTicker').addEventListener('input', function (e) {
+        const t = e.target.value.trim().toUpperCase();
+        if (LEVERAGE_MAP[t]) {
+          document.getElementById('pfUnderlying').value = LEVERAGE_MAP[t];
+        }
+      });
+
+      document.querySelectorAll('.chip[data-filter]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.chip[data-filter]').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          state.filter = btn.getAttribute('data-filter');
+          renderTable();
+        });
+      });
+
+      document.getElementById('searchBox').addEventListener('input', function (e) {
+        state.search = e.target.value.trim();
+        renderTable();
+      });
+
+      document.getElementById('btn15').addEventListener('click', function () {
+        state.days = 15;
+        document.getElementById('btn15').classList.add('active', 'primary');
+        document.getElementById('btn30').classList.remove('active', 'primary');
+        refreshAll();
+      });
+      document.getElementById('btn30').addEventListener('click', function () {
+        state.days = 30;
+        document.getElementById('btn30').classList.add('active', 'primary');
+        document.getElementById('btn15').classList.remove('active', 'primary');
+        refreshAll();
+      });
+      document.getElementById('btnRefresh').addEventListener('click', refreshAll);
+      document.getElementById('btnSaveApi').addEventListener('click', function () {
+        localStorage.setItem(API_KEY, document.getElementById('apiBase').value.trim());
+        refreshAll();
+      });
+
+      document.getElementById('apiBase').value = localStorage.getItem(API_KEY) || '';
+      window.addEventListener('resize', function () {
+        priceChart.resize();
+        gaugeChart.resize();
+        heatChart.resize();
+      });
+
       refreshAll();
-    });
-    document.getElementById('btn30').addEventListener('click', () => {
-      state.days = 30;
-      document.getElementById('btn30').classList.add('active', 'primary');
-      document.getElementById('btn15').classList.remove('active', 'primary');
-      refreshAll();
-    });
-    document.getElementById('btnRefresh').addEventListener('click', refreshAll);
-    document.getElementById('btnSaveApi').addEventListener('click', () => {
-      localStorage.setItem('cpt_api_base', document.getElementById('apiBase').value.trim());
-      refreshAll();
-    });
-
-    document.getElementById('apiBase').value = localStorage.getItem('cpt_api_base') || '';
-    window.addEventListener('resize', () => {
-      priceChart.resize();
-      gaugeChart.resize();
-      heatChart.resize();
-    });
-
-    refreshAll();
+    })();
   </script>
 </body>
 </html>

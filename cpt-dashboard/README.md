@@ -53,14 +53,16 @@ Windows 可双击 `start.bat`。
 
 返回现价、高低、评分、分区。
 
-## 前端能力
+## 前端能力（V2）
 
 - 15 / 30 交易日切换
 - ECharts 价格曲线 + 高低标记线
 - 0–10 周期仪表盘
-- 自选表（按评分从低到高）
+- 自选表 + **分区筛选** + **代码搜索**（评分低→高）
 - Treemap 四区热力图
-- 可配置 API Base（localStorage）
+- **持仓管理**：持仓代码 / 底层代码 / 股数 / 成本；市值与浮动盈亏；底层周期分；localStorage 持久化
+- 杠杆映射自动填充：COHX→COHR、AAOX→AAOI、SNXX→SNDK、MULL→MU
+- 可配置 API Base
 
 预设观察池（正股）：COHR / AAOI / AXTI / WOLF / CRDO / SNDK / MU / RKLB / CRWV  
 （对应你杠杆仓：COHX→COHR、AAOX→AAOI、SNXX→SNDK 等）
