@@ -178,10 +178,10 @@ def decide(
     return card("加仓", f"低位且已满足动态间隔（≥{add_gap * 100:.0f}%），分批加仓")
 
 
-def cycle_metrics_from_bars(bars: list[dict]) -> dict:
+def cycle_metrics_from_bars(bars: list[dict], window_days: int = 30) -> dict:
     """
     From daily bars compute:
-    - position_score P (0-10)
+    - position_score P (0-10) over the selected trading-day window
     - cycle_range_pct R = (high-low)/high
     - time_progress T vs median historical upswing length
     - failed_breakout heuristic
@@ -195,6 +195,7 @@ def cycle_metrics_from_bars(bars: list[dict]) -> dict:
             "high": None,
             "low": None,
             "current": None,
+            "window_days": window_days,
         }
 
     closes = [float(b["close"]) for b in bars]
@@ -202,8 +203,8 @@ def cycle_metrics_from_bars(bars: list[dict]) -> dict:
     lows = [float(b.get("low", b["close"])) for b in bars]
     current = closes[-1]
 
-    # Rolling 30-session window for P (same as cycle score)
-    w = bars[-30:] if len(bars) >= 30 else bars
+    win = max(5, min(int(window_days or 30), 120))
+    w = bars[-win:] if len(bars) >= win else bars
     w_high = max(float(b.get("high", b["close"])) for b in w)
     w_low = min(float(b.get("low", b["close"])) for b in w)
     span = w_high - w_low
@@ -232,6 +233,7 @@ def cycle_metrics_from_bars(bars: list[dict]) -> dict:
         "current": current,
         "typical_upswing_days": typical,
         "days_since_low": days_since_low,
+        "window_days": win,
     }
 
 

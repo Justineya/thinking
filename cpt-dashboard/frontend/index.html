@@ -150,6 +150,7 @@
       <span class="pill">窗口</span>
       <button type="button" id="btn15">15 交易日</button>
       <button type="button" id="btn30" class="active primary">30 交易日</button>
+      <button type="button" id="btn90">90 交易日</button>
       <button type="button" id="btnRefresh" class="primary">刷新</button>
       <span class="pill" id="refreshStatus"></span>
     </div>
@@ -171,7 +172,7 @@
         <h2 id="chartTitle">价格曲线</h2>
         <div class="meta" id="meta"></div>
         <div id="priceChart" class="chart"></div>
-        <p class="hint">区间高/低标记线；悬停看日期价格。点击表格切换标的。</p>
+        <p class="hint">区间高/低随上方窗口（15 / 30 / 90 交易日）重算；悬停看日期价格。点击表格切换标的。</p>
         <p class="err" id="err" hidden></p>
       </div>
 
@@ -378,11 +379,23 @@
         const status = document.getElementById('refreshStatus');
         const btn15 = document.getElementById('btn15');
         const btn30 = document.getElementById('btn30');
+        const btn90 = document.getElementById('btn90');
         btn.disabled = !!busy;
         btn15.disabled = !!busy;
         btn30.disabled = !!busy;
+        if (btn90) btn90.disabled = !!busy;
         btn.textContent = busy ? '刷新中…' : '刷新';
         status.textContent = msg || '';
+      }
+
+      function setWindowDays(days) {
+        state.days = days;
+        [15, 30, 90].forEach(function (d) {
+          const el = document.getElementById('btn' + d);
+          if (!el) return;
+          if (d === days) el.classList.add('active', 'primary');
+          else el.classList.remove('active', 'primary');
+        });
       }
 
       const priceChart = echarts.init(document.getElementById('priceChart'));
@@ -461,8 +474,8 @@
           (s.asOf ? ' · 截至 ' + s.asOf : '');
         document.getElementById('meta').innerHTML =
           '<div class="stat"><label>现价</label><strong>' + s.current.toFixed(2) + '</strong></div>' +
-          '<div class="stat"><label>区间高</label><strong>' + s.high.toFixed(2) + '</strong></div>' +
-          '<div class="stat"><label>区间低</label><strong>' + s.low.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>' + state.days + '日高</label><strong>' + s.high.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>' + state.days + '日低</label><strong>' + s.low.toFixed(2) + '</strong></div>' +
           '<div class="stat"><label>周期分</label><strong class="' + ZONE_CLASS[s.zone] + '">' +
             s.score + ' · ' + zoneLabel(s.zone) + '</strong></div>';
       }
@@ -508,8 +521,8 @@
               symbol: 'none',
               label: { color: '#c8d4cb', formatter: '{b}' },
               data: [
-                { yAxis: summary.high, name: '高', lineStyle: { color: '#ef4444', type: 'dashed' } },
-                { yAxis: summary.low, name: '低', lineStyle: { color: '#22c55e', type: 'dashed' } },
+                { yAxis: summary.high, name: state.days + '日高', lineStyle: { color: '#ef4444', type: 'dashed' } },
+                { yAxis: summary.low, name: state.days + '日低', lineStyle: { color: '#22c55e', type: 'dashed' } },
               ],
             },
           }],
@@ -924,16 +937,17 @@
 
       document.getElementById('btn15').addEventListener('click', function () {
         if (state.refreshing) return;
-        state.days = 15;
-        document.getElementById('btn15').classList.add('active', 'primary');
-        document.getElementById('btn30').classList.remove('active', 'primary');
+        setWindowDays(15);
         refreshAll();
       });
       document.getElementById('btn30').addEventListener('click', function () {
         if (state.refreshing) return;
-        state.days = 30;
-        document.getElementById('btn30').classList.add('active', 'primary');
-        document.getElementById('btn15').classList.remove('active', 'primary');
+        setWindowDays(30);
+        refreshAll();
+      });
+      document.getElementById('btn90').addEventListener('click', function () {
+        if (state.refreshing) return;
+        setWindowDays(90);
         refreshAll();
       });
       document.getElementById('btnRefresh').addEventListener('click', function () {

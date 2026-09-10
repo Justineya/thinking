@@ -54,7 +54,7 @@ async def build_card_for_holding(
     has_position = float(holding.shares) > 0
 
     bars = await asyncio.to_thread(fetch_daily_bars, underlying, max(120, window_days * 4))
-    metrics = cycle_metrics_from_bars(bars)
+    metrics = cycle_metrics_from_bars(bars, window_days=window_days)
     # Prefer live cycle cache score for P when available (consistent with scanner)
     cached = await _score_for(db, underlying, window_days)
     position_score = float(cached) if cached is not None else float(metrics["position_score"])
@@ -135,7 +135,7 @@ async def build_cards(
             # bypass shares>0 check via decide has_position=False — build_card uses shares
             try:
                 bars = await asyncio.to_thread(fetch_daily_bars, t, max(120, window_days * 4))
-                metrics = cycle_metrics_from_bars(bars)
+                metrics = cycle_metrics_from_bars(bars, window_days=window_days)
                 cached = await _score_for(db, t, window_days)
                 p = float(cached) if cached is not None else float(metrics["position_score"])
                 s = await sector_temperature(db, t, window_days)
