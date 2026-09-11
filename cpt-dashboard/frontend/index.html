@@ -772,6 +772,12 @@
           const drop = c.change_from_last_buy == null ? '—' : (c.change_from_last_buy * 100).toFixed(1) + '%';
           const need = c.add_gap == null ? '—' : (c.add_gap * 100).toFixed(0) + '%';
           const tprog = c.time_progress == null ? '—' : Math.round(c.time_progress * 100) + '%';
+          const tAvg = c.t_avg_days != null ? Math.round(c.t_avg_days) + '日' : '—';
+          const tLast = c.t_last_days != null ? Math.round(c.t_last_days) + '日' : '—';
+          const tNow = c.days_since_low != null ? c.days_since_low + '日' : '—';
+          const tRecent = (c.t_recent_days && c.t_recent_days.length)
+            ? c.t_recent_days.map(function (x) { return Math.round(x); }).join('/')
+            : '—';
           return '<article class="dcard clickable" data-symbol="' + (c.underlying || c.symbol) + '">' +
             '<div class="sym">' + c.symbol + (c.underlying && c.underlying !== c.symbol ? ' → ' + c.underlying : '') + '</div>' +
             '<div class="act ' + actionClass(c.action) + '">' + c.action + '</div>' +
@@ -779,7 +785,8 @@
             '<div class="meta-line">个股位置 ' + (c.position_score ?? '—') +
               ' · 板块 ' + (c.sector_label || '—') +
               (c.sector_score != null ? ' (' + c.sector_score + ')' : '') + '</div>' +
-            '<div class="meta-line">仓位使用 ' + usage + ' · 时间进度 ' + tprog + '</div>' +
+            '<div class="meta-line">仓位使用 ' + usage + ' · T ' + tprog + '（对本股均值）</div>' +
+            '<div class="meta-line">本轮 ' + tNow + ' · 均 ' + tAvg + ' · 上次 ' + tLast + ' · 近几轮 ' + tRecent + '</div>' +
             '<div class="meta-line">距上次买 ' + drop + ' / 需间隔 ' + need +
               (c.failed_breakout ? ' · 冲顶失败' : '') + '</div>' +
             '<div class="why">' + (c.reason || '') + '</div>' +

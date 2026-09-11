@@ -95,6 +95,13 @@ async def build_card_for_holding(
         profit_pct=profit_pct,
         failed_breakout=bool(metrics["failed_breakout"]),
         has_position=has_position,
+        days_since_low=int(metrics.get("days_since_low") or 0),
+        t_avg_days=metrics.get("t_avg_days"),
+        t_last_days=metrics.get("t_last_days"),
+        t_median_days=metrics.get("t_median_days"),
+        t_recent_days=list(metrics.get("t_recent_days") or []),
+        time_progress_vs_last=metrics.get("time_progress_vs_last"),
+        time_progress_vs_median=metrics.get("time_progress_vs_median"),
     )
 
 
@@ -152,6 +159,13 @@ async def build_cards(
                         profit_pct=None,
                         failed_breakout=bool(metrics["failed_breakout"]),
                         has_position=False,
+                        days_since_low=int(metrics.get("days_since_low") or 0),
+                        t_avg_days=metrics.get("t_avg_days"),
+                        t_last_days=metrics.get("t_last_days"),
+                        t_median_days=metrics.get("t_median_days"),
+                        t_recent_days=list(metrics.get("t_recent_days") or []),
+                        time_progress_vs_last=metrics.get("time_progress_vs_last"),
+                        time_progress_vs_median=metrics.get("time_progress_vs_median"),
                     )
                 )
             except Exception:  # noqa: BLE001

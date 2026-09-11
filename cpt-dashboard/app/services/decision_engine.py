@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
-from statistics import median
+from dataclasses import asdict, dataclass, field
+from statistics import mean, median
 from typing import Literal
 
 Action = Literal[
@@ -33,7 +33,14 @@ class DecisionCard:
     position_score: float | None = None
     sector_score: float | None = None
     sector_label: str | None = None
-    time_progress: float | None = None
+    time_progress: float | None = None  # days_since_low / avg recent upswing
+    time_progress_vs_last: float | None = None
+    time_progress_vs_median: float | None = None
+    days_since_low: int | None = None
+    t_avg_days: float | None = None
+    t_last_days: float | None = None
+    t_median_days: float | None = None
+    t_recent_days: list[float] = field(default_factory=list)
     cycle_range_pct: float | None = None
     add_gap: float | None = None
     change_from_last_buy: float | None = None
@@ -90,6 +97,13 @@ def decide(
     profit_pct: float | None,
     failed_breakout: bool,
     has_position: bool,
+    days_since_low: int | None = None,
+    t_avg_days: float | None = None,
+    t_last_days: float | None = None,
+    t_median_days: float | None = None,
+    t_recent_days: list[float] | None = None,
+    time_progress_vs_last: float | None = None,
+    time_progress_vs_median: float | None = None,
 ) -> DecisionCard:
     """
     Final CPT V2 output: only 6 actions.
@@ -99,6 +113,17 @@ def decide(
     drop = change_from_last_buy if change_from_last_buy is not None else 0.0
     usage = max(0.0, min(1.0, position_usage))
     s_label = sector_label(sector_score)
+    recent = list(t_recent_days or [])
+
+    def t_reason(prefix: str) -> str:
+        bits = [prefix]
+        if days_since_low is not None and t_avg_days:
+            bits.append(f"本轮已走{days_since_low}日/均{t_avg_days:.0f}日")
+        if t_last_days:
+            bits.append(f"上次{t_last_days:.0f}日")
+        if recent:
+            bits.append("近几轮" + ",".join(f"{x:.0f}" for x in recent[-4:]))
+        return "；".join(bits)
 
     def card(action: Action, reason: str) -> DecisionCard:
         return DecisionCard(
@@ -111,6 +136,13 @@ def decide(
             sector_score=round(sector_score, 2),
             sector_label=s_label,
             time_progress=round(time_progress, 2),
+            time_progress_vs_last=None if time_progress_vs_last is None else round(time_progress_vs_last, 2),
+            time_progress_vs_median=None if time_progress_vs_median is None else round(time_progress_vs_median, 2),
+            days_since_low=days_since_low,
+            t_avg_days=None if t_avg_days is None else round(t_avg_days, 1),
+            t_last_days=None if t_last_days is None else round(t_last_days, 1),
+            t_median_days=None if t_median_days is None else round(t_median_days, 1),
+            t_recent_days=recent,
             cycle_range_pct=round(cycle_range_pct, 3),
             add_gap=round(add_gap, 3),
             change_from_last_buy=None if change_from_last_buy is None else round(change_from_last_buy, 3),
@@ -149,21 +181,20 @@ def decide(
     if position_score > 3:
         if position_score < 8:
             return card("持有", "仍在中位区，暂不新增，也不减仓")
-        # 8 < P <= 8 is empty; P>8 handled above for has_position
         if not has_position:
             return card("持有", "高位空仓，不追")
 
     # --- Low band P <= 3 ---
+    # T gate uses this ticker's own average of recent upswings (not a global constant).
     if not has_position:
         if time_progress > 1.0:
-            return card("持有", "虽处低位，但本轮时间已进入延长段，观望")
+            return card("持有", t_reason("虽处低位，但相对该股自身平均上涨时长已延长，观望"))
         if sector_score > 6:
             return card("试探建仓", "低位但板块偏热，仅允许试探仓")
         return card("正常建仓", "价格低位，板块未过热，建立观察仓")
 
-    # Has position, low: require dynamic gap
     if time_progress > 1.0:
-        return card("持有", "低位但周期时间已延长，观望不加")
+        return card("持有", t_reason("低位但相对该股自身平均上涨时长已延长，观望不加"))
 
     if drop < add_gap:
         need = f"{add_gap * 100:.0f}%"
@@ -183,20 +214,30 @@ def cycle_metrics_from_bars(bars: list[dict], window_days: int = 30) -> dict:
     From daily bars compute:
     - position_score P (0-10) over the selected trading-day window
     - cycle_range_pct R = (high-low)/high
-    - time_progress T vs median historical upswing length
+    - per-ticker time stats: avg / last / median / recent upswing lengths
+    - time_progress = days_since_low / avg(recent upswings)
     - failed_breakout heuristic
     """
+    empty = {
+        "position_score": 5.0,
+        "cycle_range_pct": 0.3,
+        "time_progress": 0.5,
+        "time_progress_vs_last": 0.5,
+        "time_progress_vs_median": 0.5,
+        "failed_breakout": False,
+        "high": None,
+        "low": None,
+        "current": None,
+        "window_days": window_days,
+        "days_since_low": 0,
+        "t_avg_days": 21.0,
+        "t_last_days": 21.0,
+        "t_median_days": 21.0,
+        "t_recent_days": [],
+        "typical_upswing_days": 21.0,
+    }
     if not bars or len(bars) < 5:
-        return {
-            "position_score": 5.0,
-            "cycle_range_pct": 0.3,
-            "time_progress": 0.5,
-            "failed_breakout": False,
-            "high": None,
-            "low": None,
-            "current": None,
-            "window_days": window_days,
-        }
+        return empty
 
     closes = [float(b["close"]) for b in bars]
     highs = [float(b.get("high", b["close"])) for b in bars]
@@ -215,38 +256,50 @@ def cycle_metrics_from_bars(bars: list[dict], window_days: int = 30) -> dict:
 
     r = 0.0 if w_high <= 0 else (w_high - w_low) / w_high
 
-    # Swing-based time progress: days since last major low in window vs median upswing
-    upswing_lens = _upswing_lengths(closes)
-    typical = median(upswing_lens) if upswing_lens else 21.0
+    # Per-ticker historical upswings (each stock has its own rhythm).
+    recent = _upswing_lengths(closes, lookback=252, keep=6)
+    t_avg = float(mean(recent)) if recent else 21.0
+    t_med = float(median(recent)) if recent else 21.0
+    t_last = float(recent[-1]) if recent else 21.0
     days_since_low = _days_since_trough(closes)
-    t_prog = days_since_low / typical if typical > 0 else 0.5
+    t_vs_avg = days_since_low / t_avg if t_avg > 0 else 0.5
+    t_vs_last = days_since_low / t_last if t_last > 0 else 0.5
+    t_vs_med = days_since_low / t_med if t_med > 0 else 0.5
 
     failed = _failed_breakout(closes, highs)
 
     return {
         "position_score": round(p, 2),
         "cycle_range_pct": round(r, 4),
-        "time_progress": round(t_prog, 3),
+        # Primary T for gates: vs this ticker's own average of recent cycles
+        "time_progress": round(t_vs_avg, 3),
+        "time_progress_vs_last": round(t_vs_last, 3),
+        "time_progress_vs_median": round(t_vs_med, 3),
         "failed_breakout": failed,
         "high": w_high,
         "low": w_low,
         "current": current,
-        "typical_upswing_days": typical,
+        "typical_upswing_days": t_avg,  # backward compatible alias
         "days_since_low": days_since_low,
+        "t_avg_days": round(t_avg, 1),
+        "t_last_days": round(t_last, 1),
+        "t_median_days": round(t_med, 1),
+        "t_recent_days": [round(x, 1) for x in recent],
         "window_days": win,
     }
 
 
-def _upswing_lengths(closes: list[float], lookback: int = 180) -> list[float]:
-    """Detect simple trough→peak lengths over lookback."""
+def _upswing_lengths(closes: list[float], lookback: int = 252, keep: int = 6) -> list[float]:
+    """Detect meaningful trough→peak lengths for this ticker; return most recent `keep`."""
     xs = closes[-lookback:] if len(closes) > lookback else closes
-    if len(xs) < 20:
+    if len(xs) < 30:
         return []
-    # local extrema with 5-day window
+    # Wider window reduces noise vs 5-day local zigzags
+    w = 7
     troughs: list[int] = []
     peaks: list[int] = []
-    for i in range(5, len(xs) - 5):
-        window = xs[i - 5 : i + 6]
+    for i in range(w, len(xs) - w):
+        window = xs[i - w : i + w + 1]
         if xs[i] == min(window):
             troughs.append(i)
         if xs[i] == max(window):
@@ -257,17 +310,31 @@ def _upswing_lengths(closes: list[float], lookback: int = 180) -> list[float]:
         if not later:
             continue
         p = later[0]
-        if xs[p] > xs[t] * 1.08:  # at least ~8% upswing
-            lengths.append(float(p - t))
-    return lengths[-5:] if lengths else []
+        span = p - t
+        # Require both duration and magnitude so tiny chop doesn't pollute avg/last T
+        if span >= 8 and xs[p] > xs[t] * 1.10:
+            lengths.append(float(span))
+    return lengths[-keep:] if lengths else []
 
 
 def _days_since_trough(closes: list[float]) -> int:
-    w = closes[-60:] if len(closes) >= 60 else closes
-    if not w:
+    """Days since the most recent significant local trough (same scale as upswing detector)."""
+    xs = closes[-120:] if len(closes) >= 120 else closes
+    if not xs:
         return 0
-    i_min = min(range(len(w)), key=lambda i: w[i])
-    return len(w) - 1 - i_min
+    w = 7
+    troughs: list[int] = []
+    for i in range(w, len(xs) - w):
+        window = xs[i - w : i + w + 1]
+        if xs[i] == min(window):
+            troughs.append(i)
+    if troughs:
+        abs_low = min(xs)
+        candidates = [i for i in troughs if xs[i] <= abs_low * 1.05]
+        i_min = (candidates or troughs)[-1]
+    else:
+        i_min = min(range(len(xs)), key=lambda i: xs[i])
+    return len(xs) - 1 - i_min
 
 
 def _failed_breakout(closes: list[float], highs: list[float]) -> bool:
