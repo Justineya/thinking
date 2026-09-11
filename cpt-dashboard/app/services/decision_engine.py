@@ -115,16 +115,6 @@ def decide(
     s_label = sector_label(sector_score)
     recent = list(t_recent_days or [])
 
-    def t_reason(prefix: str) -> str:
-        bits = [prefix]
-        if days_since_low is not None and t_avg_days:
-            bits.append(f"本轮已走{days_since_low}日/均{t_avg_days:.0f}日")
-        if t_last_days:
-            bits.append(f"上次{t_last_days:.0f}日")
-        if recent:
-            bits.append("近几轮" + ",".join(f"{x:.0f}" for x in recent[-4:]))
-        return "；".join(bits)
-
     def card(action: Action, reason: str) -> DecisionCard:
         return DecisionCard(
             symbol=symbol,
@@ -185,16 +175,12 @@ def decide(
             return card("持有", "高位空仓，不追")
 
     # --- Low band P <= 3 ---
-    # T gate uses this ticker's own average of recent upswings (not a global constant).
+    # Time progress T is informational only (shown on cards). Cycle length alone
+    # does not block entries — if price is in build zone, allow buy/add by P/S/gap.
     if not has_position:
-        if time_progress > 1.0:
-            return card("持有", t_reason("虽处低位，但相对该股自身平均上涨时长已延长，观望"))
         if sector_score > 6:
             return card("试探建仓", "低位但板块偏热，仅允许试探仓")
         return card("正常建仓", "价格低位，板块未过热，建立观察仓")
-
-    if time_progress > 1.0:
-        return card("持有", t_reason("低位但相对该股自身平均上涨时长已延长，观望不加"))
 
     if drop < add_gap:
         need = f"{add_gap * 100:.0f}%"
