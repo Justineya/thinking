@@ -83,23 +83,137 @@ def _download_bars(symbol: str, days: int) -> list[dict]:
     if not needed.issubset(set(df.columns)):
         raise LookupError(f"incomplete OHLCV for {symbol}")
 
+    # Yahoo often appends a stub daily row (OHLC all NaN, volume maybe set)
+    # for the latest session before the official daily bar settles overnight.
+    incomplete_dates = _incomplete_daily_dates(df)
     df = df.dropna(subset=["Open", "High", "Low", "Close"]).tail(days)
     bars: list[dict] = []
     for idx, row in df.iterrows():
-        ts = pd.Timestamp(idx).to_pydatetime()
-        bars.append(
-            {
-                "date": ts.date().isoformat(),
-                "open": round(float(row["Open"]), 4),
-                "high": round(float(row["High"]), 4),
-                "low": round(float(row["Low"]), 4),
-                "close": round(float(row["Close"]), 4),
-                "volume": int(float(row.get("Volume", 0) or 0)),
-            }
-        )
+        bars.append(_row_to_bar(idx, row))
     if not bars:
         raise LookupError(f"empty bars for {symbol}")
-    return bars
+
+    # Backfill the latest session when daily OHLC is still unsettled.
+    if incomplete_dates:
+        session = _synthesize_session_bar(symbol, prefer_date=incomplete_dates[-1])
+        if session is not None:
+            bars = _merge_session_bar(bars, session)
+    else:
+        # Even without a stub row, daily feed can lag 1 session after close.
+        session = _synthesize_session_bar(symbol, prefer_date=None)
+        if session is not None and session["date"] > bars[-1]["date"]:
+            bars = _merge_session_bar(bars, session)
+
+    return bars[-days:]
+
+
+def _incomplete_daily_dates(df: pd.DataFrame) -> list[str]:
+    dates: list[str] = []
+    for idx, row in df.iterrows():
+        ohlc = [row.get("Open"), row.get("High"), row.get("Low"), row.get("Close")]
+        if any(pd.isna(v) for v in ohlc):
+            dates.append(pd.Timestamp(idx).date().isoformat())
+    return dates
+
+
+def _row_to_bar(idx: Any, row: pd.Series) -> dict:
+    ts = pd.Timestamp(idx).to_pydatetime()
+    return {
+        "date": ts.date().isoformat(),
+        "open": round(float(row["Open"]), 4),
+        "high": round(float(row["High"]), 4),
+        "low": round(float(row["Low"]), 4),
+        "close": round(float(row["Close"]), 4),
+        "volume": int(float(row.get("Volume", 0) or 0)),
+    }
+
+
+def _merge_session_bar(bars: list[dict], session: dict) -> list[dict]:
+    if bars and bars[-1]["date"] == session["date"]:
+        bars[-1] = session
+        return bars
+    return [*bars, session]
+
+
+def _synthesize_session_bar(symbol: str, prefer_date: str | None) -> dict | None:
+    """Build a daily bar from intraday candles or last quote when daily is lagging."""
+    intra = _intraday_frame(symbol)
+    if intra is not None and not intra.empty:
+        by_day: dict[str, list[pd.Series]] = {}
+        for idx, row in intra.iterrows():
+            day = pd.Timestamp(idx).date().isoformat()
+            by_day.setdefault(day, []).append(row)
+        # Prefer the incomplete daily date; else newest intraday day.
+        day_keys = list(by_day.keys())
+        target = prefer_date if prefer_date in by_day else day_keys[-1]
+        rows = by_day[target]
+        opens = [float(r["Open"]) for r in rows if not pd.isna(r.get("Open"))]
+        highs = [float(r["High"]) for r in rows if not pd.isna(r.get("High"))]
+        lows = [float(r["Low"]) for r in rows if not pd.isna(r.get("Low"))]
+        closes = [float(r["Close"]) for r in rows if not pd.isna(r.get("Close"))]
+        vols = [float(r.get("Volume", 0) or 0) for r in rows]
+        if opens and highs and lows and closes:
+            return {
+                "date": target,
+                "open": round(opens[0], 4),
+                "high": round(max(highs), 4),
+                "low": round(min(lows), 4),
+                "close": round(closes[-1], 4),
+                "volume": int(sum(vols)),
+            }
+
+    quote = _last_quote(symbol)
+    if quote is None:
+        return None
+    px, day = quote
+    if prefer_date and day != prefer_date:
+        # Quote day can differ by timezone; still usable if caller had a stub date.
+        day = prefer_date
+    return {
+        "date": day,
+        "open": px,
+        "high": px,
+        "low": px,
+        "close": px,
+        "volume": 0,
+    }
+
+
+def _intraday_frame(symbol: str) -> pd.DataFrame | None:
+    with _FETCH_SEM:
+        t = yf.Ticker(symbol)
+        for interval in ("5m", "1m"):
+            try:
+                df = t.history(period="1d", interval=interval, auto_adjust=True)
+            except Exception:  # noqa: BLE001
+                continue
+            if df is not None and not df.empty:
+                return df
+    return None
+
+
+def _last_quote(symbol: str) -> tuple[float, str] | None:
+    with _FETCH_SEM:
+        t = yf.Ticker(symbol)
+        px = None
+        try:
+            info = t.fast_info
+            px = getattr(info, "last_price", None)
+            if px is None:
+                px = getattr(info, "lastPrice", None)
+        except Exception:  # noqa: BLE001
+            px = None
+        if px is None:
+            try:
+                meta = t.info or {}
+                px = meta.get("regularMarketPrice") or meta.get("currentPrice")
+            except Exception:  # noqa: BLE001
+                px = None
+    if px is None or pd.isna(px):
+        return None
+    # Approximate session date in UTC; prefer_date overrides when stub exists.
+    day = datetime.now(timezone.utc).date().isoformat()
+    return round(float(px), 4), day
 
 
 def cycle_score(current: float, low: float, high: float) -> float:
