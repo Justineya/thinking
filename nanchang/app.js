@@ -194,6 +194,7 @@ function initMap() {
 
   fit();
   setTimeout(() => map.invalidateSize(), 200);
+  window.addEventListener("resize", () => map.invalidateSize());
 }
 
 initMap();
