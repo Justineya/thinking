@@ -130,7 +130,7 @@ h1 small {
 .toc {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 2000;
   display: flex;
   gap: 4px;
   overflow-x: auto;
@@ -424,4 +424,154 @@ footer {
 
 footer {
   padding: 24px 0 48px;
+}
+
+.map-model {
+  display: grid;
+  gap: 12px;
+  background: #2a1c14;
+  padding: 10px;
+}
+
+#route-map {
+  height: min(62vh, 460px);
+  width: 100%;
+  min-height: 320px;
+  background: #d7c4a8;
+}
+
+.map-stops {
+  list-style: none;
+  margin: 0;
+  padding: 4px 8px 8px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.map-stops li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 4px;
+  border-bottom: 1px solid rgba(243, 230, 210, 0.12);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.map-stops li.on,
+.map-stops li:hover {
+  background: rgba(194, 59, 34, 0.28);
+}
+
+.map-stops b {
+  display: block;
+  font-family: "Noto Serif SC", serif;
+}
+
+.map-stops small {
+  color: #cbb59a;
+}
+
+.map-stops .n {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--cinnabar);
+  color: #fff;
+}
+
+.map-stops .n-night {
+  background: var(--river);
+}
+
+@media (min-width: 800px) {
+  .map-model {
+    grid-template-columns: 1.6fr 1fr;
+  }
+
+  .map-stops {
+    max-height: min(62vh, 460px);
+  }
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 10px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.map-legend .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.map-legend .day {
+  background: var(--cinnabar);
+}
+
+.map-legend .night {
+  background: var(--river);
+}
+
+.map-legend .extra {
+  background: var(--gold);
+}
+
+.map-toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pin {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  color: #fff;
+  font: 700 12px/1 "Noto Sans SC", sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  background: var(--cinnabar);
+}
+
+.pin b {
+  transform: rotate(45deg);
+  font-weight: 700;
+}
+
+.leaflet-div-icon {
+  background: transparent;
+  border: 0;
+}
+
+.pin-night {
+  background: var(--river);
+}
+
+.pin-extra {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.leaflet-popup-content {
+  font-family: "Noto Sans SC", sans-serif;
+}
+
+.leaflet-popup-content a {
+  color: var(--cinnabar);
 }

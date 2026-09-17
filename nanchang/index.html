@@ -11,6 +11,12 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -33,6 +39,7 @@
 
     <nav class="toc" aria-label="章节">
       <a href="#tonight">今晚</a>
+      <a href="#map">地图</a>
       <a href="#spots">打卡</a>
       <a href="#day">路线</a>
       <a href="#food">必吃</a>
@@ -50,6 +57,24 @@
           <a class="btn" href="https://uri.amap.com/search?keyword=%E5%8D%97%E6%98%8C%E7%91%9E%E9%A2%90%E5%A4%A7%E9%85%92%E5%BA%97&city=360100" target="_blank" rel="noreferrer">高德导航</a>
           <a class="btn ghost" href="tel:079187777777">酒店电话</a>
         </div>
+      </section>
+
+      <section id="map">
+        <h2>路线图</h2>
+        <p class="hint">按明天顺序连起来。点地图图钉或右侧站名，可跳到对应位置。</p>
+        <div class="map-model">
+          <div id="route-map" role="img" aria-label="南昌一日游路线地图"></div>
+          <ol class="map-stops" id="map-stops"></ol>
+        </div>
+        <div class="map-legend">
+          <span><i class="dot day"></i> 明天主线</span>
+          <span><i class="dot night"></i> 夜景备选（秋水广场）</span>
+          <span><i class="dot extra"></i> 1.5 日加项</span>
+        </div>
+        <label class="map-toggle">
+          <input type="checkbox" id="toggle-half" />
+          显示 1.5 日：八一广场、绳金塔
+        </label>
       </section>
 
       <section id="tonight">
@@ -391,6 +416,11 @@
     <footer>
       <p>为入住瑞颐、半夜抵达整理。票价、喷泉、营业时间以当天点评 / 景区公示为准。</p>
     </footer>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
     <script src="./app.js"></script>
   </body>
 </html>
