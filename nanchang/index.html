@@ -15,23 +15,27 @@
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
+
     <header class="hero">
-      <p class="eyebrow">住瑞颐 · 半夜到 · 拍照打卡 + 吃</p>
-      <h1>南昌<small>一日 / 1.5 日</small></h1>
-      <p class="lede">
-        今晚先睡。明天围着酒店 2 公里圈走：大士院过早、万寿宫逛吃、滕王阁出片、江边收尾。
-      </p>
-      <div class="hero-chips">
-        <span>酒店：沿江北路 69 号</span>
-        <span>打车为主</span>
-        <span>别去梅岭 / 海昏侯</span>
+      <img class="hero-img" src="./img/hero-tengwang.jpg" alt="黄昏滕王阁临江" />
+      <div class="hero-veil"></div>
+      <div class="hero-copy">
+        <p class="eyebrow">住瑞颐 · 半夜到 · 拍照打卡 + 必吃</p>
+        <h1>南昌<small>一日 / 1.5 日手册</small></h1>
+        <p class="lede">围着酒店 2 公里：大士院过早、万寿宫逛吃、滕王阁出片、江边收尾。店名均可点进大众点评。</p>
+        <div class="hero-chips">
+          <span>沿江北路 69 号</span>
+          <span>打车 10–15 分钟</span>
+          <span>别去梅岭 / 海昏侯</span>
+        </div>
       </div>
     </header>
 
     <nav class="toc" aria-label="章节">
       <a href="#tonight">今晚</a>
-      <a href="#day">明天</a>
-      <a href="#food">吃</a>
+      <a href="#spots">打卡</a>
+      <a href="#day">路线</a>
+      <a href="#food">必吃</a>
       <a href="#half">1.5 日</a>
       <a href="#notes">清单</a>
     </nav>
@@ -40,160 +44,324 @@
       <section id="hotel" class="panel hotel">
         <h2>住</h2>
         <p class="addr">南昌瑞颐大酒店（滕王阁店）</p>
-        <p>东湖区沿江北路 69 号 · 八一大桥 / 赣江边 · 高楼层可拍江景夜景</p>
+        <p>东湖区沿江北路 69 号 · 八一大桥 / 赣江边 · 高楼层就是江景打卡位</p>
         <div class="row-links">
-          <a
-            class="btn"
-            href="https://uri.amap.com/search?keyword=%E5%8D%97%E6%98%8C%E7%91%9E%E9%A2%90%E5%A4%A7%E9%85%92%E5%BA%97&city=360100"
-            target="_blank"
-            rel="noreferrer"
-            >高德导航酒店</a
-          >
+          <a class="btn dp" href="https://www.dianping.com/search/keyword/158/0_%E5%8D%97%E6%98%8C%E7%91%9E%E9%A2%90%E5%A4%A7%E9%85%92%E5%BA%97" target="_blank" rel="noreferrer">大众点评</a>
+          <a class="btn" href="https://uri.amap.com/search?keyword=%E5%8D%97%E6%98%8C%E7%91%9E%E9%A2%90%E5%A4%A7%E9%85%92%E5%BA%97&city=360100" target="_blank" rel="noreferrer">高德导航</a>
           <a class="btn ghost" href="tel:079187777777">酒店电话</a>
         </div>
       </section>
 
       <section id="tonight">
         <h2>今晚 · 半夜到</h2>
-        <ol class="timeline">
-          <li>
-            <time>到店</time>
+        <div class="media-row">
+          <img src="./img/spot-night-river.jpg" alt="赣江夜景" />
+          <ol class="timeline">
+            <li>
+              <time>到店</time>
+              <div>
+                <h3>打车直达，入住睡觉</h3>
+                <p>别出门逛。拉开窗帘拍一张江景，算抵达打卡。</p>
+              </div>
+            </li>
+            <li>
+              <time>真饿</time>
+              <div>
+                <h3>就近夜宵</h3>
+                <p>苏圃路烧烤或船山路小龙虾。别为吃跑去绳金塔。</p>
+                <p class="inline-links">
+                  <a href="https://www.dianping.com/shop/l3U7mDN8JXlRBOVo" target="_blank" rel="noreferrer">谭十三·船山路总店</a>
+                  ·
+                  <a href="https://www.dianping.com/search/keyword/158/0_%E6%98%8C%E6%98%8C%E7%83%A7%E7%83%A4%20%E8%8B%8F%E5%9C%A4%E8%B7%AF" target="_blank" rel="noreferrer">昌昌烧烤·苏圃路</a>
+                </p>
+              </div>
+            </li>
+            <li>
+              <time>睡前</time>
+              <div>
+                <h3>买明天滕王阁票</h3>
+                <p>微信搜「滕王阁」官方购票，成人日场约 50 元。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="spots">
+        <h2>打卡点</h2>
+        <p class="hint">一天按顺序拍这 6 个就够。第 7、8 个留给多出来的半天。</p>
+        <div class="spot-grid">
+          <article class="spot-card featured-spot">
+            <img src="./img/hero-tengwang.jpg" alt="滕王阁" />
             <div>
-              <h3>打车直达，入住睡觉</h3>
-              <p>不要出门逛。窗帘拉开拍一张江景就算抵达打卡。</p>
+              <span class="tag">主打卡</span>
+              <h3>滕王阁</h3>
+              <p>江南名楼。4 点后光线好；北园免费拍外观。日场约 8:00–18:00，17:15 停售。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E8%86%A9%E7%8E%8B%E9%98%81" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E8%86%A9%E7%8E%8B%E9%98%81&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
             </div>
-          </li>
-          <li>
-            <time>真饿</time>
+          </article>
+          <article class="spot-card">
+            <img src="./img/food-mixian.jpg" alt="大士院过早" />
             <div>
-              <h3>美团搜「夜宵」</h3>
-              <p>优先酒店附近烧烤（苏圃路一带常开到很晚）。别为吃跑去绳金塔。</p>
+              <h3>大士院</h3>
+              <p>烟火气早饭街。拍队伍、搪瓷碗、油锅。酒店打车约 10 分钟。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E5%A4%A7%E5%A3%AB%E9%99%A2" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E5%A4%A7%E5%A3%AB%E9%99%A2%E8%A1%97&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
             </div>
-          </li>
-          <li>
-            <time>睡前</time>
+          </article>
+          <article class="spot-card">
+            <img src="./img/spot-wanshou.jpg" alt="万寿宫街区" />
             <div>
-              <h3>买明天滕王阁票</h3>
-              <p>微信搜「滕王阁」官方购票，成人日场约 50 元。日常一般不用预约。</p>
+              <h3>万寿宫历史文化街区</h3>
+              <p>牌坊、青砖、店铺招牌。大士院走过去。选西湖区中山路这一处，别和别处同名搞混。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E4%B8%87%E5%AF%BF%E5%AE%AB%E5%8E%86%E5%8F%B2%E6%96%87%E5%8C%96%E8%A1%97%E5%8C%BA" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E4%B8%87%E5%AF%BF%E5%AE%AB%E5%8E%86%E5%8F%B2%E6%96%87%E5%8C%96%E8%A1%97%E5%8C%BA&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
             </div>
-          </li>
-        </ol>
+          </article>
+          <article class="spot-card">
+            <img src="./img/spot-night-river.jpg" alt="八一大桥江景" />
+            <div>
+              <h3>八一大桥 / 沿江</h3>
+              <p>酒店门口就能拍。省事版夜景首选，高楼层房间同款视角。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E5%85%AB%E4%B8%80%E5%A4%A7%E6%A1%A5" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E5%85%AB%E4%B8%80%E5%A4%A7%E6%A1%A5&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+          <article class="spot-card">
+            <img src="./img/spot-fountain.jpg" alt="秋水广场喷泉" />
+            <div>
+              <h3>秋水广场</h3>
+              <p>隔江拍滕王阁。喷泉常见 19:30 / 20:30。9 月可能检修，出发前搜「秋水广场 音乐喷泉」。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E7%A7%8B%E6%B0%B4%E5%B9%BF%E5%9C%BA" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E7%A7%8B%E6%B0%B4%E5%B9%BF%E5%9C%BA&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+          <article class="spot-card">
+            <img src="./img/spot-bayi.jpg" alt="八一广场" />
+            <div>
+              <span class="tag mute">半天加项</span>
+              <h3>八一广场</h3>
+              <p>英雄城地标。可顺路起义纪念馆（常需预约）。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E5%85%AB%E4%B8%80%E5%B9%BF%E5%9C%BA" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E5%85%AB%E4%B8%80%E5%B9%BF%E5%9C%BA&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+          <article class="spot-card">
+            <img src="./img/spot-shengjin.jpg" alt="绳金塔" />
+            <div>
+              <span class="tag mute">半天加项</span>
+              <h3>绳金塔 / 美食街</h3>
+              <p>古塔 + 小吃街。一天行程砍掉，有半天再去。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/shop/5123991" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E7%BB%B3%E9%87%91%E5%A1%94&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+        </div>
       </section>
 
       <section id="day">
-        <h2>明天 · 核心一天</h2>
+        <h2>明天怎么走</h2>
         <p class="hint">半夜到的人不要 6 点爬起来。9 点过早仍吃得到。</p>
 
         <article class="stop">
-          <header>
+          <img src="./img/food-cake.jpg" alt="白糖糕" />
+          <div>
             <span class="when">09:00–10:30</span>
             <h3>大士院过早</h3>
-          </header>
-          <p>导航「大士院街」。酒店打车约 10 分钟。</p>
-          <ul class="shots">
-            <li>出片：街角队伍、搪瓷碗、油锅白糖糕</li>
-            <li>点单：拌粉 + 瓦罐汤 + 白糖糕，人均十几块</li>
-            <li>不能吃辣：跟老板说「微辣 / 免辣」</li>
-          </ul>
-          <a
-            class="map"
-            href="https://uri.amap.com/search?keyword=%E5%A4%A7%E5%A3%AB%E9%99%A2%E8%A1%97&city=360100"
-            target="_blank"
-            rel="noreferrer"
-            >导航大士院</a
-          >
+            <p>点单：拌粉 + 瓦罐汤 + 白糖糕。不能吃辣说「微辣 / 免辣」。</p>
+            <ul class="shots">
+              <li>小罗子汤店：拌粉、皮蛋肉饼汤</li>
+              <li>老南昌白糖糕：约 1 元一个，现炸</li>
+            </ul>
+          </div>
         </article>
 
         <article class="stop">
-          <header>
+          <img src="./img/spot-wanshou.jpg" alt="万寿宫逛街" />
+          <div>
             <span class="when">10:30–13:30</span>
-            <h3>万寿宫历史文化街区</h3>
-          </header>
-          <p>大士院走过去。牌坊、青砖、店铺招牌很好拍。</p>
-          <ul class="shots">
-            <li>午饭 A：继续小吃，别吃撑</li>
-            <li>午饭 B：美团搜赣菜，点藜蒿炒腊肉、瓦罐红烧肉、南昌炒粉</li>
-          </ul>
-          <a
-            class="map"
-            href="https://uri.amap.com/search?keyword=%E4%B8%87%E5%AF%BF%E5%AE%AB%E5%8E%86%E5%8F%B2%E6%96%87%E5%8C%96%E8%A1%97%E5%8C%BA&city=360100"
-            target="_blank"
-            rel="noreferrer"
-            >导航万寿宫</a
-          >
+            <h3>万寿宫逛吃 · 午饭</h3>
+            <p>继续小吃，或坐店吃赣菜。别吃撑，下午还要登阁。</p>
+            <ul class="shots">
+              <li>坐店：小柴米（万寿宫）或打车去堂瓦里（八一广场）</li>
+              <li>必点意向：藜蒿炒腊肉、瓦罐红烧肉、南昌炒粉</li>
+            </ul>
+          </div>
         </article>
 
         <article class="stop featured">
-          <header>
+          <img src="./img/hero-tengwang.jpg" alt="登滕王阁" />
+          <div>
             <span class="when">14:30–17:30</span>
             <h3>滕王阁 · 主打卡</h3>
-          </header>
-          <p>日场大约 8:00–18:00，约 17:15 停售。4 点后光线更好。北园免费拍楼体外观。</p>
-          <ul class="shots">
-            <li>登阁看赣江；汉服租赁看心情</li>
-            <li>能背《滕王阁序》可试南门免票，队太长直接买票</li>
-          </ul>
-          <a
-            class="map"
-            href="https://uri.amap.com/search?keyword=%E8%86%A9%E7%8E%8B%E9%98%81&city=360100"
-            target="_blank"
-            rel="noreferrer"
-            >导航滕王阁</a
-          >
+            <p>登阁看赣江。能背《滕王阁序》可试南门免票，队太长直接买票。汉服租赁看心情。</p>
+          </div>
         </article>
 
         <article class="stop">
-          <header>
+          <img src="./img/spot-fountain.jpg" alt="夜景收尾" />
+          <div>
             <span class="when">18:00 后</span>
             <h3>江景收尾 · 二选一</h3>
-          </header>
-          <div class="split">
-            <div>
-              <h4>A 省事（推荐）</h4>
-              <p>回酒店吃饭休息，晚上到八一大桥 / 沿江拍夜景。房间高楼层就是观景台。</p>
-            </div>
-            <div>
-              <h4>B 过江喷泉</h4>
-              <p>地铁 1 号线秋水广场。常见 19:30、20:30 两场，免费约 15 分钟。</p>
-              <p class="warn">9 月可能检修。出发前微信搜「秋水广场 音乐喷泉」。停喷也能隔江拍滕王阁。</p>
-            </div>
+            <p><strong>A 省事：</strong>回酒店，沿江 / 八一大桥拍夜景。</p>
+            <p><strong>B 过江：</strong>地铁 1 号线秋水广场。停喷也能隔江拍滕王阁。</p>
           </div>
         </article>
       </section>
 
       <section id="food">
-        <h2>吃什么</h2>
-        <div class="food-grid">
-          <figure>
-            <figcaption>早餐标配</figcaption>
-            <p>拌粉 · 瓦罐汤（皮蛋肉饼 / 肉陀）· 白糖糕（约 1 元）</p>
-            <p class="shop">大士院：小罗子汤店、老南昌白糖糕</p>
-          </figure>
-          <figure>
-            <figcaption>正餐赣菜</figcaption>
-            <p>藜蒿炒腊肉 · 瓦罐红烧肉 · 南昌炒粉 · 米酒解辣</p>
-            <p class="shop">万寿宫 / 中山路一带，美团搜「堂瓦里 / 赣菜」</p>
-          </figure>
-          <figure>
-            <figcaption>解辣 / 夜宵</figcaption>
-            <p>洪都大拇指奶茶 · 烧烤 · 小龙虾</p>
-            <p class="shop">夜宵：苏圃路烧烤、船山路小龙虾</p>
-          </figure>
+        <h2>必吃 + 店家</h2>
+        <p class="hint">优先带大众点评店铺页的店。连锁请在 App 里看最近分店是否营业。</p>
+
+        <h3 class="sub">早饭标配</h3>
+        <div class="shop-grid">
+          <article class="shop-card">
+            <img src="./img/food-mixian.jpg" alt="南昌拌粉配瓦罐汤" />
+            <div>
+              <h3>小罗子汤店（大士院总店）</h3>
+              <p class="shop">大士院南区 23 栋 · 人均约 10 元 · 约 6:00–14:00</p>
+              <p>必点：拌粉、皮蛋肉饼汤。本地人过早。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/shop/H4a4WkudJqRkeUN9" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E5%B0%8F%E7%BD%97%E5%AD%90%E6%B1%A4%E5%BA%97%E5%A4%A7%E5%A3%AB%E9%99%A2&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+          <article class="shop-card">
+            <img src="./img/food-cake.jpg" alt="老南昌白糖糕" />
+            <div>
+              <h3>老南昌白糖糕（大士院店）</h3>
+              <p class="shop">半步街 65 号 · 约 1 元/个 · 早上排队</p>
+              <p>必点：现炸白糖糕。顺手可买油条包麻糍（街边摊）。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/shop/H25CKF4iuJf6MgTQ" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E8%80%81%E5%8D%97%E6%98%8C%E7%99%BD%E7%B3%96%E7%B3%95%E5%A4%A7%E5%A3%AB%E9%99%A2&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+          <article class="shop-card">
+            <img src="./img/food-mixian.jpg" alt="万方圆拌粉" />
+            <div>
+              <h3>万方圆拌粉瓦罐汤（滕王阁旗舰店）</h3>
+              <p class="shop">榕门路 229 号 · 人均约 26 · 景区对面，早饭吃晚了的备选</p>
+              <p>必点：牛肉拌粉、瓦罐汤。辣度可选。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E4%B8%87%E6%96%B9%E5%9C%86%E6%8B%8C%E7%B2%89%E7%93%A6%E7%BD%90%E6%B1%A4%20%E6%BB%94%E9%97%A8%E8%B7%AF" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E4%B8%87%E6%96%B9%E5%9C%86%E6%8B%8C%E7%B2%89%E6%BB%94%E9%97%A8%E8%B7%AF&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <h3 class="sub">正餐赣菜</h3>
+        <div class="shop-grid">
+          <article class="shop-card">
+            <img src="./img/food-gan.jpg" alt="赣菜" />
+            <div>
+              <h3>小柴米·传统江西菜（万寿宫店）</h3>
+              <p class="shop">万寿宫街区 · 午饭最顺路</p>
+              <p>必点：南昌炒粉、米粉肉、三杯鸡。跟店员说微辣。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/shop/3495916" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E5%B0%8F%E6%9F%B4%E7%B1%B3%E4%B8%87%E5%AF%BF%E5%AE%AB&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+          <article class="shop-card">
+            <img src="./img/food-gan.jpg" alt="九大碗赣菜" />
+            <div>
+              <h3>九大碗·老字号江西味（滕王阁店）</h3>
+              <p class="shop">滕王阁商圈 · 登阁前后吃正餐</p>
+              <p>必点：藜蒿炒腊肉、瓦罐类、炒粉。人多可先在点评取号。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/shop/k5nw6xcG9oIxWzWa" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E4%B9%9D%E5%A4%A7%E7%A2%97%E8%86%A9%E7%8E%8B%E9%98%81&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+          <article class="shop-card">
+            <img src="./img/food-gan.jpg" alt="堂瓦里" />
+            <div>
+              <h3>堂瓦里·传统赣菜（八一广场店）</h3>
+              <p class="shop">八一广场 · 人均约 60+ · 复古搪瓷摆盘好出片</p>
+              <p>必点：瓦罐红烧肉、藜蒿炒腊肉、蟹脚捞粉、米酒。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/shop/H2kx0dwqGCzD3xaF" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E5%A0%82%E7%93%A6%E9%87%8C%E5%85%AB%E4%B8%80%E5%B9%BF%E5%9C%BA&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <h3 class="sub">解辣 / 夜宵</h3>
+        <div class="shop-grid">
+          <article class="shop-card">
+            <div>
+              <h3>洪都大拇指</h3>
+              <p class="shop">本地奶茶 · 分店多，总店在洪都商圈偏远</p>
+              <p>必点：幽兰拿铁 / 踏雪寻梅，半糖；烤肠。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/shop/k9PgYKYME244uGrM" target="_blank" rel="noreferrer">点评·洪都店</a>
+                <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E6%B4%AA%E9%83%BD%E5%A4%A7%E6%8B%87%E6%8C%87" target="_blank" rel="noreferrer">搜附近分店</a>
+              </div>
+            </div>
+          </article>
+          <article class="shop-card">
+            <div>
+              <h3>谭十三·大排档（船山路总店）</h3>
+              <p class="shop">船山路 156 号 · 人均约 75 · 夜宵小龙虾</p>
+              <p>必点：手抓虾、老南昌藕夹、花甲。半夜到当晚能吃就吃这里。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/shop/l3U7mDN8JXlRBOVo" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E8%B0%AD%E5%8D%81%E4%B8%89%E8%88%B9%E5%B1%B1%E8%B7%AF&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
+          <article class="shop-card">
+            <div>
+              <h3>昌昌烧烤（苏圃路）</h3>
+              <p class="shop">苏圃路一带 · 常开到凌晨 · 酒店附近夜宵</p>
+              <p>必点：烤串、烤鱼。出发前在点评看是否还在营业。</p>
+              <div class="row-links compact">
+                <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E6%98%8C%E6%98%8C%E7%83%A7%E7%83%A4%20%E8%8B%8F%E5%9C%A4%E8%B7%AF" target="_blank" rel="noreferrer">大众点评</a>
+                <a class="btn sm" href="https://uri.amap.com/search?keyword=%E6%98%8C%E6%98%8C%E7%83%A7%E7%83%A4%E8%8B%8F%E5%9C%A4%E8%B7%AF&city=360100" target="_blank" rel="noreferrer">导航</a>
+              </div>
+            </div>
+          </article>
         </div>
       </section>
 
       <section id="half">
-        <h2>多出半天就加这个</h2>
-        <p>第二天上午 9:00–11:30，二选一，然后取行李走。不要去梅岭、海昏侯。</p>
-        <div class="split">
-          <div class="card">
+        <h2>多出半天</h2>
+        <p>第二天 9:00–11:30 二选一，然后取行李。不要去梅岭、海昏侯。</p>
+        <div class="split half-cards">
+          <article class="card">
+            <img src="./img/spot-bayi.jpg" alt="八一广场" />
             <h3>八一广场 + 起义纪念馆</h3>
-            <p>英雄城标配。纪念馆常需预约，微信提前看。</p>
-          </div>
-          <div class="card">
+            <p>英雄城标配。纪念馆微信提前预约。</p>
+            <a class="btn dp sm" href="https://www.dianping.com/search/keyword/158/0_%E5%85%AB%E4%B8%80%E8%B5%B7%E4%B9%89%E7%BA%AA%E5%BF%B5%E9%A6%86" target="_blank" rel="noreferrer">点评·纪念馆</a>
+          </article>
+          <article class="card">
+            <img src="./img/spot-shengjin.jpg" alt="绳金塔" />
             <h3>绳金塔街区</h3>
-            <p>更市井、小吃多，适合再嗦一碗粉。</p>
-          </div>
+            <p>再嗦一碗粉、逛古塔。</p>
+            <a class="btn dp sm" href="https://www.dianping.com/shop/5123991" target="_blank" rel="noreferrer">点评·美食街</a>
+          </article>
         </div>
       </section>
 
@@ -205,22 +373,23 @@
           <li><label><input type="checkbox" /> 充电宝 · 薄外套（江边有风）</label></li>
           <li><label><input type="checkbox" /> 跟店家说微辣</label></li>
           <li><label><input type="checkbox" /> 查秋水广场喷泉当天开不开</label></li>
+          <li><label><input type="checkbox" /> 大众点评 App 已登录，方便打开店页</label></li>
         </ul>
         <dl class="meta">
           <div>
             <dt>市内交通</dt>
-            <dd>酒店 ↔ 大士院 / 滕王阁打车 10–15 分钟；过江坐地铁 1 号线。预算约 20 元。</dd>
+            <dd>酒店 ↔ 大士院 / 滕王阁打车 10–15 分钟；过江坐地铁 1 号线。</dd>
           </div>
           <div>
-            <dt>别去</dt>
-            <dd>梅岭、海昏侯、绳金塔（除非有半天）。一天就围着赣江老城转。</dd>
+            <dt>点评链接</dt>
+            <dd>橙色按钮进店铺页；搜店名的链接请认准南昌、看最近是否营业。</dd>
           </div>
         </dl>
       </section>
     </main>
 
     <footer>
-      <p>为这次入住瑞颐、半夜抵达的行程整理。票价与喷泉以当天公示为准。</p>
+      <p>为入住瑞颐、半夜抵达整理。票价、喷泉、营业时间以当天点评 / 景区公示为准。</p>
     </footer>
     <script src="./app.js"></script>
   </body>
