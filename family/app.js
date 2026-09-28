@@ -176,6 +176,12 @@ function selectPerson(id) {
 
   renderFamilyTree();
   detailPanel.hidden = false;
+  document.getElementById('app').classList.add('is-detail-open');
+  requestAnimationFrame(() => {
+    familyTree
+      .querySelector(`.person-card[data-id="${CSS.escape(id)}"]`)
+      ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
   detailName.textContent = person.name;
   detailPortrait.src = PORTRAITS[person.portrait];
   detailPortrait.alt = person.name;
@@ -395,6 +401,7 @@ function bindUI() {
 
   closeDetail.addEventListener('click', () => {
     detailPanel.hidden = true;
+    document.getElementById('app').classList.remove('is-detail-open');
   });
 
   schoolBtn.addEventListener('click', () => {
