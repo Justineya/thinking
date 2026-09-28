@@ -32,6 +32,15 @@
       </div>
     </header>
 
+    <div id="gmBar" class="gm">
+      <span>后台 · 尽情玩</span>
+      <button type="button" data-add="10">灵感+10</button>
+      <button type="button" data-add="100">+100</button>
+      <button type="button" data-set="999">灵感999</button>
+      <button type="button" data-event="1">抽事件</button>
+      <button type="button" data-promote="1">强升职</button>
+    </div>
+
     <div class="clan-bar">陈氏家族</div>
     <p id="taskBar" class="task">学校越好，以后工资越高。省级入学花灵感，不看广告。</p>
 
@@ -40,7 +49,17 @@
     </section>
     <section id="viewShop" class="view" hidden>
       <div class="seg">灵感兑换</div>
+      <p class="hint-line">灵感每年自动 +1；本后台版顶栏可直接加。省级入学、网红岗、高净值对象各花 1 灵感。</p>
       <div id="shopList" class="shop-list"></div>
+      <div class="seg">职业底薪</div>
+      <div id="jobRules" class="rules"></div>
+      <div class="seg">工资怎么算</div>
+      <p class="hint-line" id="payFormula">月薪 = 岗位底薪 × 学历 × 智商 × 工龄 × 职级 + 临时加减。工龄满 24 个月后，每年约 22% 弹升职（随机事件也会加薪）。</p>
+    </section>
+    <section id="viewLog" class="view" hidden>
+      <div class="seg">大事记</div>
+      <p class="hint-line">随机事件、升职、买灵感都记在内存 <code>state.eventLog</code>，规则表在 <code>family/data/</code>，不用数据库。</p>
+      <div id="eventList" class="log-list"></div>
     </section>
     <section id="viewIndustry" class="view" hidden>
       <div class="seg">产业地块</div>
@@ -60,6 +79,7 @@
     <nav class="tabs">
       <button class="tab is-on" data-view="family" type="button">👨‍👩‍👧‍👦<br />家族</button>
       <button class="tab" data-view="shop" type="button">💡<br />灵感</button>
+      <button class="tab" data-view="log" type="button">📒<br />记事</button>
       <button class="tab" data-view="industry" type="button">🏙️<br />产业</button>
     </nav>
   </div>

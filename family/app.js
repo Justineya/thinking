@@ -12,10 +12,12 @@ import {
   SHOP_ITEMS,
   INDUSTRIES,
 } from './data/game-data.js';
+import { calcSalary, canTryPromote, RANK_NAMES, yearsOnJob } from './data/economy.js';
+import { pickRandomEvent, pickTarget } from './data/events.js';
 
 const TICK_MS = 3000;
 const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-const QUEUE_ORDER = { school: 0, work: 1, love: 2, marry: 3, baby: 4 };
+const QUEUE_ORDER = { promote: 0, school: 1, work: 2, love: 3, marry: 4, baby: 5 };
 const STAT_LABELS = { iq: '智商', mood: '心情', charm: '魅力', stamina: '体力' };
 
 let state = JSON.parse(JSON.stringify(INITIAL_FAMILY));
@@ -75,12 +77,34 @@ function jobAllowed(person, job) {
   }
   return false;
 }
+function normalizePerson(p) {
+  if (p.jobMonths == null) {
+    const working = p.jobId && p.jobId !== 'student' && p.jobId !== 'retired';
+    p.jobMonths = working ? Math.max(0, (p.age - 22) * 12) : 0;
+  }
+  p.jobRank = p.jobRank || 0;
+  p.tempBonus = p.tempBonus || 0;
+  return p;
+}
+
+function logEvent(kind, title, text) {
+  state.eventLog = state.eventLog || [];
+  state.eventLog.unshift({
+    year: state.year,
+    month: state.month,
+    kind,
+    title,
+    text,
+  });
+  state.eventLog = state.eventLog.slice(0, 80);
+}
+
 function personFlow(p) {
   if (p.jobId === 'student') {
     const s = getSchoolById(p.schoolId);
     return s ? -s.tuition : 0;
   }
-  return p.income || 0;
+  return calcSalary(p, getJob(p.jobId));
 }
 function industryIncome() {
   return INDUSTRIES.filter((i) => state.ownedIndustries.includes(i.id)).reduce((s, i) => s + i.income, 0);
@@ -195,9 +219,13 @@ function selectPerson(id) {
     : p.dating
       ? `恋爱中 · ${p.dating.name}`
       : '单身';
+  const rank = getJob(p.jobId).id === 'student' || getJob(p.jobId).id === 'retired'
+    ? '—'
+    : `${RANK_NAMES[p.jobRank || 0]} · 工龄 ${yearsOnJob(p)}年`;
   $('#sheetFacts').innerHTML = `
     <div><dt>学历</dt><dd>${p.education}</dd></div>
     <div><dt>学校</dt><dd>${school ? school.name : '—'}</dd></div>
+    <div><dt>职级</dt><dd>${rank}</dd></div>
     <div><dt>月流水</dt><dd>${formatMoney(personFlow(p))}</dd></div>
     <div><dt>感情</dt><dd>${rel}</dd></div>`;
   $('#sheetStats').innerHTML = Object.entries(p.stats)
@@ -220,6 +248,22 @@ function renderShop() {
   $('#shopList').querySelectorAll('.shop-row').forEach((btn) => {
     btn.addEventListener('click', () => buyShop(btn.dataset.id));
   });
+  $('#jobRules').innerHTML = JOBS.map(
+    (j) =>
+      `<div class="rule-row"><b>${j.name}</b><span>底薪 ${formatMoney(j.base ?? j.income)} · ${j.req} · ${j.desc}</span></div>`
+  ).join('');
+}
+
+function renderLog() {
+  const rows = state.eventLog || [];
+  $('#eventList').innerHTML = rows.length
+    ? rows
+        .map(
+          (e) =>
+            `<div class="log-row"><time>${e.year}年${e.month}月 · ${e.kind}</time><b>${e.title}</b><div>${e.text}</div></div>`
+        )
+        .join('')
+    : '<p class="log-empty">还没有事件。走几个月就会出现随机事件或升职。</p>';
 }
 
 function buyShop(id) {
@@ -232,6 +276,12 @@ function buyShop(id) {
       p.stats[it.stat] = Math.min(100, p.stats[it.stat] + it.amount);
     }
   }
+  if (it.tempBonus) {
+    for (const p of state.people) {
+      p.tempBonus = (p.tempBonus || 0) + it.tempBonus;
+    }
+  }
+  logEvent('shop', it.name, `花 ${it.cost} 灵感：${it.desc}`);
   toast('兑换成功');
   renderAll();
 }
@@ -264,6 +314,7 @@ function setTab(name) {
   tab = name;
   $('#viewFamily').hidden = name !== 'family';
   $('#viewShop').hidden = name !== 'shop';
+  $('#viewLog').hidden = name !== 'log';
   $('#viewIndustry').hidden = name !== 'industry';
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('is-on', t.dataset.view === name));
   if (name !== 'family') $('#personSheet').hidden = true;
@@ -322,7 +373,8 @@ function openChoice(item) {
       JOB_CHOICES.map((id) => {
         const job = getJob(id);
         const ok = jobAllowed(person, job);
-        return `<button type="button" class="opt" data-id="${job.id}" ${ok ? '' : 'disabled'}>${job.name} <small>+${formatMoney(job.income)}/月</small></button>`;
+        const sample = { ...person, jobId: job.id, jobMonths: 0, jobRank: 0, tempBonus: 0 };
+        return `<button type="button" class="opt" data-id="${job.id}" ${ok ? '' : 'disabled'}>${job.name} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
       }).join('') +
       `<button type="button" class="opt opt--green" data-special="1">走网红路线 <small>灵感 ${TOKEN_COST}</small></button>`;
     list.querySelectorAll('.opt').forEach((btn) => {
@@ -376,6 +428,25 @@ function openChoice(item) {
       person.babyPending = false;
       finishEvent();
     });
+  } else if (item.type === 'promote') {
+    const next = RANK_NAMES[Math.min(2, (person.jobRank || 0) + 1)];
+    $('#choiceStage').textContent = '升职';
+    $('#choiceTip').textContent = `${person.name} 工龄 ${yearsOnJob(person)} 年，有机会升为${next}。`;
+    list.innerHTML = `
+      <button type="button" class="opt opt--green" data-yes="1">接受升职</button>
+      <button type="button" class="opt" data-skip="1">先不升</button>`;
+    list.querySelectorAll('.opt').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.yes) {
+          person.jobRank = Math.min(2, (person.jobRank || 0) + 1);
+          logEvent('special', '升职', `${person.name} 升为${RANK_NAMES[person.jobRank]}，工资按公式重算。`);
+          toast(`${person.name} 升为${RANK_NAMES[person.jobRank]}`);
+        } else {
+          logEvent('special', '放弃升职', `${person.name} 暂时不升。`);
+        }
+        finishEvent();
+      });
+    });
   }
 
   if (!modal.open) modal.showModal();
@@ -389,15 +460,18 @@ function applySchool(person, school, stage) {
   person.income = 0;
   person.stats.iq = Math.min(100, person.stats.iq + (school.iqBonus || 0));
   person.stats.mood = Math.min(100, Math.max(0, person.stats.mood + (school.moodBonus || 0)));
+  logEvent('special', `升学 · ${stage.label}`, `${person.name} 进入${school.name}。`);
 }
 
 function applyJob(person, job) {
   person.jobId = job.id;
   person.workDrawn = true;
   person.schoolId = null;
-  person.income = job.incomeVariance
-    ? Math.round(job.income * (1 + (Math.random() * 2 - 1) * job.incomeVariance))
-    : job.income;
+  person.jobMonths = 0;
+  person.jobRank = 0;
+  person.tempBonus = 0;
+  person.income = calcSalary(person, job);
+  logEvent('special', '入职', `${person.name} 成为${job.name}。`);
 }
 
 function startDating(person, suitor) {
@@ -428,6 +502,9 @@ function marryPerson(person, suitor) {
     education: suitor.education,
     stats: { ...suitor.stats },
     income: suitor.income,
+    jobMonths: Math.max(0, (suitor.age - 22) * 12),
+    jobRank: 0,
+    tempBonus: 0,
     loveDrawn: true,
     workDrawn: true,
   });
@@ -465,6 +542,9 @@ function haveChild(person) {
       stamina: 90,
     },
     income: 0,
+    jobMonths: 0,
+    jobRank: 0,
+    tempBonus: 0,
   });
 }
 
@@ -487,6 +567,26 @@ function processQueue() {
   }
   queue.sort((a, b) => (QUEUE_ORDER[a.type] ?? 9) - (QUEUE_ORDER[b.type] ?? 9));
   openChoice(queue.shift());
+}
+
+function maybeRandomEvent() {
+  if (Math.random() > 0.35) return;
+  const ev = pickRandomEvent(state.people);
+  if (!ev) return;
+  const p = pickTarget(state.people, ev);
+  if (!p) return;
+  const extra = ev.apply(state, p) || '';
+  logEvent('random', ev.title, `${ev.text(p)} ${extra}`.trim());
+  toast(ev.title);
+}
+
+function maybePromote() {
+  for (const p of state.people) {
+    if (!canTryPromote(p)) continue;
+    if ((p.jobMonths || 0) % 12 !== 0) continue;
+    if (Math.random() > 0.22) continue;
+    enqueue({ type: 'promote', personId: p.id });
+  }
 }
 
 function collectAgeEvents() {
@@ -523,23 +623,29 @@ function advanceMonth() {
       p.age += 1;
       if (p.age === 60 && p.jobId !== 'retired') {
         p.jobId = 'retired';
+        p.jobMonths = 0;
         p.income = getJob('retired').income;
         p.workDrawn = true;
+        logEvent('special', '退休', `${p.name} 退休领养老金。`);
       }
     }
   }
+  for (const p of state.people) {
+    if (p.jobId !== 'student' && p.jobId !== 'retired') p.jobMonths = (p.jobMonths || 0) + 1;
+  }
+  maybeRandomEvent();
+  for (const p of state.people) p.income = personFlow(p);
   state.cash += familyDelta();
+  for (const p of state.people) p.tempBonus = 0;
+  maybePromote();
   collectAgeEvents();
 }
 
 function tick() {
   if (state.paused || isModalOpen() || queue.length) return;
   advanceMonth();
-  renderHud();
-  if (queue.length) {
-    renderAll();
-    processQueue();
-  }
+  renderAll();
+  if (queue.length) processQueue();
 }
 function startTick() {
   stopTick();
@@ -556,6 +662,7 @@ function renderAll() {
   renderHud();
   renderTree();
   renderShop();
+  renderLog();
   renderIndustry();
   if (state.selectedId && getPerson(state.selectedId) && !$('#personSheet').hidden) selectPerson(state.selectedId);
 }
@@ -575,9 +682,39 @@ function bindUI() {
   });
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => setTab(t.dataset.view)));
   $('#choiceModal').addEventListener('cancel', (e) => e.preventDefault());
+  $('#gmBar').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    if (btn.dataset.add) {
+      state.tokens += Number(btn.dataset.add);
+      toast(`灵感 ${state.tokens}`);
+    }
+    if (btn.dataset.set) {
+      state.tokens = Number(btn.dataset.set);
+      toast(`灵感 ${state.tokens}`);
+    }
+    if (btn.dataset.event) {
+      const ev = pickRandomEvent(state.people);
+      const p = ev && pickTarget(state.people, ev);
+      if (!ev || !p) return toast('没有可抽的事件');
+      const extra = ev.apply(state, p) || '';
+      logEvent('random', ev.title, `${ev.text(p)} ${extra}`.trim());
+      toast(ev.title);
+    }
+    if (btn.dataset.promote) {
+      const p = state.people.find((x) => x.jobId !== 'student' && x.jobId !== 'retired' && (x.jobRank || 0) < 2);
+      if (!p) return toast('没人能升');
+      p.jobMonths = Math.max(p.jobMonths || 0, 24);
+      enqueue({ type: 'promote', personId: p.id });
+      processQueue();
+      return;
+    }
+    renderAll();
+  });
 }
 
 function init() {
+  state.people.forEach(normalizePerson);
   bindUI();
   renderAll();
   collectAgeEvents();

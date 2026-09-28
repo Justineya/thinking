@@ -70,11 +70,13 @@ export const SCHOOL_STAGES = [
 ];
 
 export const SHOP_ITEMS = [
-  { id: 'cash', name: '兑换', desc: '立刻获得 10,000 现金', cost: 1, cash: 10000 },
+  { id: 'cash1', name: '兑换现金', desc: '立刻获得 10,000', cost: 1, cash: 10000 },
+  { id: 'cash5', name: '大额兑换', desc: '立刻获得 50,000', cost: 3, cash: 50000 },
   { id: 'iq', name: '增加智商', desc: '全家族智商 +5', cost: 2, stat: 'iq', amount: 5 },
   { id: 'charm', name: '增加魅力', desc: '全家族魅力 +5', cost: 2, stat: 'charm', amount: 5 },
   { id: 'stamina', name: '增加体力', desc: '全家族体力 +5', cost: 2, stat: 'stamina', amount: 5 },
   { id: 'mood', name: '增加心情', desc: '全家族心情 +5', cost: 2, stat: 'mood', amount: 5 },
+  { id: 'raise', name: '全员津贴', desc: '每人本月临时工资 +1,000', cost: 2, tempBonus: 1000 },
 ];
 
 export const INDUSTRIES = [
@@ -86,10 +88,10 @@ export const INDUSTRIES = [
 
 export const JOBS = [
   { id: 'student', name: '学生', income: 0, type: 'normal', req: '在读', desc: '专心学业。', minEdu: null },
-  { id: 'didi', name: '网约车司机', income: 6800, type: 'normal', req: '高中及以上', desc: '时间灵活，收入稳定。', minEdu: '高中' },
-  { id: 'factory', name: '工厂技工', income: 7500, type: 'normal', req: '高中及以上', desc: '加班多，到手稳定。', minEdu: '高中' },
-  { id: 'civil', name: '公务员', income: 9200, type: 'normal', req: '大学本科', desc: '编制内，福利好。', minEdu: '大学' },
-  { id: 'engineer', name: '软件工程师', income: 18500, type: 'normal', req: '大学本科', desc: '技术岗，加班也多。', minEdu: '大学' },
+  { id: 'didi', name: '网约车司机', income: 6800, base: 6800, type: 'social', req: '高中及以上', desc: '时间灵活。', minEdu: '高中' },
+  { id: 'factory', name: '工厂技工', income: 7500, base: 7500, type: 'social', req: '高中及以上', desc: '到手稳定。', minEdu: '高中' },
+  { id: 'civil', name: '公务员', income: 9200, base: 9200, type: 'social', req: '大学本科', desc: '编制内。', minEdu: '大学' },
+  { id: 'engineer', name: '软件工程师', income: 18500, base: 18500, type: 'social', req: '大学本科', desc: '技术岗。', minEdu: '大学' },
   { id: 'influencer', name: '头部网红', income: 42000, incomeVariance: 0.5, type: 'special', req: '花代币破格入行', desc: '收入高、波动大。', minEdu: null },
   { id: 'retired', name: '退休', income: 4200, type: 'normal', req: '年满 60', desc: '领养老金。', minEdu: null },
 ];
@@ -210,6 +212,7 @@ export const INITIAL_FAMILY = {
   assets: 860000,
   tokens: 4,
   ownedIndustries: ['house'],
+  eventLog: [],
   paused: false,
   selectedId: null,
   nextPersonNum: 10,
