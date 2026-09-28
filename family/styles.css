@@ -412,14 +412,27 @@ body {
   color: #fff;
 }
 
-/* Modals */
+/* Modals
+   Native <dialog> UA uses height: fit-content. A nested overflow:auto list then
+   reports 0 intrinsic height, and overflow:hidden on the sheet clips it so only
+   the title + 取消/关闭 remain. Give the dialog a definite max-height, flex the
+   sheet, and let .picker-list be the scroller. */
 .modal {
   border: none;
   padding: 0;
   margin: auto;
   max-width: var(--app-width);
   width: calc(100% - 24px);
+  max-height: min(88dvh, 720px);
+  height: auto;
+  overflow: visible;
   background: transparent;
+  color: var(--text);
+}
+
+.modal[open] {
+  display: flex;
+  flex-direction: column;
 }
 
 .modal::backdrop {
@@ -428,6 +441,10 @@ body {
 }
 
 .modal__sheet {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: min(88dvh, 720px);
   background: var(--bg-panel);
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -436,6 +453,7 @@ body {
 }
 
 .modal__header {
+  flex-shrink: 0;
   padding: 18px 18px 10px;
 }
 
@@ -451,14 +469,19 @@ body {
 }
 
 .picker-list {
-  max-height: 50vh;
+  flex: 1 1 auto;
+  min-height: 220px;
+  max-height: min(55dvh, 480px);
+  overflow-x: hidden;
   overflow-y: auto;
-  padding: 0 12px 8px;
+  padding: 4px 12px 8px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .picker-item {
   display: block;
   width: 100%;
+  min-height: 88px;
   text-align: left;
   background: var(--bg-card);
   border: 2px solid transparent;
@@ -538,6 +561,7 @@ body {
 }
 
 .modal__footer {
+  flex-shrink: 0;
   padding: 8px 12px 14px;
   display: flex;
   justify-content: flex-end;
