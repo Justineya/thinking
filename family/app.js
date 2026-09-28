@@ -1,10 +1,11 @@
 import {
   PORTRAITS,
-  SCHOOLS,
   JOBS,
   INITIAL_FAMILY,
-  SAMPLE_EVENT,
-  SUITORS,
+  SCHOOL_STAGES,
+  GACHA_RATES,
+  LOVE_POOLS,
+  JOB_POOLS,
   BABY_NAMES,
 } from './data/game-data.js';
 
@@ -14,7 +15,10 @@ const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', 
 /** @type {typeof INITIAL_FAMILY} */
 let state = JSON.parse(JSON.stringify(INITIAL_FAMILY));
 let tickTimer = null;
-let eventShown = false;
+/** @type {Array<{type: string, personId: string, stage?: object}>} */
+let queue = [];
+/** @type {null | {type: string, personId: string, stage?: object, rarity?: string, payload?: object}} */
+let currentDraw = null;
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -30,23 +34,18 @@ const detailPortrait = $('#detailPortrait');
 const detailAge = $('#detailAge');
 const detailRole = $('#detailRole');
 const detailStats = $('#detailStats');
-const schoolBtn = $('#schoolBtn');
-const workBtn = $('#workBtn');
-const lifeBtn = $('#lifeBtn');
 const closeDetail = $('#closeDetail');
-const schoolModal = $('#schoolModal');
-const workModal = $('#workModal');
-const loveModal = $('#loveModal');
-const eventModal = $('#eventModal');
-const schoolList = $('#schoolList');
-const workList = $('#workList');
-const loveList = $('#loveList');
-const schoolModalSub = $('#schoolModalSub');
-const workModalSub = $('#workModalSub');
-const loveModalSub = $('#loveModalSub');
-const eventTitle = $('#eventTitle');
-const eventBody = $('#eventBody');
-const eventChoices = $('#eventChoices');
+const gachaModal = $('#gachaModal');
+const gachaBadge = $('#gachaBadge');
+const gachaTitle = $('#gachaTitle');
+const gachaBody = $('#gachaBody');
+const gachaCard = $('#gachaCard');
+const gachaRarity = $('#gachaRarity');
+const gachaCardName = $('#gachaCardName');
+const gachaCardDesc = $('#gachaCardDesc');
+const gachaCardMeta = $('#gachaCardMeta');
+const gachaDrawBtn = $('#gachaDrawBtn');
+const gachaAcceptBtn = $('#gachaAcceptBtn');
 
 function formatMoney(n) {
   return `¥${Math.round(n).toLocaleString('zh-CN')}`;
@@ -60,12 +59,17 @@ function getJob(jobId) {
   return JOBS.find((j) => j.id === jobId) || JOBS[0];
 }
 
-function getSchool(schoolId) {
-  return SCHOOLS.find((s) => s.id === schoolId);
+function getSchoolById(schoolId) {
+  for (const stage of SCHOOL_STAGES) {
+    for (const school of Object.values(stage.pools)) {
+      if (school.id === schoolId) return school;
+    }
+  }
+  return null;
 }
 
 function isModalOpen() {
-  return schoolModal.open || workModal.open || loveModal.open || eventModal.open;
+  return gachaModal.open;
 }
 
 function countChildren(person) {
@@ -73,19 +77,31 @@ function countChildren(person) {
   return state.people.filter((p) => ids.has(p.parentId)).length;
 }
 
-function canMarry(person) {
-  return person && !person.spouseId && person.age >= 18 && person.jobId !== 'retired';
-}
-
-function canHaveChild(person) {
-  if (!person?.spouseId) return false;
-  if (person.age < 20 || person.age > 42) return false;
-  return countChildren(person) < 2;
-}
-
 function nextPersonId() {
   state.nextPersonNum = (state.nextPersonNum || 10) + 1;
   return `n${state.nextPersonNum}`;
+}
+
+function rollRarity() {
+  const total = GACHA_RATES.reduce((s, r) => s + r.weight, 0);
+  let n = Math.random() * total;
+  for (const row of GACHA_RATES) {
+    n -= row.weight;
+    if (n <= 0) return row.rarity;
+  }
+  return 'N';
+}
+
+function enqueue(item) {
+  const key = `${item.type}:${item.personId}:${item.stage?.key || ''}`;
+  if (queue.some((q) => `${q.type}:${q.personId}:${q.stage?.key || ''}` === key)) return;
+  if (
+    currentDraw &&
+    `${currentDraw.type}:${currentDraw.personId}:${currentDraw.stage?.key || ''}` === key
+  ) {
+    return;
+  }
+  queue.push(item);
 }
 
 function renderTopBar() {
@@ -107,7 +123,8 @@ function buildGenerationRows() {
 function renderPersonCard(person) {
   const job = getJob(person.jobId);
   const incomeText = person.income > 0 ? `${formatMoney(person.income)}/月` : '暂无收入';
-  const pulse = person.needsSchoolChoice || person.needsLoveChoice ? ' person-card--pulse' : '';
+  const pending = queue.some((q) => q.personId === person.id) || currentDraw?.personId === person.id;
+  const pulse = pending ? ' person-card--pulse' : '';
   const selected = person.id === state.selectedId ? ' person-card--selected' : '';
 
   return `
@@ -133,14 +150,11 @@ function renderFamilyTree() {
     .map(([gen, people], idx) => {
       const label = genNames[gen] || `第${gen + 1}代`;
       const isLast = idx === rows.length - 1;
-      const rendered = renderGeneration(people);
-      const connector = isLast ? '' : '<div class="connector-v"></div>';
       return `
         <section class="gen-row${isLast ? ' gen-row--last' : ''}">
           <div class="gen-label">${label}</div>
-          ${rendered}
+          ${renderGeneration(people)}
         </section>
-        ${connector}
       `;
     })
     .join('');
@@ -175,9 +189,7 @@ function renderGeneration(people) {
     paired.add(p.id);
   }
 
-  if (units.length > 1) {
-    return `<div class="gen-units">${units.join('')}</div>`;
-  }
+  if (units.length > 1) return `<div class="gen-units">${units.join('')}</div>`;
   return units.join('');
 }
 
@@ -202,178 +214,167 @@ function selectPerson(id) {
 
   renderFamilyTree();
   detailPanel.hidden = false;
-  document.getElementById('app').classList.add('is-detail-open');
-  requestAnimationFrame(() => {
-    familyTree
-      .querySelector(`.person-card[data-id="${CSS.escape(id)}"]`)
-      ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  });
   detailName.textContent = person.name;
   detailPortrait.src = PORTRAITS[person.portrait];
   detailPortrait.alt = person.name;
   detailAge.textContent = `${person.age}岁 · ${person.education}`;
   detailRole.textContent = `${person.role} · ${getJob(person.jobId).name}`;
   renderStats(person);
+}
 
-  const isStudent = person.jobId === 'student' || person.age < 18;
-  schoolBtn.disabled = !isStudent;
-  workBtn.disabled = isStudent && person.age < 16;
+function pauseForDialog() {
+  state.paused = true;
+  stopTick();
+  renderTopBar();
+}
 
-  if (canMarry(person)) {
-    lifeBtn.hidden = false;
-    lifeBtn.disabled = false;
-    lifeBtn.textContent = '恋爱结婚';
-  } else if (canHaveChild(person)) {
-    lifeBtn.hidden = false;
-    lifeBtn.disabled = false;
-    lifeBtn.textContent = '生孩子';
-  } else if (person.spouseId && countChildren(person) >= 2) {
-    lifeBtn.hidden = false;
-    lifeBtn.disabled = true;
-    lifeBtn.textContent = '孩子已满 2 个';
-  } else {
-    lifeBtn.hidden = true;
+function resumeIfIdle() {
+  if (isModalOpen() || queue.length) return;
+  state.paused = false;
+  renderTopBar();
+  startTick();
+}
+
+function openGachaPrompt(item) {
+  const person = getPerson(item.personId);
+  if (!person) {
+    currentDraw = null;
+    processQueue();
+    return;
   }
+  currentDraw = { ...item, rarity: null, payload: null };
+  pauseForDialog();
+  gachaCard.hidden = true;
+  gachaAcceptBtn.hidden = true;
+  gachaDrawBtn.hidden = false;
+
+  if (item.type === 'school') {
+    gachaBadge.textContent = `${item.stage.label}升学`;
+    gachaTitle.textContent = `${person.name}满${item.stage.age}岁`;
+    gachaBody.textContent = `该选${item.stage.label}了。抽一次录取：N 普通，SSR 破格进名校。`;
+    gachaDrawBtn.textContent = '抽录取';
+  } else if (item.type === 'love') {
+    gachaBadge.textContent = '恋爱';
+    gachaTitle.textContent = `${person.name}到了适婚年龄`;
+    gachaBody.textContent = '抽一次对象：N 普通，SSR 高净值网红。抽中即结婚入谱。';
+    gachaDrawBtn.textContent = '抽恋爱';
+  } else if (item.type === 'work') {
+    gachaBadge.textContent = '就业';
+    gachaTitle.textContent = `${person.name}该工作了`;
+    gachaBody.textContent = '抽一次职业：N 网约车，SSR 网红。';
+    gachaDrawBtn.textContent = '抽职业';
+  } else if (item.type === 'baby') {
+    gachaBadge.textContent = '下一代';
+    gachaTitle.textContent = `${person.name}想要孩子`;
+    gachaBody.textContent = '结婚满一年。生一个（¥8,000）或再等一等。';
+    gachaDrawBtn.hidden = true;
+    gachaAcceptBtn.hidden = false;
+    gachaAcceptBtn.textContent = '生孩子';
+    gachaCard.hidden = true;
+  }
+
+  if (!gachaModal.open) gachaModal.showModal();
+  renderFamilyTree();
 }
 
-function renderSchoolModal(person) {
-  schoolModalSub.textContent = `为 ${person.name} 选择初中（当前：${getSchool(person.schoolId)?.name || '未入学'}）`;
-  schoolList.innerHTML = SCHOOLS.map((school) => {
-    const active = person.schoolId === school.id ? ' picker-item--active' : '';
-    const affordable = state.cash >= school.tuition ? '' : ' picker-item--locked';
-    const bonuses = [
-      school.iqBonus ? `智商+${school.iqBonus}` : '',
-      school.moodBonus ? `心情${school.moodBonus > 0 ? '+' : ''}${school.moodBonus}` : '',
-      school.charmBonus ? `魅力+${school.charmBonus}` : '',
-    ]
-      .filter(Boolean)
-      .join(' · ');
-
-    return `
-      <button type="button" class="picker-item${active}${affordable}" data-school="${school.id}" ${affordable ? 'disabled' : ''}>
-        <div class="picker-item__row">
-          <span class="picker-item__name">${school.name}</span>
-          <span class="picker-item__tier">${school.tier}</span>
-        </div>
-        <p class="picker-item__desc">${school.desc}</p>
-        <div class="picker-item__meta">
-          <span class="picker-item__tuition">学费 ${formatMoney(school.tuition)}/月</span>
-          <span>${bonuses}</span>
-        </div>
-      </button>
-    `;
-  }).join('');
-
-  schoolList.querySelectorAll('.picker-item:not(.picker-item--locked)').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const school = getSchool(btn.dataset.school);
-      if (!school || state.cash < school.tuition) return;
-      person.schoolId = school.id;
-      person.needsSchoolChoice = false;
-      state.cash -= school.tuition;
-      person.stats.iq += school.iqBonus || 0;
-      person.stats.mood += school.moodBonus || 0;
-      person.stats.charm += school.charmBonus || 0;
-      schoolModal.close();
-      renderAll();
-      if (!state.paused) startTick();
-    });
-  });
+function processQueue() {
+  if (isModalOpen() && currentDraw) return;
+  if (!queue.length) {
+    currentDraw = null;
+    resumeIfIdle();
+    return;
+  }
+  openGachaPrompt(queue.shift());
 }
 
-function canTakeJob(person, job) {
-  if (job.id === 'student') return person.age < 22;
-  if (job.id === 'retired') return person.age >= 60;
-  if (job.id === 'didi') return person.age >= 18;
-  if (job.id === 'engineer') return person.education.includes('大学') && person.age >= 22;
-  if (job.id === 'civil') return person.education.includes('大学') && person.age >= 22;
-  if (job.id === 'influencer') return person.stats.charm >= 60 && person.age >= 16;
-  return false;
+function revealDraw() {
+  if (!currentDraw) return;
+  const person = getPerson(currentDraw.personId);
+  if (!person) return;
+  const rarity = rollRarity();
+  currentDraw.rarity = rarity;
+
+  if (currentDraw.type === 'school') {
+    const school = currentDraw.stage.pools[rarity];
+    currentDraw.payload = school;
+    gachaCardName.textContent = school.name;
+    gachaCardDesc.textContent = school.desc;
+    gachaCardMeta.textContent =
+      school.tuition > 0 ? `学费 ${formatMoney(school.tuition)}/月` : '免学费 · 破格录取';
+  } else if (currentDraw.type === 'love') {
+    const pool = person.gender === 'male' ? LOVE_POOLS.female : LOVE_POOLS.male;
+    const suitor = pool[rarity];
+    currentDraw.payload = suitor;
+    const job = getJob(suitor.jobId);
+    gachaCardName.textContent = `${suitor.name} · ${job.name}`;
+    gachaCardDesc.textContent = suitor.desc;
+    gachaCardMeta.textContent = `婚礼 ${formatMoney(suitor.cost)} · ${formatMoney(suitor.income)}/月`;
+  } else if (currentDraw.type === 'work') {
+    const job = getJob(JOB_POOLS[rarity].jobId);
+    currentDraw.payload = job;
+    gachaCardName.textContent = job.name;
+    gachaCardDesc.textContent = job.desc;
+    gachaCardMeta.textContent = job.income ? `${formatMoney(job.income)}/月` : '无收入';
+  }
+
+  gachaRarity.textContent = rarity === 'SSR' ? 'SSR 传说' : rarity;
+  gachaCard.hidden = false;
+  gachaCard.dataset.rarity = rarity;
+  gachaDrawBtn.hidden = true;
+  gachaAcceptBtn.hidden = false;
+  gachaAcceptBtn.textContent = '收下';
 }
 
-function renderWorkModal(person) {
-  workModalSub.textContent = `${person.name} · 学历 ${person.education}`;
-  workList.innerHTML = JOBS.map((job) => {
-    const active = person.jobId === job.id ? ' picker-item--active' : '';
-    const locked = !canTakeJob(person, job) ? ' picker-item--locked' : '';
-    const tierClass = job.type === 'variance' ? ' picker-item__tier--variance' : '';
-    const incomeClass = job.type === 'variance' ? ' picker-item__income--variance' : '';
-    const incomeText =
-      job.income > 0
-        ? job.incomeVariance
-          ? `${formatMoney(job.income)}±${Math.round(job.incomeVariance * 100)}%`
-          : `${formatMoney(job.income)}/月`
-        : '无收入';
+function applyDraw() {
+  if (!currentDraw) return;
+  const person = getPerson(currentDraw.personId);
+  if (!person) {
+    finishDraw();
+    return;
+  }
 
-    return `
-      <button type="button" class="picker-item${active}${locked}" data-job="${job.id}" ${locked ? 'disabled' : ''}>
-        <div class="picker-item__row">
-          <span class="picker-item__name">${job.name}</span>
-          <span class="picker-item__tier${tierClass}">${job.type === 'variance' ? '高波动' : '稳定'}</span>
-        </div>
-        <p class="picker-item__desc">${job.desc}（要求：${job.req}）</p>
-        <div class="picker-item__meta">
-          <span class="picker-item__income${incomeClass}">${incomeText}</span>
-        </div>
-      </button>
-    `;
-  }).join('');
+  if (currentDraw.type === 'school') {
+    const school = currentDraw.payload;
+    person.schoolId = school.id;
+    person.schoolStage = currentDraw.stage.key;
+    person.education = currentDraw.stage.education;
+    person.jobId = 'student';
+    person.income = 0;
+    person.stats.iq = Math.min(100, person.stats.iq + (school.iqBonus || 0));
+    person.stats.mood = Math.min(100, Math.max(0, person.stats.mood + (school.moodBonus || 0)));
+    person.stats.charm = Math.min(100, person.stats.charm + (school.charmBonus || 0));
+  } else if (currentDraw.type === 'love') {
+    marryPerson(person, currentDraw.payload);
+  } else if (currentDraw.type === 'work') {
+    const job = currentDraw.payload;
+    person.jobId = job.id;
+    person.workDrawn = true;
+    person.schoolId = null;
+    if (job.incomeVariance) {
+      const variance = 1 + (Math.random() * 2 - 1) * job.incomeVariance;
+      person.income = Math.round(job.income * variance);
+    } else {
+      person.income = job.income;
+    }
+  } else if (currentDraw.type === 'baby') {
+    haveChild(person);
+    person.babyPending = false;
+  }
 
-  workList.querySelectorAll('.picker-item:not(.picker-item--locked)').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const job = getJob(btn.dataset.job);
-      person.jobId = job.id;
-      if (job.incomeVariance) {
-        const variance = 1 + (Math.random() * 2 - 1) * job.incomeVariance;
-        person.income = Math.round(job.income * variance);
-      } else {
-        person.income = job.income;
-      }
-      workModal.close();
-      renderAll();
-      if (!state.paused) startTick();
-    });
-  });
+  finishDraw();
 }
 
-function renderLoveModal(person) {
-  const suitors = SUITORS.filter((s) => s.gender !== person.gender);
-  loveModalSub.textContent = `为 ${person.name} 选对象（婚礼花费从现金扣）`;
-  loveList.innerHTML = suitors
-    .map((s) => {
-      const locked = state.cash < s.cost ? ' picker-item--locked' : '';
-      const job = getJob(s.jobId);
-      return `
-      <button type="button" class="picker-item${locked}" data-suitor="${s.id}" ${locked ? 'disabled' : ''}>
-        <div class="picker-item__row">
-          <span class="picker-item__name">${s.name} · ${s.age}岁</span>
-          <span class="picker-item__tier">${job.name}</span>
-        </div>
-        <p class="picker-item__desc">${s.desc}</p>
-        <div class="picker-item__meta">
-          <span class="picker-item__tuition">婚礼 ${formatMoney(s.cost)}</span>
-          <span class="picker-item__income">${formatMoney(s.income)}/月</span>
-        </div>
-      </button>
-    `;
-    })
-    .join('');
-
-  loveList.querySelectorAll('.picker-item:not(.picker-item--locked)').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const suitor = SUITORS.find((s) => s.id === btn.dataset.suitor);
-      if (!suitor || state.cash < suitor.cost) return;
-      marryPerson(person, suitor);
-      loveModal.close();
-      renderAll();
-      if (!state.paused) startTick();
-    });
-  });
+function finishDraw() {
+  currentDraw = null;
+  gachaModal.close();
+  renderAll();
+  processQueue();
 }
 
 function marryPerson(person, suitor) {
-  state.cash -= suitor.cost;
-  person.needsLoveChoice = false;
+  const cost = Math.min(state.cash, suitor.cost);
+  state.cash -= cost;
+  person.loveDrawn = true;
   const spouseId = nextPersonId();
   const spouse = {
     id: spouseId,
@@ -387,19 +388,24 @@ function marryPerson(person, suitor) {
     spouseId: person.id,
     jobId: suitor.jobId,
     schoolId: null,
+    schoolStage: 'uni',
     education: suitor.education,
     stats: { ...suitor.stats },
     income: suitor.income,
+    loveDrawn: true,
+    workDrawn: true,
   };
   person.spouseId = spouseId;
+  person.marriedYear = state.year;
+  person.marriedMonth = state.month;
   state.people.push(spouse);
   person.stats.mood = Math.min(100, person.stats.mood + 8);
-  state.selectedId = person.id;
 }
 
 function haveChild(person) {
   const spouse = getPerson(person.spouseId);
   if (!spouse) return;
+  if (countChildren(person) >= 2) return;
   const girl = Math.random() < 0.5;
   const gender = girl ? 'female' : 'male';
   const used = new Set(state.people.map((p) => p.name));
@@ -418,58 +424,50 @@ function haveChild(person) {
     spouseId: null,
     jobId: 'student',
     schoolId: null,
+    schoolStage: null,
     education: '学前',
     stats: {
-      iq: Math.min(100, Math.max(35, Math.round((person.stats.iq + spouse.stats.iq) / 2 + (Math.random() * 10 - 5)))),
+      iq: Math.min(100, Math.max(35, Math.round((person.stats.iq + spouse.stats.iq) / 2))),
       mood: 80,
-      charm: Math.min(100, Math.max(35, Math.round((person.stats.charm + spouse.stats.charm) / 2 + (Math.random() * 8 - 4)))),
+      charm: Math.min(100, Math.max(35, Math.round((person.stats.charm + spouse.stats.charm) / 2))),
       stamina: 90,
     },
     income: 0,
-    needsSchoolChoice: false,
   };
-  state.cash -= 8000;
+  state.cash = Math.max(0, state.cash - 8000);
   state.people.push(child);
-  person.stats.mood = Math.min(100, person.stats.mood + 4);
-  spouse.stats.mood = Math.min(100, spouse.stats.mood + 4);
-  state.selectedId = child.id;
 }
 
-function showEvent() {
-  if (eventShown) return;
-  eventShown = true;
-  state.paused = true;
-  stopTick();
-  renderTopBar();
+function monthsMarried(person) {
+  if (!person.marriedYear) return 0;
+  return (state.year - person.marriedYear) * 12 + (state.month - person.marriedMonth);
+}
 
-  const ev = SAMPLE_EVENT;
-  eventTitle.textContent = ev.title;
-  eventBody.textContent = ev.body;
-  eventChoices.innerHTML = ev.choices
-    .map(
-      (c, i) => `
-      <button type="button" class="event-choice${i > 0 ? ' event-choice--alt' : ''}" data-choice="${c.id}">
-        ${c.label}
-      </button>
-    `
-    )
-    .join('');
+function collectAgeEvents() {
+  for (const p of state.people) {
+    for (const stage of SCHOOL_STAGES) {
+      if (p.age === stage.age && p.schoolStage !== stage.key && p.jobId !== 'retired') {
+        enqueue({ type: 'school', personId: p.id, stage });
+      }
+    }
+    if (p.age === 18 && !p.spouseId && !p.loveDrawn && p.jobId !== 'retired') {
+      enqueue({ type: 'love', personId: p.id });
+    }
+    if (p.age === 22 && !p.workDrawn && p.jobId === 'student') {
+      enqueue({ type: 'work', personId: p.id });
+    }
+    if (p.spouseId && !p.babyPending && monthsMarried(p) >= 12 && countChildren(p) < 2 && p.age <= 42 && p.parentId) {
+      p.babyPending = true;
+      enqueue({ type: 'baby', personId: p.id });
+    }
+  }
+}
 
-  eventChoices.querySelectorAll('.event-choice').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const choice = ev.choices.find((c) => c.id === btn.dataset.choice);
-      const target = getPerson(choice.targetId);
-      if (choice.cashDelta) state.cash += choice.cashDelta;
-      if (choice.moodDelta && target) target.stats.mood += choice.moodDelta;
-      if (choice.charmDelta && target) target.stats.charm += choice.charmDelta;
-      eventModal.close();
-      state.paused = false;
-      renderAll();
-      startTick();
-    });
-  });
-
-  eventModal.showModal();
+function seedOpeningEvents() {
+  const xiaoyu = getPerson('c1');
+  if (xiaoyu) enqueue({ type: 'school', personId: 'c1', stage: SCHOOL_STAGES.find((s) => s.key === 'middle') });
+  const xiaofeng = getPerson('c0');
+  if (xiaofeng) enqueue({ type: 'love', personId: 'c0' });
 }
 
 function advanceMonth() {
@@ -482,6 +480,7 @@ function advanceMonth() {
       if (p.age === 60 && p.jobId !== 'retired') {
         p.jobId = 'retired';
         p.income = getJob('retired').income;
+        p.workDrawn = true;
       }
     }
   }
@@ -490,8 +489,8 @@ function advanceMonth() {
   let monthlyTuition = 0;
   for (const p of state.people) {
     monthlyIncome += p.income || 0;
-    if (p.schoolId) {
-      const school = getSchool(p.schoolId);
+    if (p.schoolId && p.jobId === 'student') {
+      const school = getSchoolById(p.schoolId);
       if (school) monthlyTuition += school.tuition;
     }
     if (p.jobId === 'student') {
@@ -500,34 +499,22 @@ function advanceMonth() {
   }
   state.cash += monthlyIncome - monthlyTuition;
 
-  for (const p of state.people) {
-    if (p.age === 6 && !p.schoolId) {
-      p.needsSchoolChoice = true;
-      p.schoolId = 'public';
-      p.education = '小学';
-    }
-    if (p.age === 18 && !p.spouseId && p.jobId !== 'retired') {
-      p.needsLoveChoice = true;
-    }
-  }
-
-  if (state.month === 6 && !eventShown) {
-    showEvent();
-    return;
-  }
+  collectAgeEvents();
 }
 
 function tick() {
-  if (state.paused || isModalOpen()) return;
+  if (state.paused || isModalOpen() || queue.length) return;
   advanceMonth();
   renderTopBar();
+  if (queue.length) {
+    renderFamilyTree();
+    processQueue();
+  }
 }
 
 function startTick() {
   stopTick();
-  if (!state.paused) {
-    tickTimer = setInterval(tick, TICK_MS);
-  }
+  if (!state.paused) tickTimer = setInterval(tick, TICK_MS);
 }
 
 function stopTick() {
@@ -540,11 +527,12 @@ function stopTick() {
 function renderAll() {
   renderTopBar();
   renderFamilyTree();
-  if (state.selectedId) selectPerson(state.selectedId);
+  if (state.selectedId && getPerson(state.selectedId)) selectPerson(state.selectedId);
 }
 
 function bindUI() {
   pauseBtn.addEventListener('click', () => {
+    if (isModalOpen()) return;
     state.paused = !state.paused;
     renderTopBar();
     if (state.paused) stopTick();
@@ -553,68 +541,20 @@ function bindUI() {
 
   closeDetail.addEventListener('click', () => {
     detailPanel.hidden = true;
-    document.getElementById('app').classList.remove('is-detail-open');
+    state.selectedId = null;
+    renderFamilyTree();
   });
 
-  schoolBtn.addEventListener('click', () => {
-    const person = getPerson(state.selectedId);
-    if (!person) return;
-    state.paused = true;
-    stopTick();
-    renderSchoolModal(person);
-    schoolModal.showModal();
-  });
-
-  workBtn.addEventListener('click', () => {
-    const person = getPerson(state.selectedId);
-    if (!person) return;
-    state.paused = true;
-    stopTick();
-    renderWorkModal(person);
-    workModal.showModal();
-  });
-
-  lifeBtn.addEventListener('click', () => {
-    const person = getPerson(state.selectedId);
-    if (!person || lifeBtn.disabled) return;
-    if (canMarry(person)) {
-      state.paused = true;
-      stopTick();
-      renderLoveModal(person);
-      loveModal.showModal();
-      return;
-    }
-    if (canHaveChild(person)) {
-      haveChild(person);
-      renderAll();
-    }
-  });
-
-  [schoolModal, workModal, loveModal, eventModal].forEach((modal) => {
-    modal.addEventListener('close', () => {
-      if (!eventModal.open && !schoolModal.open && !workModal.open && !loveModal.open) {
-        if (!eventShown || state.month !== 6) {
-          state.paused = false;
-          renderTopBar();
-          startTick();
-        }
-      }
-    });
-  });
-
-  document.querySelectorAll('[data-close]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.close;
-      document.getElementById(id)?.close();
-    });
-  });
+  gachaDrawBtn.addEventListener('click', revealDraw);
+  gachaAcceptBtn.addEventListener('click', applyDraw);
+  gachaModal.addEventListener('cancel', (e) => e.preventDefault());
 }
 
 function init() {
   bindUI();
   renderAll();
-  selectPerson(state.selectedId);
-  startTick();
+  seedOpeningEvents();
+  processQueue();
 }
 
 init();

@@ -10,13 +10,19 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="rotateHint" class="rotate-hint">
+    <p>请把手机横过来玩</p>
+  </div>
+
   <div id="app" class="app">
     <header class="top-bar">
       <div class="top-bar__left">
         <span class="top-bar__title">家族谱</span>
         <span id="dateLabel" class="top-bar__date">2026年3月</span>
+        <span class="top-bar__hint">到点自动弹窗 · 抽卡决定学校/对象</span>
       </div>
       <div class="top-bar__right">
+        <span class="assets-inline">资产 <strong id="assetsLabel">¥860,000</strong></span>
         <div class="money-pill">
           <span class="money-pill__label">现金</span>
           <span id="cashLabel" class="money-pill__value">¥128,600</span>
@@ -27,85 +33,43 @@
       </div>
     </header>
 
-    <section class="assets-bar">
-      <span>家庭资产 <strong id="assetsLabel">¥860,000</strong></span>
-      <span class="assets-bar__hint">点头像：上学 / 工作 / 恋爱生子</span>
-    </section>
+    <div class="stage">
+      <main class="tree-scroll">
+        <div id="familyTree" class="family-tree" aria-label="家族谱"></div>
+      </main>
 
-    <main class="tree-scroll">
-      <div id="familyTree" class="family-tree" aria-label="家族谱"></div>
-    </main>
-
-    <aside id="detailPanel" class="detail-panel" hidden>
-      <div class="detail-panel__header">
-        <h2 id="detailName">—</h2>
-        <button id="closeDetail" class="icon-btn icon-btn--ghost" type="button" aria-label="关闭">✕</button>
-      </div>
-      <div class="detail-panel__portrait-wrap">
-        <img id="detailPortrait" class="detail-panel__portrait" src="" alt="" />
-        <div class="detail-panel__meta">
-          <span id="detailAge">—</span>
-          <span id="detailRole">—</span>
+      <aside id="detailPanel" class="detail-panel" hidden>
+        <div class="detail-panel__header">
+          <h2 id="detailName">—</h2>
+          <button id="closeDetail" class="icon-btn icon-btn--ghost" type="button" aria-label="关闭">✕</button>
         </div>
-      </div>
-      <div id="detailStats" class="stat-grid"></div>
-      <div class="detail-actions">
-        <button id="schoolBtn" class="action-btn action-btn--school" type="button">选择学校</button>
-        <button id="workBtn" class="action-btn action-btn--work" type="button">职业/工作</button>
-        <button id="lifeBtn" class="action-btn action-btn--life" type="button" hidden>恋爱结婚</button>
-      </div>
-    </aside>
+        <div class="detail-panel__portrait-wrap">
+          <img id="detailPortrait" class="detail-panel__portrait" src="" alt="" />
+          <div class="detail-panel__meta">
+            <span id="detailAge">—</span>
+            <span id="detailRole">—</span>
+          </div>
+        </div>
+        <div id="detailStats" class="stat-grid"></div>
+      </aside>
+    </div>
   </div>
 
-  <!-- School picker -->
-  <dialog id="schoolModal" class="modal">
-    <div class="modal__sheet">
-      <header class="modal__header">
-        <h3>选择学校</h3>
-        <p id="schoolModalSub" class="modal__sub">为子女挑选就读学校</p>
-      </header>
-      <div id="schoolList" class="picker-list"></div>
-      <footer class="modal__footer">
-        <button class="modal-btn modal-btn--ghost" type="button" data-close="schoolModal">取消</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <!-- Work picker -->
-  <dialog id="workModal" class="modal">
-    <div class="modal__sheet">
-      <header class="modal__header">
-        <h3>职业选择</h3>
-        <p id="workModalSub" class="modal__sub">根据学历与属性解锁</p>
-      </header>
-      <div id="workList" class="picker-list"></div>
-      <footer class="modal__footer">
-        <button class="modal-btn modal-btn--ghost" type="button" data-close="workModal">关闭</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <!-- Love / marry picker -->
-  <dialog id="loveModal" class="modal">
-    <div class="modal__sheet">
-      <header class="modal__header">
-        <h3>恋爱结婚</h3>
-        <p id="loveModalSub" class="modal__sub">选一个对象，婚礼后直接入家族谱</p>
-      </header>
-      <div id="loveList" class="picker-list"></div>
-      <footer class="modal__footer">
-        <button class="modal-btn modal-btn--ghost" type="button" data-close="loveModal">取消</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <!-- Event popup -->
-  <dialog id="eventModal" class="modal modal--event">
-    <div class="modal__sheet modal__sheet--event">
-      <div class="event-badge">随机事件</div>
-      <h3 id="eventTitle">—</h3>
-      <p id="eventBody" class="event-body">—</p>
-      <div id="eventChoices" class="event-choices"></div>
+  <dialog id="gachaModal" class="modal modal--gacha">
+    <div class="modal__sheet modal__sheet--gacha">
+      <div id="gachaBadge" class="event-badge">人生节点</div>
+      <h3 id="gachaTitle">—</h3>
+      <p id="gachaBody" class="event-body">—</p>
+      <div id="gachaCard" class="gacha-card" hidden>
+        <span id="gachaRarity" class="gacha-card__rarity">N</span>
+        <div id="gachaCardName" class="gacha-card__name">—</div>
+        <p id="gachaCardDesc" class="gacha-card__desc">—</p>
+        <div id="gachaCardMeta" class="gacha-card__meta">—</div>
+      </div>
+      <div class="event-choices">
+        <button id="gachaDrawBtn" class="event-choice" type="button">抽一次</button>
+        <button id="gachaAcceptBtn" class="event-choice" type="button" hidden>收下</button>
+      </div>
     </div>
   </dialog>
 
