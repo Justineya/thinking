@@ -111,7 +111,8 @@ export const INITIAL_FAMILY = {
   cash: 128600,
   assets: 860000,
   paused: false,
-  selectedId: 'p1',
+  selectedId: 'c0',
+  nextPersonNum: 10,
   people: [
     {
       id: 'g1',
@@ -195,6 +196,23 @@ export const INITIAL_FAMILY = {
       needsSchoolChoice: true,
     },
     {
+      id: 'c0',
+      name: '陈晓峰',
+      gender: 'male',
+      portrait: 'young_male',
+      age: 24,
+      generation: 2,
+      role: '儿子',
+      parentId: 'p1',
+      spouseId: null,
+      jobId: 'didi',
+      schoolId: null,
+      education: '高中',
+      stats: { iq: 66, mood: 72, charm: 61, stamina: 78 },
+      income: 6800,
+      needsLoveChoice: true,
+    },
+    {
       id: 'c2',
       name: '陈浩然',
       gender: 'male',
@@ -211,6 +229,67 @@ export const INITIAL_FAMILY = {
       income: 0,
     },
   ],
+};
+
+/** 相亲对象：点一次选定即结婚入谱（第一版不做约会小游戏） */
+export const SUITORS = [
+  {
+    id: 's_lin',
+    name: '林晚',
+    gender: 'female',
+    portrait: 'young_female',
+    age: 23,
+    jobId: 'civil',
+    education: '大学本科',
+    income: 9200,
+    stats: { iq: 74, mood: 80, charm: 70, stamina: 62 },
+    cost: 18000,
+    desc: '公务员，性格稳，见面就能谈婚。',
+  },
+  {
+    id: 's_zhao',
+    name: '赵倩',
+    gender: 'female',
+    portrait: 'young_female',
+    age: 25,
+    jobId: 'influencer',
+    education: '大学本科',
+    income: 16000,
+    stats: { iq: 68, mood: 75, charm: 86, stamina: 58 },
+    cost: 36000,
+    desc: '自媒体，魅力高，婚礼花费也高。',
+  },
+  {
+    id: 's_su',
+    name: '苏宁',
+    gender: 'male',
+    portrait: 'young_male',
+    age: 24,
+    jobId: 'engineer',
+    education: '大学本科',
+    income: 18500,
+    stats: { iq: 80, mood: 70, charm: 64, stamina: 60 },
+    cost: 22000,
+    desc: '软件工程师，收入体面。',
+  },
+  {
+    id: 's_zhou',
+    name: '周启明',
+    gender: 'male',
+    portrait: 'young_male',
+    age: 26,
+    jobId: 'didi',
+    education: '高中',
+    income: 6800,
+    stats: { iq: 60, mood: 84, charm: 72, stamina: 80 },
+    cost: 12000,
+    desc: '跑网约车，花费低，心情好。',
+  },
+];
+
+export const BABY_NAMES = {
+  male: ['陈宇轩', '陈子墨', '陈嘉树'],
+  female: ['陈思琪', '陈一诺', '陈予安'],
 };
 
 export const SAMPLE_EVENT = {

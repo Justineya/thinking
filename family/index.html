@@ -29,7 +29,7 @@
 
     <section class="assets-bar">
       <span>家庭资产 <strong id="assetsLabel">¥860,000</strong></span>
-      <span class="assets-bar__hint">3秒 = 1个月</span>
+      <span class="assets-bar__hint">点头像：上学 / 工作 / 恋爱生子</span>
     </section>
 
     <main class="tree-scroll">
@@ -52,6 +52,7 @@
       <div class="detail-actions">
         <button id="schoolBtn" class="action-btn action-btn--school" type="button">选择学校</button>
         <button id="workBtn" class="action-btn action-btn--work" type="button">职业/工作</button>
+        <button id="lifeBtn" class="action-btn action-btn--life" type="button" hidden>恋爱结婚</button>
       </div>
     </aside>
   </div>
@@ -80,6 +81,20 @@
       <div id="workList" class="picker-list"></div>
       <footer class="modal__footer">
         <button class="modal-btn modal-btn--ghost" type="button" data-close="workModal">关闭</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Love / marry picker -->
+  <dialog id="loveModal" class="modal">
+    <div class="modal__sheet">
+      <header class="modal__header">
+        <h3>恋爱结婚</h3>
+        <p id="loveModalSub" class="modal__sub">选一个对象，婚礼后直接入家族谱</p>
+      </header>
+      <div id="loveList" class="picker-list"></div>
+      <footer class="modal__footer">
+        <button class="modal-btn modal-btn--ghost" type="button" data-close="loveModal">取消</button>
       </footer>
     </div>
   </dialog>

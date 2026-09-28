@@ -4,6 +4,8 @@ import {
   JOBS,
   INITIAL_FAMILY,
   SAMPLE_EVENT,
+  SUITORS,
+  BABY_NAMES,
 } from './data/game-data.js';
 
 const TICK_MS = 3000;
@@ -30,14 +32,18 @@ const detailRole = $('#detailRole');
 const detailStats = $('#detailStats');
 const schoolBtn = $('#schoolBtn');
 const workBtn = $('#workBtn');
+const lifeBtn = $('#lifeBtn');
 const closeDetail = $('#closeDetail');
 const schoolModal = $('#schoolModal');
 const workModal = $('#workModal');
+const loveModal = $('#loveModal');
 const eventModal = $('#eventModal');
 const schoolList = $('#schoolList');
 const workList = $('#workList');
+const loveList = $('#loveList');
 const schoolModalSub = $('#schoolModalSub');
 const workModalSub = $('#workModalSub');
+const loveModalSub = $('#loveModalSub');
 const eventTitle = $('#eventTitle');
 const eventBody = $('#eventBody');
 const eventChoices = $('#eventChoices');
@@ -59,7 +65,27 @@ function getSchool(schoolId) {
 }
 
 function isModalOpen() {
-  return schoolModal.open || workModal.open || eventModal.open;
+  return schoolModal.open || workModal.open || loveModal.open || eventModal.open;
+}
+
+function countChildren(person) {
+  const ids = new Set([person.id, person.spouseId].filter(Boolean));
+  return state.people.filter((p) => ids.has(p.parentId)).length;
+}
+
+function canMarry(person) {
+  return person && !person.spouseId && person.age >= 18 && person.jobId !== 'retired';
+}
+
+function canHaveChild(person) {
+  if (!person?.spouseId) return false;
+  if (person.age < 20 || person.age > 42) return false;
+  return countChildren(person) < 2;
+}
+
+function nextPersonId() {
+  state.nextPersonNum = (state.nextPersonNum || 10) + 1;
+  return `n${state.nextPersonNum}`;
 }
 
 function renderTopBar() {
@@ -81,7 +107,7 @@ function buildGenerationRows() {
 function renderPersonCard(person) {
   const job = getJob(person.jobId);
   const incomeText = person.income > 0 ? `${formatMoney(person.income)}/月` : '暂无收入';
-  const pulse = person.needsSchoolChoice ? ' person-card--pulse' : '';
+  const pulse = person.needsSchoolChoice || person.needsLoveChoice ? ' person-card--pulse' : '';
   const selected = person.id === state.selectedId ? ' person-card--selected' : '';
 
   return `
@@ -101,7 +127,7 @@ function renderCouple(personA, personB) {
 
 function renderFamilyTree() {
   const rows = buildGenerationRows();
-  const genNames = ['祖辈', '父母辈', '子女辈'];
+  const genNames = ['祖辈', '父母辈', '子女辈', '孙辈'];
 
   familyTree.innerHTML = rows
     .map(([gen, people], idx) => {
@@ -192,6 +218,22 @@ function selectPerson(id) {
   const isStudent = person.jobId === 'student' || person.age < 18;
   schoolBtn.disabled = !isStudent;
   workBtn.disabled = isStudent && person.age < 16;
+
+  if (canMarry(person)) {
+    lifeBtn.hidden = false;
+    lifeBtn.disabled = false;
+    lifeBtn.textContent = '恋爱结婚';
+  } else if (canHaveChild(person)) {
+    lifeBtn.hidden = false;
+    lifeBtn.disabled = false;
+    lifeBtn.textContent = '生孩子';
+  } else if (person.spouseId && countChildren(person) >= 2) {
+    lifeBtn.hidden = false;
+    lifeBtn.disabled = true;
+    lifeBtn.textContent = '孩子已满 2 个';
+  } else {
+    lifeBtn.hidden = true;
+  }
 }
 
 function renderSchoolModal(person) {
@@ -294,6 +336,105 @@ function renderWorkModal(person) {
   });
 }
 
+function renderLoveModal(person) {
+  const suitors = SUITORS.filter((s) => s.gender !== person.gender);
+  loveModalSub.textContent = `为 ${person.name} 选对象（婚礼花费从现金扣）`;
+  loveList.innerHTML = suitors
+    .map((s) => {
+      const locked = state.cash < s.cost ? ' picker-item--locked' : '';
+      const job = getJob(s.jobId);
+      return `
+      <button type="button" class="picker-item${locked}" data-suitor="${s.id}" ${locked ? 'disabled' : ''}>
+        <div class="picker-item__row">
+          <span class="picker-item__name">${s.name} · ${s.age}岁</span>
+          <span class="picker-item__tier">${job.name}</span>
+        </div>
+        <p class="picker-item__desc">${s.desc}</p>
+        <div class="picker-item__meta">
+          <span class="picker-item__tuition">婚礼 ${formatMoney(s.cost)}</span>
+          <span class="picker-item__income">${formatMoney(s.income)}/月</span>
+        </div>
+      </button>
+    `;
+    })
+    .join('');
+
+  loveList.querySelectorAll('.picker-item:not(.picker-item--locked)').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const suitor = SUITORS.find((s) => s.id === btn.dataset.suitor);
+      if (!suitor || state.cash < suitor.cost) return;
+      marryPerson(person, suitor);
+      loveModal.close();
+      renderAll();
+      if (!state.paused) startTick();
+    });
+  });
+}
+
+function marryPerson(person, suitor) {
+  state.cash -= suitor.cost;
+  person.needsLoveChoice = false;
+  const spouseId = nextPersonId();
+  const spouse = {
+    id: spouseId,
+    name: suitor.name,
+    gender: suitor.gender,
+    portrait: suitor.portrait,
+    age: suitor.age,
+    generation: person.generation,
+    role: suitor.gender === 'female' ? '儿媳' : '女婿',
+    parentId: null,
+    spouseId: person.id,
+    jobId: suitor.jobId,
+    schoolId: null,
+    education: suitor.education,
+    stats: { ...suitor.stats },
+    income: suitor.income,
+  };
+  person.spouseId = spouseId;
+  state.people.push(spouse);
+  person.stats.mood = Math.min(100, person.stats.mood + 8);
+  state.selectedId = person.id;
+}
+
+function haveChild(person) {
+  const spouse = getPerson(person.spouseId);
+  if (!spouse) return;
+  const girl = Math.random() < 0.5;
+  const gender = girl ? 'female' : 'male';
+  const used = new Set(state.people.map((p) => p.name));
+  const names = BABY_NAMES[gender].filter((n) => !used.has(n));
+  const name = names[0] || (girl ? '陈宝贝' : '陈小子');
+  const bloodId = person.parentId ? person.id : spouse.id;
+  const child = {
+    id: nextPersonId(),
+    name,
+    gender,
+    portrait: girl ? 'child_female' : 'child_male',
+    age: 0,
+    generation: person.generation + 1,
+    role: girl ? '女儿' : '儿子',
+    parentId: bloodId,
+    spouseId: null,
+    jobId: 'student',
+    schoolId: null,
+    education: '学前',
+    stats: {
+      iq: Math.min(100, Math.max(35, Math.round((person.stats.iq + spouse.stats.iq) / 2 + (Math.random() * 10 - 5)))),
+      mood: 80,
+      charm: Math.min(100, Math.max(35, Math.round((person.stats.charm + spouse.stats.charm) / 2 + (Math.random() * 8 - 4)))),
+      stamina: 90,
+    },
+    income: 0,
+    needsSchoolChoice: false,
+  };
+  state.cash -= 8000;
+  state.people.push(child);
+  person.stats.mood = Math.min(100, person.stats.mood + 4);
+  spouse.stats.mood = Math.min(100, spouse.stats.mood + 4);
+  state.selectedId = child.id;
+}
+
 function showEvent() {
   if (eventShown) return;
   eventShown = true;
@@ -359,6 +500,17 @@ function advanceMonth() {
   }
   state.cash += monthlyIncome - monthlyTuition;
 
+  for (const p of state.people) {
+    if (p.age === 6 && !p.schoolId) {
+      p.needsSchoolChoice = true;
+      p.schoolId = 'public';
+      p.education = '小学';
+    }
+    if (p.age === 18 && !p.spouseId && p.jobId !== 'retired') {
+      p.needsLoveChoice = true;
+    }
+  }
+
   if (state.month === 6 && !eventShown) {
     showEvent();
     return;
@@ -422,9 +574,25 @@ function bindUI() {
     workModal.showModal();
   });
 
-  [schoolModal, workModal, eventModal].forEach((modal) => {
+  lifeBtn.addEventListener('click', () => {
+    const person = getPerson(state.selectedId);
+    if (!person || lifeBtn.disabled) return;
+    if (canMarry(person)) {
+      state.paused = true;
+      stopTick();
+      renderLoveModal(person);
+      loveModal.showModal();
+      return;
+    }
+    if (canHaveChild(person)) {
+      haveChild(person);
+      renderAll();
+    }
+  });
+
+  [schoolModal, workModal, loveModal, eventModal].forEach((modal) => {
     modal.addEventListener('close', () => {
-      if (!eventModal.open && !schoolModal.open && !workModal.open) {
+      if (!eventModal.open && !schoolModal.open && !workModal.open && !loveModal.open) {
         if (!eventShown || state.month !== 6) {
           state.paused = false;
           renderTopBar();

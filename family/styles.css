@@ -386,6 +386,12 @@ body {
   gap: 10px;
 }
 
+.action-btn--life {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #b45309, #f4c95d);
+  color: #1a1204;
+}
+
 .action-btn {
   min-height: 44px;
   border: none;
