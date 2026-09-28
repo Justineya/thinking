@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>家族谱 · 人生模拟</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="top-bar">
+      <div class="top-bar__left">
+        <span class="top-bar__title">家族谱</span>
+        <span id="dateLabel" class="top-bar__date">2026年3月</span>
+      </div>
+      <div class="top-bar__right">
+        <div class="money-pill">
+          <span class="money-pill__label">现金</span>
+          <span id="cashLabel" class="money-pill__value">¥128,600</span>
+        </div>
+        <button id="pauseBtn" class="icon-btn" type="button" aria-label="暂停/继续">
+          <span id="pauseIcon">⏸</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="assets-bar">
+      <span>家庭资产 <strong id="assetsLabel">¥860,000</strong></span>
+      <span class="assets-bar__hint">3秒 = 1个月</span>
+    </section>
+
+    <main class="tree-scroll">
+      <div id="familyTree" class="family-tree" aria-label="家族谱"></div>
+    </main>
+
+    <aside id="detailPanel" class="detail-panel" hidden>
+      <div class="detail-panel__header">
+        <h2 id="detailName">—</h2>
+        <button id="closeDetail" class="icon-btn icon-btn--ghost" type="button" aria-label="关闭">✕</button>
+      </div>
+      <div class="detail-panel__portrait-wrap">
+        <img id="detailPortrait" class="detail-panel__portrait" src="" alt="" />
+        <div class="detail-panel__meta">
+          <span id="detailAge">—</span>
+          <span id="detailRole">—</span>
+        </div>
+      </div>
+      <div id="detailStats" class="stat-grid"></div>
+      <div class="detail-actions">
+        <button id="schoolBtn" class="action-btn action-btn--school" type="button">选择学校</button>
+        <button id="workBtn" class="action-btn action-btn--work" type="button">职业/工作</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- School picker -->
+  <dialog id="schoolModal" class="modal">
+    <div class="modal__sheet">
+      <header class="modal__header">
+        <h3>选择学校</h3>
+        <p id="schoolModalSub" class="modal__sub">为子女挑选就读学校</p>
+      </header>
+      <div id="schoolList" class="picker-list"></div>
+      <footer class="modal__footer">
+        <button class="modal-btn modal-btn--ghost" type="button" data-close="schoolModal">取消</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Work picker -->
+  <dialog id="workModal" class="modal">
+    <div class="modal__sheet">
+      <header class="modal__header">
+        <h3>职业选择</h3>
+        <p id="workModalSub" class="modal__sub">根据学历与属性解锁</p>
+      </header>
+      <div id="workList" class="picker-list"></div>
+      <footer class="modal__footer">
+        <button class="modal-btn modal-btn--ghost" type="button" data-close="workModal">关闭</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Event popup -->
+  <dialog id="eventModal" class="modal modal--event">
+    <div class="modal__sheet modal__sheet--event">
+      <div class="event-badge">随机事件</div>
+      <h3 id="eventTitle">—</h3>
+      <p id="eventBody" class="event-body">—</p>
+      <div id="eventChoices" class="event-choices"></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
