@@ -104,6 +104,12 @@ function enqueue(item) {
   queue.push(item);
 }
 
+const QUEUE_ORDER = { work: 0, love: 1, marry: 2, school: 3, baby: 4 };
+
+function sortQueue() {
+  queue.sort((a, b) => (QUEUE_ORDER[a.type] ?? 9) - (QUEUE_ORDER[b.type] ?? 9));
+}
+
 function renderTopBar() {
   dateLabel.textContent = `${state.year}年${MONTHS[state.month - 1]}`;
   cashLabel.textContent = formatMoney(state.cash);
@@ -126,12 +132,13 @@ function renderPersonCard(person) {
   const pending = queue.some((q) => q.personId === person.id) || currentDraw?.personId === person.id;
   const pulse = pending ? ' person-card--pulse' : '';
   const selected = person.id === state.selectedId ? ' person-card--selected' : '';
+  const dating = person.dating ? ` · 恋爱中` : '';
 
   return `
     <article class="person-card${selected}${pulse}" data-id="${person.id}" role="button" tabindex="0" aria-label="${person.name}">
       <img class="person-card__portrait" src="${PORTRAITS[person.portrait]}" alt="${person.name}" loading="lazy" />
       <div class="person-card__name">${person.name}</div>
-      <div class="person-card__info">${person.age}岁 · ${job.name}</div>
+      <div class="person-card__info">${person.age}岁 · ${job.name}${dating}</div>
       <div class="person-card__income">${incomeText}</div>
     </article>
   `;
@@ -255,9 +262,20 @@ function openGachaPrompt(item) {
     gachaDrawBtn.textContent = '抽录取';
   } else if (item.type === 'love') {
     gachaBadge.textContent = '恋爱';
-    gachaTitle.textContent = `${person.name}到了适婚年龄`;
-    gachaBody.textContent = '抽一次对象：N 普通，SSR 高净值网红。抽中即结婚入谱。';
+    gachaTitle.textContent = `${person.name}想谈恋爱`;
+    gachaBody.textContent = '先有工作才能谈。抽一次对象：N 普通，SSR 高净值网红。先恋爱，暂不结婚。';
     gachaDrawBtn.textContent = '抽恋爱';
+  } else if (item.type === 'marry') {
+    const partner = person.dating;
+    gachaBadge.textContent = '结婚';
+    gachaTitle.textContent = `${person.name}求婚`;
+    gachaBody.textContent = partner
+      ? `和 ${partner.name} 谈了一段时间，办婚礼入谱（¥${Math.round(partner.cost).toLocaleString('zh-CN')}）。`
+      : '可以结婚了。';
+    gachaDrawBtn.hidden = true;
+    gachaAcceptBtn.hidden = false;
+    gachaAcceptBtn.textContent = '结婚';
+    gachaCard.hidden = true;
   } else if (item.type === 'work') {
     gachaBadge.textContent = '就业';
     gachaTitle.textContent = `${person.name}该工作了`;
@@ -284,6 +302,7 @@ function processQueue() {
     resumeIfIdle();
     return;
   }
+  sortQueue();
   openGachaPrompt(queue.shift());
 }
 
@@ -308,7 +327,7 @@ function revealDraw() {
     const job = getJob(suitor.jobId);
     gachaCardName.textContent = `${suitor.name} · ${job.name}`;
     gachaCardDesc.textContent = suitor.desc;
-    gachaCardMeta.textContent = `婚礼 ${formatMoney(suitor.cost)} · ${formatMoney(suitor.income)}/月`;
+    gachaCardMeta.textContent = `恋爱中 · ${formatMoney(suitor.income)}/月（结婚另算婚礼）`;
   } else if (currentDraw.type === 'work') {
     const job = getJob(JOB_POOLS[rarity].jobId);
     currentDraw.payload = job;
@@ -344,7 +363,9 @@ function applyDraw() {
     person.stats.mood = Math.min(100, Math.max(0, person.stats.mood + (school.moodBonus || 0)));
     person.stats.charm = Math.min(100, person.stats.charm + (school.charmBonus || 0));
   } else if (currentDraw.type === 'love') {
-    marryPerson(person, currentDraw.payload);
+    startDating(person, currentDraw.payload);
+  } else if (currentDraw.type === 'marry') {
+    if (person.dating) marryPerson(person, person.dating);
   } else if (currentDraw.type === 'work') {
     const job = currentDraw.payload;
     person.jobId = job.id;
@@ -361,6 +382,7 @@ function applyDraw() {
     person.babyPending = false;
   }
 
+  collectAgeEvents();
   finishDraw();
 }
 
@@ -371,10 +393,19 @@ function finishDraw() {
   processQueue();
 }
 
+function startDating(person, suitor) {
+  person.loveDrawn = true;
+  person.dating = { ...suitor };
+  person.datingYear = state.year;
+  person.datingMonth = state.month;
+  person.stats.mood = Math.min(100, person.stats.mood + 5);
+}
+
 function marryPerson(person, suitor) {
   const cost = Math.min(state.cash, suitor.cost);
   state.cash -= cost;
   person.loveDrawn = true;
+  person.dating = null;
   const spouseId = nextPersonId();
   const spouse = {
     id: spouseId,
@@ -438,36 +469,46 @@ function haveChild(person) {
   state.people.push(child);
 }
 
-function monthsMarried(person) {
-  if (!person.marriedYear) return 0;
-  return (state.year - person.marriedYear) * 12 + (state.month - person.marriedMonth);
+function monthsSince(year, month) {
+  if (!year) return 0;
+  return (state.year - year) * 12 + (state.month - month);
+}
+
+function nextSchoolStage(person) {
+  const idx = SCHOOL_STAGES.findIndex((s) => s.key === person.schoolStage);
+  const from = idx < 0 ? 0 : idx + 1;
+  for (let i = from; i < SCHOOL_STAGES.length; i++) {
+    if (person.age >= SCHOOL_STAGES[i].age) return SCHOOL_STAGES[i];
+  }
+  return null;
 }
 
 function collectAgeEvents() {
   for (const p of state.people) {
-    for (const stage of SCHOOL_STAGES) {
-      if (p.age === stage.age && p.schoolStage !== stage.key && p.jobId !== 'retired') {
-        enqueue({ type: 'school', personId: p.id, stage });
-      }
-    }
-    if (p.age === 18 && !p.spouseId && !p.loveDrawn && p.jobId !== 'retired') {
-      enqueue({ type: 'love', personId: p.id });
-    }
-    if (p.age === 22 && !p.workDrawn && p.jobId === 'student') {
+    if (p.jobId === 'retired') continue;
+
+    if (!p.workDrawn && p.age >= 22 && p.jobId === 'student') {
       enqueue({ type: 'work', personId: p.id });
     }
-    if (p.spouseId && !p.babyPending && monthsMarried(p) >= 12 && countChildren(p) < 2 && p.age <= 42 && p.parentId) {
+
+    if (p.workDrawn && p.jobId !== 'student' && !p.spouseId && !p.dating && !p.loveDrawn && p.age >= 22) {
+      enqueue({ type: 'love', personId: p.id });
+    }
+
+    if (p.dating && !p.spouseId && monthsSince(p.datingYear, p.datingMonth) >= 6) {
+      enqueue({ type: 'marry', personId: p.id });
+    }
+
+    const stage = nextSchoolStage(p);
+    if (stage && p.jobId === 'student') {
+      enqueue({ type: 'school', personId: p.id, stage });
+    }
+
+    if (p.spouseId && !p.babyPending && monthsSince(p.marriedYear, p.marriedMonth) >= 12 && countChildren(p) < 2 && p.age <= 42 && p.parentId) {
       p.babyPending = true;
       enqueue({ type: 'baby', personId: p.id });
     }
   }
-}
-
-function seedOpeningEvents() {
-  const xiaoyu = getPerson('c1');
-  if (xiaoyu) enqueue({ type: 'school', personId: 'c1', stage: SCHOOL_STAGES.find((s) => s.key === 'middle') });
-  const xiaofeng = getPerson('c0');
-  if (xiaofeng) enqueue({ type: 'love', personId: 'c0' });
 }
 
 function advanceMonth() {
@@ -553,7 +594,7 @@ function bindUI() {
 function init() {
   bindUI();
   renderAll();
-  seedOpeningEvents();
+  collectAgeEvents();
   processQueue();
 }
 
