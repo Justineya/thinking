@@ -176,7 +176,7 @@ function renderGeneration(people) {
   }
 
   if (units.length > 1) {
-    return `<div style="display:flex;align-items:flex-start;gap:8px;justify-content:center;width:100%;">${units.join('<div class="connector-h"></div>')}</div>`;
+    return `<div class="gen-units">${units.join('')}</div>`;
   }
   return units.join('');
 }
