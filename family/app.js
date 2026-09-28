@@ -156,7 +156,7 @@ function renderTree() {
         units.push(`<div class="couple">${nodeHtml(p)}</div>`);
         paired.add(p.id);
       }
-      return `<div class="gen">${idx ? '<div class="gen-line"></div>' : ''}${units.join('')}</div>`;
+      return `<div class="gen">${idx ? '<div class="gen-line"></div>' : ''}<div class="gen-kids">${units.join('')}</div></div>`;
     })
     .join('');
   $('#familyTree').querySelectorAll('.node').forEach((n) => {

@@ -149,6 +149,13 @@ body {
   background: rgba(80, 120, 160, 0.35);
 }
 
+.gen-kids {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 16px;
+}
+
 .couple {
   display: flex;
   gap: 16px;
