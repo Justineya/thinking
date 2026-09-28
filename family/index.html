@@ -3,73 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>家族谱 · 人生模拟</title>
+  <title>陈氏家族</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="rotateHint" class="rotate-hint">
-    <p>请把手机横过来玩</p>
-  </div>
-
   <div id="app" class="app">
-    <aside class="rail">
-      <div class="rail__head">
-        <div class="rail__title">陈家</div>
-        <div id="dateLabel" class="rail__date">2026年3月</div>
-        <button id="pauseBtn" class="icon-btn" type="button" aria-label="暂停/继续">
-          <span id="pauseIcon">⏸</span>
-        </button>
-      </div>
-      <div class="rail__res">
-        <div class="res-row"><span>现金</span><strong id="cashLabel">¥128,600</strong></div>
-        <div class="res-row"><span>代币</span><strong id="tokenLabel" class="token">2</strong></div>
-        <div class="res-row muted"><span>资产</span><span id="assetsLabel">¥860,000</span></div>
-      </div>
-      <div class="rail__label">家族成员</div>
-      <div id="roster" class="roster"></div>
-    </aside>
-
-    <main class="tree-scroll">
-      <div id="familyTree" class="family-tree" aria-label="家族谱"></div>
-    </main>
-
-    <aside id="detailPanel" class="detail-panel">
-      <p id="detailEmpty" class="detail-empty">点左侧或家谱里的人，看履历和下一件人生事。</p>
-      <div id="detailBody" hidden>
-        <div class="detail-panel__header">
-          <h2 id="detailName">—</h2>
+    <header class="hud">
+      <div class="hud-chip hud-chip--cash">
+        <span class="hud-ico">💵</span>
+        <div>
+          <strong id="cashLabel">33.19万</strong>
+          <small id="monthDelta">+0/月</small>
         </div>
-        <div class="detail-panel__portrait-wrap">
-          <img id="detailPortrait" class="detail-panel__portrait" src="" alt="" />
-          <div class="detail-panel__meta">
-            <span id="detailAge">—</span>
-            <span id="detailRole">—</span>
-          </div>
-        </div>
-        <dl id="detailFacts" class="facts"></dl>
-        <div id="detailStats" class="stat-grid"></div>
-        <p id="detailHint" class="detail-hint">—</p>
       </div>
-    </aside>
+      <div class="hud-chip hud-chip--token">
+        <span class="hud-ico">🎟️</span>
+        <strong id="tokenLabel">4</strong>
+      </div>
+      <div class="hud-date">
+        <button id="pauseBtn" class="pause" type="button"><span id="pauseIcon">⏸</span></button>
+        <div>
+          <b id="yearLabel">2026年</b>
+          <span id="monthLabel">3月</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="clan-bar">陈氏家族</div>
+    <p id="taskBar" class="task">学校越好，以后工资越高。省级入学花灵感，不看广告。</p>
+
+    <section id="viewFamily" class="view">
+      <div id="familyTree" class="tree"></div>
+    </section>
+    <section id="viewShop" class="view" hidden>
+      <div class="seg">灵感兑换</div>
+      <div id="shopList" class="shop-list"></div>
+    </section>
+    <section id="viewIndustry" class="view" hidden>
+      <div class="seg">产业地块</div>
+      <div id="industryGrid" class="indy-grid"></div>
+    </section>
+
+    <div id="personSheet" class="sheet" hidden>
+      <button id="closeSheet" class="sheet-x" type="button">✕</button>
+      <img id="sheetPortrait" class="sheet-avatar" alt="" />
+      <h2 id="sheetName">—</h2>
+      <p id="sheetMeta" class="sheet-meta">—</p>
+      <dl id="sheetFacts" class="facts"></dl>
+      <div id="sheetStats" class="stat-grid"></div>
+      <p id="sheetHint" class="sheet-hint"></p>
+    </div>
+
+    <nav class="tabs">
+      <button class="tab is-on" data-view="family" type="button">👨‍👩‍👧‍👦<br />家族</button>
+      <button class="tab" data-view="shop" type="button">💡<br />灵感</button>
+      <button class="tab" data-view="industry" type="button">🏙️<br />产业</button>
+    </nav>
   </div>
 
   <dialog id="choiceModal" class="modal">
-    <div class="modal__sheet">
-      <header class="modal__header">
-        <div id="choiceBadge" class="event-badge">选择</div>
-        <h3 id="choiceTitle">—</h3>
-        <p id="choiceBody" class="event-body">—</p>
-      </header>
-      <div id="choiceList" class="picker-list"></div>
-      <footer class="modal__footer">
-        <button id="tokenBtn" class="token-btn" type="button">花 1 代币走破格</button>
-      </footer>
+    <div class="card-pop">
+      <h3 id="choiceStage" class="card-pop__stage">初中</h3>
+      <div class="card-pop__hero">
+        <img id="choicePortrait" alt="" />
+        <span id="choiceAge" class="age-pill">12</span>
+        <span id="choiceFlow" class="flow-pill">-273/月</span>
+      </div>
+      <div id="choiceWho" class="card-pop__name">—</div>
+      <p id="choiceTip" class="card-pop__tip">—</p>
+      <div id="choiceList" class="choice-btns"></div>
     </div>
   </dialog>
 
+  <div id="toast" class="toast" hidden></div>
   <script type="module" src="app.js"></script>
 </body>
 </html>

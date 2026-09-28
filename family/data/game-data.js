@@ -13,56 +13,75 @@ export const PORTRAITS = {
 
 export const TOKEN_COST = 1;
 
-/** 到点弹出列表：县级/市级/省级是正常选择；破格要花代币 */
+/** 乡镇/县城/市级花现金；省级花灵感（不做广告） */
 export const SCHOOL_STAGES = [
   {
     age: 6,
     key: 'primary',
     label: '小学',
     education: '小学',
+    tip: '学校越好，以后工资越高',
     choices: [
-      { id: 'pri_county', name: '县实验小学', tier: '县级', tuition: 400, iqBonus: 1, desc: '就近入学，花费低。' },
-      { id: 'pri_city', name: '市实验小学', tier: '市级', tuition: 1200, iqBonus: 3, desc: '师资更好。' },
-      { id: 'pri_prov', name: '省实验小学', tier: '省级', tuition: 2800, iqBonus: 5, desc: '竞争大，基础扎实。' },
+      { id: 'pri_town', name: '乡镇小学', enroll: 800, tuition: 180, iqBonus: 1 },
+      { id: 'pri_county', name: '县城小学', enroll: 6800, tuition: 420, iqBonus: 3 },
+      { id: 'pri_city', name: '市级小学', enroll: 28600, tuition: 980, iqBonus: 5 },
     ],
-    special: { id: 'pri_spec', name: '破格录取 · 名校附小', tuition: 0, iqBonus: 8, moodBonus: 2, desc: '花代币走内部名额，免学费。' },
+    special: { id: 'pri_prov', name: '省级小学', enroll: 0, tuition: 0, iqBonus: 8, moodBonus: 2 },
   },
   {
     age: 12,
     key: 'middle',
     label: '初中',
     education: '初中',
+    tip: '学校越好，大学毕业后工作的工资越高',
     choices: [
-      { id: 'mid_county', name: '县一中（初中）', tier: '县级', tuition: 800, iqBonus: 2, desc: '本县普通重点。' },
-      { id: 'mid_city', name: '市重点初中', tier: '市级', tuition: 2800, iqBonus: 5, moodBonus: -1, desc: '升学压力更大。' },
-      { id: 'mid_prov', name: '省重点初中', tier: '省级', tuition: 4500, iqBonus: 7, desc: '竞赛氛围强。' },
+      { id: 'mid_town', name: '乡镇初中', enroll: 1662, tuition: 273, iqBonus: 2 },
+      { id: 'mid_county', name: '县城初中', enroll: 61700, tuition: 820, iqBonus: 4 },
+      { id: 'mid_city', name: '市级初中', enroll: 86000, tuition: 2680, iqBonus: 6 },
     ],
-    special: { id: 'mid_spec', name: '破格录取 · 省顶尖初中', tuition: 0, iqBonus: 9, desc: '花代币特招，免学费。' },
+    special: { id: 'mid_prov', name: '省级初中', enroll: 0, tuition: 0, iqBonus: 9 },
   },
   {
     age: 15,
     key: 'high',
     label: '高中',
     education: '高中',
+    tip: '高中档次会卡住能上的大学',
     choices: [
-      { id: 'high_county', name: '县级高中', tier: '县级', tuition: 1000, iqBonus: 2, desc: '能考个本科就不错。' },
-      { id: 'high_city', name: '市级高中', tier: '市级', tuition: 3200, iqBonus: 5, desc: '一本率还行。' },
-      { id: 'high_prov', name: '省级重点高中', tier: '省级', tuition: 5200, iqBonus: 8, desc: '清北苗子多。' },
+      { id: 'high_town', name: '乡镇高中', enroll: 2200, tuition: 360, iqBonus: 2 },
+      { id: 'high_county', name: '县城高中', enroll: 28600, tuition: 1100, iqBonus: 5 },
+      { id: 'high_city', name: '市级高中', enroll: 98000, tuition: 3200, iqBonus: 7 },
     ],
-    special: { id: 'high_spec', name: '破格录取 · 省实验中学', tuition: 0, iqBonus: 10, desc: '花代币特招清北班，免学费。' },
+    special: { id: 'high_prov', name: '省级高中', enroll: 0, tuition: 0, iqBonus: 10 },
   },
   {
     age: 18,
     key: 'uni',
     label: '大学',
     education: '大学本科',
+    tip: '学历决定能选的工作',
     choices: [
-      { id: 'uni_college', name: '专科', tier: '专科', tuition: 2200, iqBonus: 1, desc: '先有个学历。' },
-      { id: 'uni_normal', name: '普通本科', tier: '本科', tuition: 3600, iqBonus: 4, desc: '正经大学。' },
-      { id: 'uni_key', name: '重点大学', tier: '重点', tuition: 4800, iqBonus: 7, desc: '就业更好。' },
+      { id: 'uni_town', name: '专科', enroll: 8000, tuition: 1600, iqBonus: 1 },
+      { id: 'uni_county', name: '普通本科', enroll: 22000, tuition: 2600, iqBonus: 4 },
+      { id: 'uni_city', name: '重点大学', enroll: 48000, tuition: 3800, iqBonus: 7 },
     ],
-    special: { id: 'uni_spec', name: '破格录取 · 顶尖高校', tuition: 0, iqBonus: 12, desc: '花代币走特殊招生，免学费。' },
+    special: { id: 'uni_prov', name: '顶尖高校', enroll: 0, tuition: 0, iqBonus: 12 },
   },
+];
+
+export const SHOP_ITEMS = [
+  { id: 'cash', name: '兑换', desc: '立刻获得 10,000 现金', cost: 1, cash: 10000 },
+  { id: 'iq', name: '增加智商', desc: '全家族智商 +5', cost: 2, stat: 'iq', amount: 5 },
+  { id: 'charm', name: '增加魅力', desc: '全家族魅力 +5', cost: 2, stat: 'charm', amount: 5 },
+  { id: 'stamina', name: '增加体力', desc: '全家族体力 +5', cost: 2, stat: 'stamina', amount: 5 },
+  { id: 'mood', name: '增加心情', desc: '全家族心情 +5', cost: 2, stat: 'mood', amount: 5 },
+];
+
+export const INDUSTRIES = [
+  { id: 'house', name: '普通平房', cost: 128000, income: 0, cap: 5, emoji: '🏠', desc: '家人落脚处' },
+  { id: 'gym', name: '健身房', cost: 88000, income: 2300, cap: 3, emoji: '🏋️', desc: '月租稳定' },
+  { id: 'restaurant', name: '餐厅', cost: 96000, income: 2700, cap: 4, emoji: '🍜', desc: '晚饭高峰赚钱' },
+  { id: 'shop', name: '汽修店', cost: 186000, income: 4100, cap: 2, emoji: '🔧', desc: '客单价高' },
 ];
 
 export const JOBS = [
@@ -187,11 +206,12 @@ export const LOVE_SPECIAL = {
 export const INITIAL_FAMILY = {
   year: 2026,
   month: 3,
-  cash: 128600,
+  cash: 331900,
   assets: 860000,
-  tokens: 2,
+  tokens: 4,
+  ownedIndustries: ['house'],
   paused: false,
-  selectedId: 'c0',
+  selectedId: null,
   nextPersonNum: 10,
   people: [
     {
@@ -281,7 +301,7 @@ export const INITIAL_FAMILY = {
       parentId: 'p1',
       spouseId: null,
       jobId: 'student',
-      schoolId: 'pri_city',
+      schoolId: 'pri_county',
       schoolStage: 'primary',
       education: '小学',
       stats: { iq: 71, mood: 76, charm: 68, stamina: 80 },
@@ -298,7 +318,7 @@ export const INITIAL_FAMILY = {
       parentId: 'p1',
       spouseId: null,
       jobId: 'student',
-      schoolId: 'uni_normal',
+      schoolId: 'uni_county',
       schoolStage: 'uni',
       education: '大学本科',
       stats: { iq: 66, mood: 72, charm: 61, stamina: 78 },
@@ -315,7 +335,7 @@ export const INITIAL_FAMILY = {
       parentId: 'p1',
       spouseId: null,
       jobId: 'student',
-      schoolId: 'pri_county',
+      schoolId: 'pri_town',
       schoolStage: 'primary',
       education: '小学',
       stats: { iq: 65, mood: 84, charm: 52, stamina: 88 },
