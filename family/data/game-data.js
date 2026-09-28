@@ -11,133 +11,88 @@ export const PORTRAITS = {
   child_female: 'img/portrait_child_female.png',
 };
 
-export const GACHA_RATES = [
-  { rarity: 'N', weight: 50, label: '普通' },
-  { rarity: 'R', weight: 30, label: '稀有' },
-  { rarity: 'SR', weight: 15, label: '史诗' },
-  { rarity: 'SSR', weight: 5, label: '传说' },
-];
+export const TOKEN_COST = 1;
 
-/** 按年龄升学：到点自动弹抽卡 */
+/** 到点弹出列表：县级/市级/省级是正常选择；破格要花代币 */
 export const SCHOOL_STAGES = [
   {
     age: 6,
     key: 'primary',
     label: '小学',
     education: '小学',
-    pools: {
-      N: { id: 'pri_n', name: '街道小学', tuition: 400, iqBonus: 1, desc: '就近入学。' },
-      R: { id: 'pri_r', name: '区实验小学', tuition: 1200, iqBonus: 3, desc: '师资更好一点。' },
-      SR: { id: 'pri_sr', name: '双语小学', tuition: 4500, iqBonus: 4, charmBonus: 2, desc: '学费高，氛围好。' },
-      SSR: { id: 'pri_ssr', name: '破格录取 · 市实验小学', tuition: 0, iqBonus: 8, moodBonus: 4, desc: '免学费，重点班名额。' },
-    },
+    choices: [
+      { id: 'pri_county', name: '县实验小学', tier: '县级', tuition: 400, iqBonus: 1, desc: '就近入学，花费低。' },
+      { id: 'pri_city', name: '市实验小学', tier: '市级', tuition: 1200, iqBonus: 3, desc: '师资更好。' },
+      { id: 'pri_prov', name: '省实验小学', tier: '省级', tuition: 2800, iqBonus: 5, desc: '竞争大，基础扎实。' },
+    ],
+    special: { id: 'pri_spec', name: '破格录取 · 名校附小', tuition: 0, iqBonus: 8, moodBonus: 2, desc: '花代币走内部名额，免学费。' },
   },
   {
     age: 12,
     key: 'middle',
     label: '初中',
     education: '初中',
-    pools: {
-      N: { id: 'mid_n', name: '普通初中', tuition: 800, iqBonus: 2, desc: '按学区分配。' },
-      R: { id: 'mid_r', name: '市重点初中', tuition: 3200, iqBonus: 5, moodBonus: -1, desc: '升学压力大。' },
-      SR: { id: 'mid_sr', name: '国际初中', tuition: 8800, iqBonus: 4, charmBonus: 3, desc: '双语环境。' },
-      SSR: { id: 'mid_ssr', name: '破格录取 · 省重点初中', tuition: 0, iqBonus: 9, desc: '竞赛班，免学费。' },
-    },
+    choices: [
+      { id: 'mid_county', name: '县一中（初中）', tier: '县级', tuition: 800, iqBonus: 2, desc: '本县普通重点。' },
+      { id: 'mid_city', name: '市重点初中', tier: '市级', tuition: 2800, iqBonus: 5, moodBonus: -1, desc: '升学压力更大。' },
+      { id: 'mid_prov', name: '省重点初中', tier: '省级', tuition: 4500, iqBonus: 7, desc: '竞赛氛围强。' },
+    ],
+    special: { id: 'mid_spec', name: '破格录取 · 省顶尖初中', tuition: 0, iqBonus: 9, desc: '花代币特招，免学费。' },
   },
   {
     age: 15,
     key: 'high',
     label: '高中',
     education: '高中',
-    pools: {
-      N: { id: 'high_n', name: '普通高中', tuition: 1000, iqBonus: 2, desc: '能毕业就行。' },
-      R: { id: 'high_r', name: '市重点高中', tuition: 3800, iqBonus: 6, desc: '一本率不错。' },
-      SR: { id: 'high_sr', name: '艺术高中', tuition: 5200, iqBonus: 2, charmBonus: 6, desc: '适合走演艺。' },
-      SSR: { id: 'high_ssr', name: '破格录取 · 省实验中学', tuition: 0, iqBonus: 10, charmBonus: 2, desc: '清北苗子班。' },
-    },
+    choices: [
+      { id: 'high_county', name: '县级高中', tier: '县级', tuition: 1000, iqBonus: 2, desc: '能考个本科就不错。' },
+      { id: 'high_city', name: '市级高中', tier: '市级', tuition: 3200, iqBonus: 5, desc: '一本率还行。' },
+      { id: 'high_prov', name: '省级重点高中', tier: '省级', tuition: 5200, iqBonus: 8, desc: '清北苗子多。' },
+    ],
+    special: { id: 'high_spec', name: '破格录取 · 省实验中学', tuition: 0, iqBonus: 10, desc: '花代币特招清北班，免学费。' },
   },
   {
     age: 18,
     key: 'uni',
     label: '大学',
     education: '大学本科',
-    pools: {
-      N: { id: 'uni_n', name: '专科 / 民办', tuition: 2200, iqBonus: 1, desc: '先有个学历。' },
-      R: { id: 'uni_r', name: '普通本科', tuition: 3600, iqBonus: 4, desc: '正经大学。' },
-      SR: { id: 'uni_sr', name: '重点大学', tuition: 4800, iqBonus: 7, desc: '就业更好。' },
-      SSR: { id: 'uni_ssr', name: '破格录取 · 清北试验班', tuition: 0, iqBonus: 12, charmBonus: 3, desc: '免学费，简历直接拉满。' },
-    },
+    choices: [
+      { id: 'uni_college', name: '专科', tier: '专科', tuition: 2200, iqBonus: 1, desc: '先有个学历。' },
+      { id: 'uni_normal', name: '普通本科', tier: '本科', tuition: 3600, iqBonus: 4, desc: '正经大学。' },
+      { id: 'uni_key', name: '重点大学', tier: '重点', tuition: 4800, iqBonus: 7, desc: '就业更好。' },
+    ],
+    special: { id: 'uni_spec', name: '破格录取 · 顶尖高校', tuition: 0, iqBonus: 12, desc: '花代币走特殊招生，免学费。' },
   },
 ];
 
 export const JOBS = [
-  {
-    id: 'student',
-    name: '学生',
-    income: 0,
-    type: 'stable',
-    req: '在读',
-    desc: '专心学业，暂无收入。',
-  },
-  {
-    id: 'didi',
-    name: '网约车司机',
-    income: 6800,
-    type: 'stable',
-    req: '高中及以上',
-    desc: '时间灵活，收入稳定。',
-  },
-  {
-    id: 'engineer',
-    name: '软件工程师',
-    income: 18500,
-    type: 'stable',
-    req: '大学本科 · 理工',
-    desc: '技术岗，晋升空间大。',
-  },
-  {
-    id: 'civil',
-    name: '公务员',
-    income: 9200,
-    type: 'stable',
-    req: '大学本科',
-    desc: '稳定编制，福利好。',
-  },
-  {
-    id: 'influencer',
-    name: '自媒体博主',
-    income: 22000,
-    incomeVariance: 0.6,
-    type: 'variance',
-    req: '魅力 ≥ 60',
-    desc: '收入波动大，爆款月入可观。',
-  },
-  {
-    id: 'retired',
-    name: '退休',
-    income: 4200,
-    type: 'stable',
-    req: '年满 60',
-    desc: '领取养老金，颐养天年。',
-  },
+  { id: 'student', name: '学生', income: 0, type: 'normal', req: '在读', desc: '专心学业。', minEdu: null },
+  { id: 'didi', name: '网约车司机', income: 6800, type: 'normal', req: '高中及以上', desc: '时间灵活，收入稳定。', minEdu: '高中' },
+  { id: 'factory', name: '工厂技工', income: 7500, type: 'normal', req: '高中及以上', desc: '加班多，到手稳定。', minEdu: '高中' },
+  { id: 'civil', name: '公务员', income: 9200, type: 'normal', req: '大学本科', desc: '编制内，福利好。', minEdu: '大学' },
+  { id: 'engineer', name: '软件工程师', income: 18500, type: 'normal', req: '大学本科', desc: '技术岗，加班也多。', minEdu: '大学' },
+  { id: 'influencer', name: '头部网红', income: 42000, incomeVariance: 0.5, type: 'special', req: '花代币破格入行', desc: '收入高、波动大。', minEdu: null },
+  { id: 'retired', name: '退休', income: 4200, type: 'normal', req: '年满 60', desc: '领养老金。', minEdu: null },
 ];
 
-/** 恋爱抽卡：N 普通 / SSR 高净值网红 */
-export const LOVE_POOLS = {
-  female: {
-    N: {
+export const JOB_CHOICES = ['didi', 'factory', 'civil', 'engineer'];
+export const JOB_SPECIAL = 'influencer';
+
+export const LOVE_CHOICES = {
+  female: [
+    {
       name: '刘芳',
       gender: 'female',
       portrait: 'young_female',
       age: 23,
-      jobId: 'didi',
+      jobId: 'factory',
       education: '高中',
-      income: 6200,
+      income: 7500,
       cost: 8000,
       stats: { iq: 58, mood: 78, charm: 60, stamina: 70 },
-      desc: '普通女孩，过日子够用。',
+      desc: '同城认识，过日子踏实。',
     },
-    R: {
+    {
       name: '林晚',
       gender: 'female',
       portrait: 'young_female',
@@ -147,9 +102,9 @@ export const LOVE_POOLS = {
       income: 9200,
       cost: 18000,
       stats: { iq: 74, mood: 80, charm: 70, stamina: 62 },
-      desc: '公务员，稳。',
+      desc: '公务员，家里希望稳定。',
     },
-    SR: {
+    {
       name: '沈可',
       gender: 'female',
       portrait: 'young_female',
@@ -159,23 +114,11 @@ export const LOVE_POOLS = {
       income: 18500,
       cost: 24000,
       stats: { iq: 82, mood: 68, charm: 66, stamina: 58 },
-      desc: '大厂工程师。',
+      desc: '大厂上班，节奏快。',
     },
-    SSR: {
-      name: '赵倩',
-      gender: 'female',
-      portrait: 'young_female',
-      age: 25,
-      jobId: 'influencer',
-      education: '大学本科',
-      income: 48000,
-      cost: 36000,
-      stats: { iq: 68, mood: 75, charm: 92, stamina: 58 },
-      desc: '头部网红，高净值。',
-    },
-  },
-  male: {
-    N: {
+  ],
+  male: [
+    {
       name: '周启明',
       gender: 'male',
       portrait: 'young_male',
@@ -185,9 +128,9 @@ export const LOVE_POOLS = {
       income: 6800,
       cost: 8000,
       stats: { iq: 60, mood: 84, charm: 62, stamina: 80 },
-      desc: '跑网约车。',
+      desc: '跑车为生，人实在。',
     },
-    R: {
+    {
       name: '韩磊',
       gender: 'male',
       portrait: 'young_male',
@@ -197,9 +140,9 @@ export const LOVE_POOLS = {
       income: 9200,
       cost: 18000,
       stats: { iq: 72, mood: 76, charm: 64, stamina: 66 },
-      desc: '公务员。',
+      desc: '体制内，家里满意。',
     },
-    SR: {
+    {
       name: '苏宁',
       gender: 'male',
       portrait: 'young_male',
@@ -209,28 +152,36 @@ export const LOVE_POOLS = {
       income: 18500,
       cost: 22000,
       stats: { iq: 80, mood: 70, charm: 64, stamina: 60 },
-      desc: '软件工程师。',
+      desc: '写代码，收入不错。',
     },
-    SSR: {
-      name: '顾野',
-      gender: 'male',
-      portrait: 'young_male',
-      age: 26,
-      jobId: 'influencer',
-      education: '大学本科',
-      income: 52000,
-      cost: 40000,
-      stats: { iq: 70, mood: 72, charm: 90, stamina: 64 },
-      desc: '男团出身网红，高净值。',
-    },
-  },
+  ],
 };
 
-export const JOB_POOLS = {
-  N: { jobId: 'didi' },
-  R: { jobId: 'civil' },
-  SR: { jobId: 'engineer' },
-  SSR: { jobId: 'influencer' },
+export const LOVE_SPECIAL = {
+  female: {
+    name: '赵倩',
+    gender: 'female',
+    portrait: 'young_female',
+    age: 25,
+    jobId: 'influencer',
+    education: '大学本科',
+    income: 48000,
+    cost: 36000,
+    stats: { iq: 68, mood: 75, charm: 92, stamina: 58 },
+    desc: '高净值网红，花代币才有机会认识。',
+  },
+  male: {
+    name: '顾野',
+    gender: 'male',
+    portrait: 'young_male',
+    age: 26,
+    jobId: 'influencer',
+    education: '大学本科',
+    income: 52000,
+    cost: 40000,
+    stats: { iq: 70, mood: 72, charm: 90, stamina: 64 },
+    desc: '高净值网红，花代币才有机会认识。',
+  },
 };
 
 export const INITIAL_FAMILY = {
@@ -238,8 +189,9 @@ export const INITIAL_FAMILY = {
   month: 3,
   cash: 128600,
   assets: 860000,
+  tokens: 2,
   paused: false,
-  selectedId: null,
+  selectedId: 'c0',
   nextPersonNum: 10,
   people: [
     {
@@ -329,7 +281,7 @@ export const INITIAL_FAMILY = {
       parentId: 'p1',
       spouseId: null,
       jobId: 'student',
-      schoolId: 'pri_r',
+      schoolId: 'pri_city',
       schoolStage: 'primary',
       education: '小学',
       stats: { iq: 71, mood: 76, charm: 68, stamina: 80 },
@@ -346,7 +298,7 @@ export const INITIAL_FAMILY = {
       parentId: 'p1',
       spouseId: null,
       jobId: 'student',
-      schoolId: 'uni_r',
+      schoolId: 'uni_normal',
       schoolStage: 'uni',
       education: '大学本科',
       stats: { iq: 66, mood: 72, charm: 61, stamina: 78 },
@@ -363,7 +315,7 @@ export const INITIAL_FAMILY = {
       parentId: 'p1',
       spouseId: null,
       jobId: 'student',
-      schoolId: 'pri_n',
+      schoolId: 'pri_county',
       schoolStage: 'primary',
       education: '小学',
       stats: { iq: 65, mood: 84, charm: 52, stamina: 88 },

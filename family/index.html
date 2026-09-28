@@ -15,33 +15,32 @@
   </div>
 
   <div id="app" class="app">
-    <header class="top-bar">
-      <div class="top-bar__left">
-        <span class="top-bar__title">家族谱</span>
-        <span id="dateLabel" class="top-bar__date">2026年3月</span>
-        <span class="top-bar__hint">到点自动弹窗 · 抽卡决定学校/对象</span>
-      </div>
-      <div class="top-bar__right">
-        <span class="assets-inline">资产 <strong id="assetsLabel">¥860,000</strong></span>
-        <div class="money-pill">
-          <span class="money-pill__label">现金</span>
-          <span id="cashLabel" class="money-pill__value">¥128,600</span>
-        </div>
+    <aside class="rail">
+      <div class="rail__head">
+        <div class="rail__title">陈家</div>
+        <div id="dateLabel" class="rail__date">2026年3月</div>
         <button id="pauseBtn" class="icon-btn" type="button" aria-label="暂停/继续">
           <span id="pauseIcon">⏸</span>
         </button>
       </div>
-    </header>
+      <div class="rail__res">
+        <div class="res-row"><span>现金</span><strong id="cashLabel">¥128,600</strong></div>
+        <div class="res-row"><span>代币</span><strong id="tokenLabel" class="token">2</strong></div>
+        <div class="res-row muted"><span>资产</span><span id="assetsLabel">¥860,000</span></div>
+      </div>
+      <div class="rail__label">家族成员</div>
+      <div id="roster" class="roster"></div>
+    </aside>
 
-    <div class="stage">
-      <main class="tree-scroll">
-        <div id="familyTree" class="family-tree" aria-label="家族谱"></div>
-      </main>
+    <main class="tree-scroll">
+      <div id="familyTree" class="family-tree" aria-label="家族谱"></div>
+    </main>
 
-      <aside id="detailPanel" class="detail-panel" hidden>
+    <aside id="detailPanel" class="detail-panel">
+      <p id="detailEmpty" class="detail-empty">点左侧或家谱里的人，看履历和下一件人生事。</p>
+      <div id="detailBody" hidden>
         <div class="detail-panel__header">
           <h2 id="detailName">—</h2>
-          <button id="closeDetail" class="icon-btn icon-btn--ghost" type="button" aria-label="关闭">✕</button>
         </div>
         <div class="detail-panel__portrait-wrap">
           <img id="detailPortrait" class="detail-panel__portrait" src="" alt="" />
@@ -50,26 +49,24 @@
             <span id="detailRole">—</span>
           </div>
         </div>
+        <dl id="detailFacts" class="facts"></dl>
         <div id="detailStats" class="stat-grid"></div>
-      </aside>
-    </div>
+        <p id="detailHint" class="detail-hint">—</p>
+      </div>
+    </aside>
   </div>
 
-  <dialog id="gachaModal" class="modal modal--gacha">
-    <div class="modal__sheet modal__sheet--gacha">
-      <div id="gachaBadge" class="event-badge">人生节点</div>
-      <h3 id="gachaTitle">—</h3>
-      <p id="gachaBody" class="event-body">—</p>
-      <div id="gachaCard" class="gacha-card" hidden>
-        <span id="gachaRarity" class="gacha-card__rarity">N</span>
-        <div id="gachaCardName" class="gacha-card__name">—</div>
-        <p id="gachaCardDesc" class="gacha-card__desc">—</p>
-        <div id="gachaCardMeta" class="gacha-card__meta">—</div>
-      </div>
-      <div class="event-choices">
-        <button id="gachaDrawBtn" class="event-choice" type="button">抽一次</button>
-        <button id="gachaAcceptBtn" class="event-choice" type="button" hidden>收下</button>
-      </div>
+  <dialog id="choiceModal" class="modal">
+    <div class="modal__sheet">
+      <header class="modal__header">
+        <div id="choiceBadge" class="event-badge">选择</div>
+        <h3 id="choiceTitle">—</h3>
+        <p id="choiceBody" class="event-body">—</p>
+      </header>
+      <div id="choiceList" class="picker-list"></div>
+      <footer class="modal__footer">
+        <button id="tokenBtn" class="token-btn" type="button">花 1 代币走破格</button>
+      </footer>
     </div>
   </dialog>
 
