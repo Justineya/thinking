@@ -176,6 +176,8 @@ function renderHud() {
   $('#yearLabel').textContent = `${state.year}年`;
   $('#monthLabel').textContent = MONTHS[state.month - 1];
   $('#pauseIcon').textContent = state.paused ? '▶' : '⏸';
+  $('#pauseBtn').classList.toggle('is-paused', state.paused);
+  $('#pauseBtn').title = state.paused ? '继续' : '暂停';
 }
 
 function renderTree() {
@@ -456,7 +458,6 @@ function openChoice(item) {
     return;
   }
   currentEvent = item;
-  state.paused = true;
   stopTick();
   renderHud();
   const modal = $('#choiceModal');
@@ -759,9 +760,8 @@ function processQueue() {
   if (isModalOpen() && currentEvent) return;
   if (!queue.length) {
     currentEvent = null;
-    state.paused = false;
     renderHud();
-    startTick();
+    if (!state.paused) startTick();
     return;
   }
   queue.sort((a, b) => (QUEUE_ORDER[a.type] ?? 9) - (QUEUE_ORDER[b.type] ?? 9));
@@ -805,7 +805,7 @@ function collectAgeEvents() {
       (!p.lastBirthYear || monthsSince(p.lastBirthYear, p.lastBirthMonth) >= 12) &&
       countChildren(p) < 2 &&
       p.age <= 42 &&
-      p.parentId
+      p.id < p.spouseId
     ) {
       p.babyPending = true;
       enqueue({ type: 'baby', personId: p.id });
@@ -870,14 +870,19 @@ function renderAll() {
   }
 }
 
+function togglePause() {
+  if (isModalOpen()) return;
+  state.paused = !state.paused;
+  renderHud();
+  if (state.paused) stopTick();
+  else {
+    startTick();
+    processQueue();
+  }
+}
+
 function bindUI() {
-  $('#pauseBtn').addEventListener('click', () => {
-    if (isModalOpen()) return;
-    state.paused = !state.paused;
-    renderHud();
-    if (state.paused) stopTick();
-    else startTick();
-  });
+  $('#pauseBtn').addEventListener('click', () => togglePause());
   $('#closeSheet').addEventListener('click', () => {
     state.selectedId = null;
     renderTree();
@@ -890,11 +895,7 @@ function bindUI() {
     if (e.target.matches('input, textarea')) return;
     if (e.code === 'Space') {
       e.preventDefault();
-      if (isModalOpen()) return;
-      state.paused = !state.paused;
-      renderHud();
-      if (state.paused) stopTick();
-      else startTick();
+      togglePause();
     }
     if (e.key === 'Escape' && !isModalOpen()) {
       state.selectedId = null;
@@ -942,8 +943,6 @@ function init() {
   bindUI();
   renderAll();
   syncSheetLayout();
-  collectAgeEvents();
-  processQueue();
 }
 
 init();

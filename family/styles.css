@@ -108,14 +108,8 @@ body {
   display: block;
 }
 
-.pause {
-  width: 34px;
-  height: 34px;
-  border: none;
-  border-radius: 12px;
-  background: #eef6ff;
-  font-size: 0.9rem;
-  cursor: pointer;
+.pause.is-paused {
+  background: #f5b942;
 }
 
 .clan-bar {
