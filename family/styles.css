@@ -759,4 +759,13 @@ body {
   .gm {
     margin: 0 16px 4px;
   }
+
+  .hud {
+    justify-content: flex-start;
+  }
+
+  .hud-chip,
+  .hud-date {
+    flex: 0 0 auto;
+  }
 }
