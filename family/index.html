@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>陈氏家族</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -10,7 +10,8 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="app" class="app">
+  <div id="app" class="app" data-tab="family">
+    <div class="app-main">
     <header class="hud">
       <div class="hud-chip hud-chip--cash">
         <span class="hud-ico">💵</span>
@@ -44,6 +45,7 @@
     <div class="clan-bar">陈氏家族</div>
     <p id="taskBar" class="task">学校越好，以后工资越高。省级入学花灵感，不看广告。</p>
 
+    <div class="workspace">
     <section id="viewFamily" class="view">
       <div id="familyTree" class="tree"></div>
     </section>
@@ -66,7 +68,9 @@
       <div id="industryGrid" class="indy-grid"></div>
     </section>
 
-    <div id="personSheet" class="sheet" hidden>
+    <aside id="personSheet" class="sheet" hidden>
+      <p id="sheetEmpty" class="sheet-empty" hidden>点家谱头像查看履历。电脑上空格暂停，Esc 关掉履历。</p>
+      <div id="sheetBody">
       <button id="closeSheet" class="sheet-x" type="button">✕</button>
       <img id="sheetPortrait" class="sheet-avatar" alt="" />
       <h2 id="sheetName">—</h2>
@@ -74,6 +78,9 @@
       <dl id="sheetFacts" class="facts"></dl>
       <div id="sheetStats" class="stat-grid"></div>
       <p id="sheetHint" class="sheet-hint"></p>
+      </div>
+    </aside>
+    </div>
     </div>
 
     <nav class="tabs">

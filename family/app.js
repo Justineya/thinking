@@ -203,6 +203,35 @@ function nodeHtml(p) {
     </button>`;
 }
 
+function isWide() {
+  return window.matchMedia('(min-width: 960px)').matches;
+}
+
+function showSheetEmpty() {
+  const sheet = $('#personSheet');
+  sheet.hidden = false;
+  $('#sheetEmpty').hidden = false;
+  $('#sheetBody').hidden = true;
+}
+
+function hideSheet() {
+  $('#personSheet').hidden = true;
+}
+
+function syncSheetLayout() {
+  $('#app').dataset.tab = tab;
+  if (tab !== 'family') {
+    hideSheet();
+    return;
+  }
+  if (state.selectedId && getPerson(state.selectedId)) {
+    selectPerson(state.selectedId);
+    return;
+  }
+  if (isWide()) showSheetEmpty();
+  else hideSheet();
+}
+
 function selectPerson(id) {
   state.selectedId = id;
   const p = getPerson(id);
@@ -210,6 +239,8 @@ function selectPerson(id) {
   renderTree();
   const sheet = $('#personSheet');
   sheet.hidden = false;
+  $('#sheetEmpty').hidden = true;
+  $('#sheetBody').hidden = false;
   $('#sheetPortrait').src = PORTRAITS[p.portrait];
   $('#sheetName').textContent = p.name;
   $('#sheetMeta').textContent = `${p.age}岁 · ${p.role} · ${getJob(p.jobId).name}`;
@@ -317,7 +348,7 @@ function setTab(name) {
   $('#viewLog').hidden = name !== 'log';
   $('#viewIndustry').hidden = name !== 'industry';
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('is-on', t.dataset.view === name));
-  if (name !== 'family') $('#personSheet').hidden = true;
+  syncSheetLayout();
 }
 
 function openChoice(item) {
@@ -664,7 +695,9 @@ function renderAll() {
   renderShop();
   renderLog();
   renderIndustry();
-  if (state.selectedId && getPerson(state.selectedId) && !$('#personSheet').hidden) selectPerson(state.selectedId);
+  if (state.selectedId && getPerson(state.selectedId) && !$('#personSheet').hidden && !$('#sheetBody').hidden) {
+    selectPerson(state.selectedId);
+  }
 }
 
 function bindUI() {
@@ -676,12 +709,29 @@ function bindUI() {
     else startTick();
   });
   $('#closeSheet').addEventListener('click', () => {
-    $('#personSheet').hidden = true;
     state.selectedId = null;
     renderTree();
+    syncSheetLayout();
   });
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => setTab(t.dataset.view)));
   $('#choiceModal').addEventListener('cancel', (e) => e.preventDefault());
+  window.addEventListener('resize', () => syncSheetLayout());
+  window.addEventListener('keydown', (e) => {
+    if (e.target.matches('input, textarea')) return;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (isModalOpen()) return;
+      state.paused = !state.paused;
+      renderHud();
+      if (state.paused) stopTick();
+      else startTick();
+    }
+    if (e.key === 'Escape' && !isModalOpen()) {
+      state.selectedId = null;
+      renderTree();
+      syncSheetLayout();
+    }
+  });
   $('#gmBar').addEventListener('click', (e) => {
     const btn = e.target.closest('button');
     if (!btn) return;
@@ -717,6 +767,7 @@ function init() {
   state.people.forEach(normalizePerson);
   bindUI();
   renderAll();
+  syncSheetLayout();
   collectAgeEvents();
   processQueue();
 }
