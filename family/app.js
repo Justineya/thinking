@@ -3,6 +3,7 @@ import {
   JOBS,
   pickFirm,
   firmHint,
+  firmHintShort,
   INITIAL_FAMILY,
   SCHOOL_STAGES,
   TOKEN_COST,
@@ -512,7 +513,7 @@ function openChoice(item) {
         const job = getJob(e.jobId);
         const sample = { ...person, jobId: job.id, jobMonths: 0, jobRank: 0, tempBonus: 0 };
         const ok = jobAllowed(person, job);
-        return `<button type="button" class="opt opt--gold" data-elite-job="${job.id}" ${ok ? '' : 'disabled'}>${job.name} · ${firmHint(job.id)} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
+        return `<button type="button" class="opt opt--gold" data-elite-job="${job.id}" ${ok ? '' : 'disabled'}>${job.name} · ${firmHintShort(job.id)} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
       })
       .join('');
     list.innerHTML =
@@ -520,7 +521,7 @@ function openChoice(item) {
         const job = getJob(id);
         const ok = jobAllowed(person, job);
         const sample = { ...person, jobId: job.id, jobMonths: 0, jobRank: 0, tempBonus: 0 };
-        return `<button type="button" class="opt" data-id="${job.id}" ${ok ? '' : 'disabled'}>${job.name} · ${firmHint(job.id)} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
+        return `<button type="button" class="opt" data-id="${job.id}" ${ok ? '' : 'disabled'}>${job.name} · ${firmHintShort(job.id)} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
       }).join('') +
       `<button type="button" class="opt opt--green" data-special="1">走网红路线 <small>灵感 ${TOKEN_COST}</small></button>` +
       extraJobs;

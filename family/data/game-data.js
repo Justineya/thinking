@@ -238,6 +238,13 @@ export function firmHint(jobId) {
   return list.join(' / ');
 }
 
+export function firmHintShort(jobId) {
+  const list = JOB_FIRMS[jobId];
+  if (!list?.length) return '';
+  if (list.length <= 2) return list.join(' / ');
+  return `${list.slice(0, 2).join(' / ')} 等`;
+}
+
 export const JOB_CHOICES = ['didi', 'factory', 'civil', 'engineer'];
 export const JOB_SPECIAL = 'influencer';
 export const JOB_ULTRA = 'starlink';
