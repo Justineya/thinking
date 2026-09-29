@@ -538,6 +538,21 @@ body {
   padding: 16px 16px 18px;
   text-align: center;
   box-shadow: 0 12px 0 rgba(40, 80, 130, 0.12);
+  position: relative;
+}
+
+.modal-restart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: 0;
+  background: #e8f3ff;
+  color: #1d4f86;
+  font-weight: 800;
+  font-size: 0.72rem;
+  border-radius: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
 }
 
 .card-pop__stage {

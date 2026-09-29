@@ -200,7 +200,8 @@ function renderHud() {
   document.title = clan;
   const task = $('#taskBar');
   if (task) {
-    task.textContent = `开局「${state.seedTitle || '单人'}」已暂停。点 ▶ 或空格开始。${state.seedBlurb || ''} 可随时点重开抽另一条命。`;
+    const pauseHint = state.paused ? '已暂停。点 ▶ 或空格开始。' : '过日子中。点 ⏸ 或空格暂停。';
+    task.textContent = `开局「${state.seedTitle || '单人'}」。${pauseHint}${state.seedBlurb || ''} 可随时点重开抽另一条命。`;
   }
 }
 
@@ -943,6 +944,7 @@ function restartRun() {
 function bindUI() {
   $('#pauseBtn').addEventListener('click', () => togglePause());
   $('#restartBtn').addEventListener('click', () => restartRun());
+  $('#modalRestart').addEventListener('click', () => restartRun());
   $('#closeSheet').addEventListener('click', () => {
     state.selectedId = null;
     renderTree();
