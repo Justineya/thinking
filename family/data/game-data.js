@@ -27,6 +27,7 @@ export const SCHOOL_STAGES = [
       { id: 'pri_city', name: '市级小学', enroll: 28600, tuition: 980, iqBonus: 5 },
     ],
     special: { id: 'pri_prov', name: '省级小学', enroll: 0, tuition: 0, iqBonus: 8, moodBonus: 2 },
+    luxury: { id: 'pri_noble', name: '贵族小学', enroll: 680000, tuition: 28000, iqBonus: 14, moodBonus: 6 },
   },
   {
     age: 12,
@@ -40,6 +41,7 @@ export const SCHOOL_STAGES = [
       { id: 'mid_city', name: '市级初中', enroll: 86000, tuition: 2680, iqBonus: 6 },
     ],
     special: { id: 'mid_prov', name: '省级初中', enroll: 0, tuition: 0, iqBonus: 9 },
+    luxury: { id: 'mid_noble', name: '贵族初中', enroll: 1280000, tuition: 48000, iqBonus: 16, moodBonus: 5 },
   },
   {
     age: 15,
@@ -53,20 +55,52 @@ export const SCHOOL_STAGES = [
       { id: 'high_city', name: '市级高中', enroll: 98000, tuition: 3200, iqBonus: 7 },
     ],
     special: { id: 'high_prov', name: '省级高中', enroll: 0, tuition: 0, iqBonus: 10 },
+    luxury: { id: 'high_noble', name: '贵族高中', enroll: 2680000, tuition: 86000, iqBonus: 18, moodBonus: 6 },
   },
   {
     age: 18,
     key: 'uni',
     label: '大学',
     education: '大学本科',
-    tip: '学历决定能选的工作',
+    tip: '学历决定能选的工作；有钱可砸贵族本科',
     choices: [
       { id: 'uni_town', name: '专科', enroll: 8000, tuition: 1600, iqBonus: 1 },
       { id: 'uni_county', name: '普通本科', enroll: 22000, tuition: 2600, iqBonus: 4 },
       { id: 'uni_city', name: '重点大学', enroll: 48000, tuition: 3800, iqBonus: 7 },
     ],
     special: { id: 'uni_prov', name: '顶尖高校', enroll: 0, tuition: 0, iqBonus: 12 },
+    luxury: {
+      id: 'uni_noble',
+      name: '贵族本科 / 常春藤',
+      enroll: 4800000,
+      tuition: 128000,
+      iqBonus: 22,
+      moodBonus: 8,
+      education: '贵族本科',
+    },
   },
+];
+
+export const CASH_LUXURIES = [
+  { id: 'tutor', name: '私人贵族导师', desc: '全家族智商 +3', cash: 280000, stat: 'iq', amount: 3 },
+  { id: 'island', name: '海岛度假月', desc: '全家族心情 +12', cash: 860000, stat: 'mood', amount: 12 },
+  {
+    id: 'musk',
+    name: '结识马斯克',
+    desc: '360万一次：随机家人魅力+18、智商+8，解锁星链顾问',
+    cash: 3600000,
+    once: 'metMusk',
+  },
+  { id: 'ivy_seat', name: '常春藤交换名额', desc: '随机在读学生智商 +15', cash: 1800000, studentIq: 15 },
+  { id: 'jet', name: '私人飞机', desc: '买断，全族心情 +10', cash: 8800000, once: 'ownedJet', stat: 'mood', amount: 10 },
+  { id: 'foundation', name: '家族基金会', desc: '1500万；全族魅力 +20', cash: 15000000, once: 'ownedFoundation', stat: 'charm', amount: 20 },
+];
+
+export const WEDDING_TIERS = [
+  { id: 'simple', name: '登记结婚', extra: 0, mood: 2 },
+  { id: 'banquet', name: '酒楼婚宴', extra: 180000, mood: 8 },
+  { id: 'island', name: '海岛婚礼', extra: 880000, mood: 14 },
+  { id: 'sat', name: '卫星直播婚礼', extra: 4800000, mood: 20 },
 ];
 
 export const SHOP_ITEMS = [
@@ -84,6 +118,9 @@ export const INDUSTRIES = [
   { id: 'gym', name: '健身房', cost: 88000, income: 2300, cap: 3, emoji: '🏋️', desc: '月租稳定' },
   { id: 'restaurant', name: '餐厅', cost: 96000, income: 2700, cap: 4, emoji: '🍜', desc: '晚饭高峰赚钱' },
   { id: 'shop', name: '汽修店', cost: 186000, income: 4100, cap: 2, emoji: '🔧', desc: '客单价高' },
+  { id: 'hotel', name: '快捷酒店', cost: 3200000, income: 28000, cap: 8, emoji: '🏨', desc: '有钱再买' },
+  { id: 'tower', name: '写字楼', cost: 12800000, income: 96000, cap: 20, emoji: '🏢', desc: '后期现金池' },
+  { id: 'lab', name: '私人实验室', cost: 36000000, income: 0, cap: 4, emoji: '🧪', desc: '烧钱，全族智商氛围' },
 ];
 
 export const JOBS = [
@@ -93,11 +130,13 @@ export const JOBS = [
   { id: 'civil', name: '公务员', income: 9200, base: 9200, type: 'social', req: '大学本科', desc: '编制内。', minEdu: '大学' },
   { id: 'engineer', name: '软件工程师', income: 18500, base: 18500, type: 'social', req: '大学本科', desc: '技术岗。', minEdu: '大学' },
   { id: 'influencer', name: '头部网红', income: 42000, incomeVariance: 0.5, type: 'special', req: '花代币破格入行', desc: '收入高、波动大。', minEdu: null },
+  { id: 'starlink', name: '星链顾问', income: 88000, base: 88000, type: 'special', req: '先结识马斯克', desc: '后期岗，底薪很高。', minEdu: '大学' },
   { id: 'retired', name: '退休', income: 4200, type: 'normal', req: '年满 60', desc: '领养老金。', minEdu: null },
 ];
 
 export const JOB_CHOICES = ['didi', 'factory', 'civil', 'engineer'];
 export const JOB_SPECIAL = 'influencer';
+export const JOB_ULTRA = 'starlink';
 
 export const LOVE_CHOICES = {
   female: [
@@ -205,6 +244,33 @@ export const LOVE_SPECIAL = {
   },
 };
 
+export const LOVE_ULTRA = {
+  female: {
+    name: '艾娃',
+    gender: 'female',
+    portrait: 'young_female',
+    age: 27,
+    jobId: 'engineer',
+    education: '贵族本科',
+    income: 128000,
+    cost: 1280000,
+    stats: { iq: 92, mood: 70, charm: 88, stamina: 60 },
+    desc: '硅谷投资人，现金局才能约上。',
+  },
+  male: {
+    name: '卡尔',
+    gender: 'male',
+    portrait: 'young_male',
+    age: 29,
+    jobId: 'engineer',
+    education: '贵族本科',
+    income: 136000,
+    cost: 1280000,
+    stats: { iq: 90, mood: 68, charm: 86, stamina: 64 },
+    desc: '硅谷投资人，现金局才能约上。',
+  },
+};
+
 export const INITIAL_FAMILY = {
   year: 2026,
   month: 3,
@@ -212,6 +278,9 @@ export const INITIAL_FAMILY = {
   assets: 860000,
   tokens: 4,
   ownedIndustries: ['house'],
+  metMusk: false,
+  ownedJet: false,
+  ownedFoundation: false,
   eventLog: [],
   paused: false,
   selectedId: null,

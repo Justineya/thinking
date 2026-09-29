@@ -6,14 +6,18 @@ import {
   TOKEN_COST,
   JOB_CHOICES,
   JOB_SPECIAL,
+  JOB_ULTRA,
   LOVE_CHOICES,
   LOVE_SPECIAL,
-  BABY_NAMES,
+  LOVE_ULTRA,
   SHOP_ITEMS,
+  CASH_LUXURIES,
+  WEDDING_TIERS,
   INDUSTRIES,
 } from './data/game-data.js';
-import { calcSalary, canTryPromote, RANK_NAMES, yearsOnJob } from './data/economy.js';
+import { calcSalary, canTryPromote, RANK_NAMES, yearsOnJob, PROMOTE_OPTIONS, promoteCashCost } from './data/economy.js';
 import { pickRandomEvent, pickTarget } from './data/events.js';
+import { randomBabyName, randomAdultName } from './data/names.js';
 
 const TICK_MS = 3000;
 const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
@@ -42,7 +46,7 @@ function getJob(jobId) {
   return JOBS.find((j) => j.id === jobId) || JOBS[0];
 }
 function allSchools() {
-  return SCHOOL_STAGES.flatMap((s) => [...s.choices, s.special]);
+  return SCHOOL_STAGES.flatMap((s) => [...s.choices, s.special, s.luxury].filter(Boolean));
 }
 function getSchoolById(schoolId) {
   return allSchools().find((s) => s.id === schoolId) || null;
@@ -70,10 +74,14 @@ function nextSchoolStage(person) {
   }
   return null;
 }
+function hasUni(person) {
+  return (person.education || '').includes('大学') || (person.education || '').includes('贵族');
+}
 function jobAllowed(person, job) {
-  if (job.id === 'civil' || job.id === 'engineer') return person.education.includes('大学');
+  if (job.id === 'starlink') return state.metMusk && hasUni(person);
+  if (job.id === 'civil' || job.id === 'engineer') return hasUni(person);
   if (job.id === 'didi' || job.id === 'factory') {
-    return person.education.includes('高中') || person.education.includes('大学');
+    return person.education.includes('高中') || hasUni(person);
   }
   return false;
 }
@@ -283,6 +291,20 @@ function renderShop() {
     (j) =>
       `<div class="rule-row"><b>${j.name}</b><span>底薪 ${formatMoney(j.base ?? j.income)} · ${j.req} · ${j.desc}</span></div>`
   ).join('');
+  const lux = $('#luxList');
+  if (lux) {
+    lux.innerHTML = CASH_LUXURIES.map((it) => {
+      const owned = it.once && state[it.once];
+      const ok = !owned && state.cash >= it.cash;
+      return `<button class="shop-row" data-lux="${it.id}" ${ok ? '' : 'disabled'}>
+        <div class="shop-row__txt"><b>${it.name}</b><span>${it.desc}</span></div>
+        <span class="cost-pill">${owned ? '已完成' : formatMoney(it.cash)}</span>
+      </button>`;
+    }).join('');
+    lux.querySelectorAll('.shop-row').forEach((btn) => {
+      btn.addEventListener('click', () => buyLuxury(btn.dataset.lux));
+    });
+  }
 }
 
 function renderLog() {
@@ -317,6 +339,43 @@ function buyShop(id) {
   renderAll();
 }
 
+function buyLuxury(id) {
+  const it = CASH_LUXURIES.find((x) => x.id === id);
+  if (!it) return;
+  if (it.once && state[it.once]) return toast('已经做过了');
+  if (state.cash < it.cash) return toast('现金不够');
+  state.cash -= it.cash;
+  if (it.once) state[it.once] = true;
+  if (it.stat) {
+    for (const p of state.people) {
+      p.stats[it.stat] = Math.min(100, p.stats[it.stat] + it.amount);
+    }
+  }
+  if (it.id === 'musk') {
+    const pool = state.people.filter((p) => p.jobId !== 'retired');
+    const p = pool[Math.floor(Math.random() * pool.length)] || state.people[0];
+    p.stats.charm = Math.min(100, p.stats.charm + 18);
+    p.stats.iq = Math.min(100, p.stats.iq + 8);
+    logEvent('shop', '结识马斯克', `${p.name} 见到了马斯克。魅力 +18，智商 +8。星链顾问岗已解锁。`);
+    toast(`${p.name} 结识了马斯克`);
+  } else if (it.studentIq) {
+    const stu = state.people.filter((p) => p.jobId === 'student');
+    const p = stu[Math.floor(Math.random() * stu.length)];
+    if (p) {
+      p.stats.iq = Math.min(100, p.stats.iq + it.studentIq);
+      logEvent('shop', it.name, `${p.name} 智商 +${it.studentIq}`);
+    } else logEvent('shop', it.name, '家里暂时没有在读学生。');
+    toast(it.name);
+  } else {
+    logEvent('shop', it.name, `花 ${formatMoney(it.cash)}：${it.desc}`);
+    toast(it.name);
+  }
+  if (it.id === 'lab' || it.id === 'jet') {
+    /* flags already set */
+  }
+  renderAll();
+}
+
 function renderIndustry() {
   $('#industryGrid').innerHTML = INDUSTRIES.map((ind) => {
     const owned = state.ownedIndustries.includes(ind.id);
@@ -337,6 +396,10 @@ function buyIndustry(id) {
   if (state.cash < ind.cost) return toast('现金不够');
   state.cash -= ind.cost;
   state.ownedIndustries.push(id);
+  if (id === 'lab') {
+    for (const p of state.people) p.stats.iq = Math.min(100, p.stats.iq + 4);
+    logEvent('shop', '私人实验室', `砸下 ${formatMoney(ind.cost)}，全族智商 +4。`);
+  }
   toast(`买下${ind.name}`);
   renderAll();
 }
@@ -380,13 +443,24 @@ function openChoice(item) {
           `<button type="button" class="opt" data-id="${s.id}">选择${s.name} <small>-${formatMoney(s.enroll)}</small></button>`
       )
       .join('') +
-      `<button type="button" class="opt opt--green" data-special="1">选择${item.stage.special.name} <small>灵感 ${TOKEN_COST}</small></button>`;
+      `<button type="button" class="opt opt--green" data-special="1">选择${item.stage.special.name} <small>灵感 ${TOKEN_COST}</small></button>` +
+      (item.stage.luxury
+        ? `<button type="button" class="opt opt--gold" data-luxury="1">选择${item.stage.luxury.name} <small>-${formatMoney(item.stage.luxury.enroll)}</small></button>`
+        : '');
     list.querySelectorAll('.opt').forEach((btn) => {
       btn.addEventListener('click', () => {
         if (btn.dataset.special) {
           if (state.tokens < TOKEN_COST) return toast('灵感不够');
           state.tokens -= TOKEN_COST;
           applySchool(person, item.stage.special, item.stage);
+          finishEvent();
+          return;
+        }
+        if (btn.dataset.luxury) {
+          const school = item.stage.luxury;
+          if (state.cash < school.enroll) return toast('现金不够，先赚钱再上贵族');
+          state.cash -= school.enroll;
+          applySchool(person, school, item.stage);
           finishEvent();
           return;
         }
@@ -399,7 +473,10 @@ function openChoice(item) {
     });
   } else if (item.type === 'work') {
     $('#choiceStage').textContent = '工作';
-    $('#choiceTip').textContent = `${person.name} 该找工作了。按学历选；网红要花灵感。`;
+    $('#choiceTip').textContent = `${person.name} 该找工作了。按学历选；网红花灵感；结识马斯克后可当星链顾问。`;
+    const extraJob = state.metMusk
+      ? `<button type="button" class="opt opt--gold" data-ultra="1">${getJob(JOB_ULTRA).name} <small>+${formatMoney(getJob(JOB_ULTRA).income)}/月</small></button>`
+      : '';
     list.innerHTML =
       JOB_CHOICES.map((id) => {
         const job = getJob(id);
@@ -407,7 +484,8 @@ function openChoice(item) {
         const sample = { ...person, jobId: job.id, jobMonths: 0, jobRank: 0, tempBonus: 0 };
         return `<button type="button" class="opt" data-id="${job.id}" ${ok ? '' : 'disabled'}>${job.name} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
       }).join('') +
-      `<button type="button" class="opt opt--green" data-special="1">走网红路线 <small>灵感 ${TOKEN_COST}</small></button>`;
+      `<button type="button" class="opt opt--green" data-special="1">走网红路线 <small>灵感 ${TOKEN_COST}</small></button>` +
+      extraJob;
     list.querySelectorAll('.opt').forEach((btn) => {
       btn.addEventListener('click', () => {
         if (btn.disabled) return;
@@ -415,14 +493,20 @@ function openChoice(item) {
           if (state.tokens < TOKEN_COST) return toast('灵感不够');
           state.tokens -= TOKEN_COST;
           applyJob(person, getJob(JOB_SPECIAL));
+        } else if (btn.dataset.ultra) {
+          if (!jobAllowed(person, getJob(JOB_ULTRA))) return toast('还没结识马斯克，或学历不够');
+          applyJob(person, getJob(JOB_ULTRA));
         } else applyJob(person, getJob(btn.dataset.id));
         finishEvent();
       });
     });
   } else if (item.type === 'love') {
-    const loves = person.gender === 'male' ? LOVE_CHOICES.female : LOVE_CHOICES.male;
+    const loves = (person.gender === 'male' ? LOVE_CHOICES.female : LOVE_CHOICES.male).map((s) => ({
+      ...s,
+      name: randomAdultName(s.gender, state.people),
+    }));
     $('#choiceStage').textContent = '恋爱';
-    $('#choiceTip').textContent = `${person.name} 可以谈恋爱了。先恋爱，暂不结婚。高净值花灵感。`;
+    $('#choiceTip').textContent = `${person.name} 可以谈恋爱了。普通人现金；高净值花灵感；硅谷投资人要百万现金。`;
     list.innerHTML =
       loves
         .map(
@@ -430,13 +514,22 @@ function openChoice(item) {
             `<button type="button" class="opt" data-i="${i}">${s.name} · ${getJob(s.jobId).name} <small>${formatMoney(s.income)}/月</small></button>`
         )
         .join('') +
-      `<button type="button" class="opt opt--green" data-special="1">接触高净值 <small>灵感 ${TOKEN_COST}</small></button>`;
+      `<button type="button" class="opt opt--green" data-special="1">接触高净值 <small>灵感 ${TOKEN_COST}</small></button>` +
+      `<button type="button" class="opt opt--gold" data-ultra="1">结识硅谷投资人 <small>-${formatMoney(1280000)}</small></button>`;
     list.querySelectorAll('.opt').forEach((btn) => {
       btn.addEventListener('click', () => {
         if (btn.dataset.special) {
           if (state.tokens < TOKEN_COST) return toast('灵感不够');
           state.tokens -= TOKEN_COST;
-          startDating(person, person.gender === 'male' ? LOVE_SPECIAL.female : LOVE_SPECIAL.male);
+          const pack = person.gender === 'male' ? { ...LOVE_SPECIAL.female } : { ...LOVE_SPECIAL.male };
+          pack.name = randomAdultName(pack.gender, state.people);
+          startDating(person, pack);
+        } else if (btn.dataset.ultra) {
+          const pack = person.gender === 'male' ? { ...LOVE_ULTRA.female } : { ...LOVE_ULTRA.male };
+          if (state.cash < pack.cost) return toast('现金不够，先去挥霍页攒钱');
+          state.cash -= pack.cost;
+          pack.name = randomAdultName(pack.gender, state.people);
+          startDating(person, pack);
         } else startDating(person, loves[Number(btn.dataset.i)]);
         finishEvent();
       });
@@ -444,15 +537,24 @@ function openChoice(item) {
   } else if (item.type === 'marry') {
     const partner = person.dating;
     $('#choiceStage').textContent = '结婚';
-    $('#choiceTip').textContent = `和 ${partner?.name || ''} 谈了一段时间，办婚礼入谱。`;
-    list.innerHTML = `<button type="button" class="opt opt--green" data-yes="1">结婚 <small>-${formatMoney(partner?.cost || 0)}</small></button>`;
-    list.querySelector('.opt').addEventListener('click', () => {
-      if (partner) marryPerson(person, partner);
-      finishEvent();
+    $('#choiceTip').textContent = `和 ${partner?.name || ''} 办婚礼入谱。有钱可以把场面做大。`;
+    const base = partner?.cost || 0;
+    list.innerHTML = WEDDING_TIERS.map(
+      (w) =>
+        `<button type="button" class="opt${w.id === 'sat' ? ' opt--gold' : w.id === 'simple' ? ' opt--green' : ''}" data-wed="${w.id}">${w.name} <small>-${formatMoney(base + w.extra)}</small></button>`
+    ).join('');
+    list.querySelectorAll('.opt').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const w = WEDDING_TIERS.find((x) => x.id === btn.dataset.wed);
+        const total = base + (w?.extra || 0);
+        if (state.cash < total) return toast('现金不够');
+        if (partner) marryPerson(person, partner, w);
+        finishEvent();
+      });
     });
   } else if (item.type === 'baby') {
     $('#choiceStage').textContent = '孩子';
-    $('#choiceTip').textContent = '结婚满一年，可以生一个（¥8,000）。';
+    $('#choiceTip').textContent = '结婚满一年（上一胎也要隔一年），可以生一个。名字从库里随机。';
     list.innerHTML = `<button type="button" class="opt opt--green">生孩子 <small>-8,000</small></button>`;
     list.querySelector('.opt').addEventListener('click', () => {
       haveChild(person);
@@ -462,18 +564,36 @@ function openChoice(item) {
   } else if (item.type === 'promote') {
     const next = RANK_NAMES[Math.min(2, (person.jobRank || 0) + 1)];
     $('#choiceStage').textContent = '升职';
-    $('#choiceTip').textContent = `${person.name} 工龄 ${yearsOnJob(person)} 年，有机会升为${next}。`;
-    list.innerHTML = `
-      <button type="button" class="opt opt--green" data-yes="1">接受升职</button>
-      <button type="button" class="opt" data-skip="1">先不升</button>`;
+    $('#choiceTip').textContent = `${person.name} 工龄 ${yearsOnJob(person)} 年，争取升为${next}。选方式，看概率，失败下次再来。`;
+    list.innerHTML =
+      PROMOTE_OPTIONS.map((opt) => {
+        const cash = promoteCashCost(person, opt);
+        const pay = cash ? `-${formatMoney(cash)}` : opt.tokens ? `灵感 ${opt.tokens}` : '免费';
+        return `<button type="button" class="opt${opt.id === 'token' ? ' opt--green' : opt.id === 'gift' ? ' opt--gold' : ''}" data-pro="${opt.id}">${opt.name} · ${opt.hint} <small>${pay}</small></button>`;
+      }).join('') + `<button type="button" class="opt" data-skip="1">先不升</button>`;
     list.querySelectorAll('.opt').forEach((btn) => {
       btn.addEventListener('click', () => {
-        if (btn.dataset.yes) {
+        if (btn.dataset.skip) {
+          logEvent('special', '放弃升职', `${person.name} 暂时不升。`);
+          finishEvent();
+          return;
+        }
+        const opt = PROMOTE_OPTIONS.find((x) => x.id === btn.dataset.pro);
+        if (!opt) return;
+        const cash = promoteCashCost(person, opt);
+        if (cash && state.cash < cash) return toast('现金不够');
+        if (opt.tokens && state.tokens < opt.tokens) return toast('灵感不够');
+        if (cash) state.cash -= cash;
+        if (opt.tokens) state.tokens -= opt.tokens;
+        const ok = Math.random() < opt.chance;
+        if (ok) {
           person.jobRank = Math.min(2, (person.jobRank || 0) + 1);
-          logEvent('special', '升职', `${person.name} 升为${RANK_NAMES[person.jobRank]}，工资按公式重算。`);
+          logEvent('special', '升职成功', `${person.name} 靠「${opt.name}」升为${RANK_NAMES[person.jobRank]}。`);
           toast(`${person.name} 升为${RANK_NAMES[person.jobRank]}`);
         } else {
-          logEvent('special', '放弃升职', `${person.name} 暂时不升。`);
+          person.stats.mood = Math.max(20, person.stats.mood - 6);
+          logEvent('special', '升职失败', `${person.name}「${opt.name}」没过，心情 -6。`);
+          toast('这次没升上去');
         }
         finishEvent();
       });
@@ -486,7 +606,7 @@ function openChoice(item) {
 function applySchool(person, school, stage) {
   person.schoolId = school.id;
   person.schoolStage = stage.key;
-  person.education = stage.education;
+  person.education = school.education || stage.education;
   person.jobId = 'student';
   person.income = 0;
   person.stats.iq = Math.min(100, person.stats.iq + (school.iqBonus || 0));
@@ -513,8 +633,9 @@ function startDating(person, suitor) {
   person.stats.mood = Math.min(100, person.stats.mood + 5);
 }
 
-function marryPerson(person, suitor) {
-  state.cash = Math.max(0, state.cash - suitor.cost);
+function marryPerson(person, suitor, wedding) {
+  const total = (suitor.cost || 0) + (wedding?.extra || 0);
+  state.cash = Math.max(0, state.cash - total);
   person.dating = null;
   const spouseId = nextPersonId();
   state.people.push({
@@ -542,6 +663,9 @@ function marryPerson(person, suitor) {
   person.spouseId = spouseId;
   person.marriedYear = state.year;
   person.marriedMonth = state.month;
+  const bump = wedding?.mood || 0;
+  person.stats.mood = Math.min(100, person.stats.mood + bump);
+  logEvent('special', wedding?.name || '结婚', `${person.name} 与 ${suitor.name} ${wedding?.name || '结婚'}，花 ${formatMoney(total)}。`);
 }
 
 function haveChild(person) {
@@ -549,12 +673,11 @@ function haveChild(person) {
   if (!spouse || countChildren(person) >= 2) return;
   const girl = Math.random() < 0.5;
   const gender = girl ? 'female' : 'male';
-  const used = new Set(state.people.map((p) => p.name));
-  const names = BABY_NAMES[gender].filter((n) => !used.has(n));
+  const name = randomBabyName(gender, state.people);
   state.cash = Math.max(0, state.cash - 8000);
   state.people.push({
     id: nextPersonId(),
-    name: names[0] || (girl ? '陈宝贝' : '陈小子'),
+    name,
     gender,
     portrait: girl ? 'child_female' : 'child_male',
     age: 0,
@@ -577,6 +700,9 @@ function haveChild(person) {
     jobRank: 0,
     tempBonus: 0,
   });
+  person.lastBirthYear = state.year;
+  person.lastBirthMonth = state.month;
+  logEvent('special', '孩子', `${person.name} 家添了${name}。`);
 }
 
 function finishEvent() {
@@ -634,6 +760,7 @@ function collectAgeEvents() {
       p.spouseId &&
       !p.babyPending &&
       monthsSince(p.marriedYear, p.marriedMonth) >= 12 &&
+      (!p.lastBirthYear || monthsSince(p.lastBirthYear, p.lastBirthMonth) >= 12) &&
       countChildren(p) < 2 &&
       p.age <= 42 &&
       p.parentId
@@ -742,6 +869,10 @@ function bindUI() {
     if (btn.dataset.set) {
       state.tokens = Number(btn.dataset.set);
       toast(`灵感 ${state.tokens}`);
+    }
+    if (btn.dataset.cash) {
+      state.cash += Number(btn.dataset.cash);
+      toast(`现金 ${formatMoney(state.cash)}`);
     }
     if (btn.dataset.event) {
       const ev = pickRandomEvent(state.people);

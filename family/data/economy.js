@@ -12,9 +12,22 @@ export const EDU_MULT = {
   初中: 0.9,
   高中: 1,
   大学本科: 1.18,
+  贵族本科: 1.38,
 };
 
 export const RANK_NAMES = ['员工', '主管', '经理'];
+
+/** 升职弹窗选项：花钱/灵感提高成功率，仍可能失败 */
+export const PROMOTE_OPTIONS = [
+  { id: 'try', name: '自己争取', chance: 0.4, cash: 0, tokens: 0, hint: '四成把握' },
+  { id: 'gift', name: '请客送礼', chance: 0.7, cashRank: [88000, 360000], tokens: 0, hint: '七成把握' },
+  { id: 'token', name: '灵感运作', chance: 0.92, cash: 0, tokens: 1, hint: '九成把握' },
+];
+
+export function promoteCashCost(person, opt) {
+  if (!opt.cashRank) return opt.cash || 0;
+  return opt.cashRank[Math.min(opt.cashRank.length - 1, person.jobRank || 0)];
+}
 
 export function yearsOnJob(person) {
   return Math.floor((person.jobMonths || 0) / 12);

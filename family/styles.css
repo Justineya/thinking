@@ -602,9 +602,10 @@ body {
   box-shadow: 0 4px 0 #2d74c0;
 }
 
-.opt--green {
-  background: linear-gradient(#62e08e, #2dbd66);
-  box-shadow: 0 4px 0 #1e944c;
+.opt--gold {
+  background: linear-gradient(#f5d76e, #e0a93a);
+  box-shadow: 0 4px 0 #b07a18;
+  color: #3a2a00;
 }
 
 .opt small {
