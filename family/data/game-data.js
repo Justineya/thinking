@@ -84,16 +84,90 @@ export const SCHOOL_STAGES = [
 export const CASH_LUXURIES = [
   { id: 'tutor', name: '私人贵族导师', desc: '全家族智商 +3', cash: 280000, stat: 'iq', amount: 3 },
   { id: 'island', name: '海岛度假月', desc: '全家族心情 +12', cash: 860000, stat: 'mood', amount: 12 },
-  {
-    id: 'musk',
-    name: '结识马斯克',
-    desc: '360万一次：随机家人魅力+18、智商+8，解锁星链顾问',
-    cash: 3600000,
-    once: 'metMusk',
-  },
   { id: 'ivy_seat', name: '常春藤交换名额', desc: '随机在读学生智商 +15', cash: 1800000, studentIq: 15 },
   { id: 'jet', name: '私人飞机', desc: '买断，全族心情 +10', cash: 8800000, once: 'ownedJet', stat: 'mood', amount: 10 },
   { id: 'foundation', name: '家族基金会', desc: '1500万；全族魅力 +20', cash: 15000000, once: 'ownedFoundation', stat: 'charm', amount: 20 },
+];
+
+/** 名流局：马斯克只是其中一例，越往后越贵，一次一个 */
+export const SOCIAL_ELITES = [
+  {
+    id: 'miyazaki',
+    name: '吉卜力工作室参访',
+    desc: '168万一次。随机家人心情+12、魅力+8',
+    cash: 1680000,
+    once: 'metMiyazaki',
+    boost: { mood: 12, charm: 8 },
+    who: '宫崎骏',
+  },
+  {
+    id: 'federer',
+    name: '费德勒网球私教',
+    desc: '240万一次。随机家人体力+16、魅力+6',
+    cash: 2400000,
+    once: 'metFederer',
+    boost: { stamina: 16, charm: 6 },
+    who: '费德勒',
+  },
+  {
+    id: 'musk',
+    name: '结识马斯克',
+    desc: '360万一次。魅力+18、智商+8，解锁星链顾问',
+    cash: 3600000,
+    once: 'metMusk',
+    boost: { charm: 18, iq: 8 },
+    who: '马斯克',
+    jobId: 'starlink',
+  },
+  {
+    id: 'ren',
+    name: '任正非座谈会',
+    desc: '660万一次。智商+10、体力+8，解锁研发总监',
+    cash: 6600000,
+    once: 'metRen',
+    boost: { iq: 10, stamina: 8 },
+    who: '任正非',
+    jobId: 'rd_director',
+  },
+  {
+    id: 'oprah',
+    name: '奥普拉访谈席',
+    desc: '880万一次。魅力+20、心情+8，解锁谈话主持人',
+    cash: 8800000,
+    once: 'metOprah',
+    boost: { charm: 20, mood: 8 },
+    who: '奥普拉',
+    jobId: 'media_host',
+  },
+  {
+    id: 'davos',
+    name: '达沃斯论坛席位',
+    desc: '1280万一次。魅力+12、智商+8，解锁国际顾问',
+    cash: 12800000,
+    once: 'metDavos',
+    boost: { charm: 12, iq: 8 },
+    who: '达沃斯名流',
+    jobId: 'diplomat',
+  },
+  {
+    id: 'buffett',
+    name: '巴菲特午餐',
+    desc: '4280万一次。那顿全球拍卖的午餐。智商+16、魅力+10，解锁价值投资人',
+    cash: 42800000,
+    once: 'metBuffett',
+    boost: { iq: 16, charm: 10 },
+    who: '巴菲特',
+    jobId: 'investor',
+  },
+  {
+    id: 'space',
+    name: '太空游客名额',
+    desc: '6800万一次。心情+22、魅力+15，体力-8。去过就算巅峰',
+    cash: 68000000,
+    once: 'beenSpace',
+    boost: { mood: 22, charm: 15, stamina: -8 },
+    who: '轨道',
+  },
 ];
 
 export const WEDDING_TIERS = [
@@ -131,6 +205,10 @@ export const JOBS = [
   { id: 'engineer', name: '软件工程师', income: 18500, base: 18500, type: 'social', req: '大学本科', desc: '技术岗。', minEdu: '大学' },
   { id: 'influencer', name: '头部网红', income: 42000, incomeVariance: 0.5, type: 'special', req: '花代币破格入行', desc: '收入高、波动大。', minEdu: null },
   { id: 'starlink', name: '星链顾问', income: 88000, base: 88000, type: 'special', req: '先结识马斯克', desc: '后期岗，底薪很高。', minEdu: '大学' },
+  { id: 'rd_director', name: '研发总监', income: 76000, base: 76000, type: 'special', req: '先见任正非', desc: '工程体系岗。', minEdu: '大学' },
+  { id: 'media_host', name: '谈话主持人', income: 69000, base: 69000, incomeVariance: 0.25, type: 'special', req: '先上奥普拉节目', desc: '曝光换收入。', minEdu: '大学' },
+  { id: 'diplomat', name: '国际顾问', income: 82000, base: 82000, type: 'special', req: '先去发达沃斯', desc: '会籍比学历更重要。', minEdu: '大学' },
+  { id: 'investor', name: '价值投资人', income: 126000, base: 126000, incomeVariance: 0.35, type: 'special', req: '先吃巴菲特午餐', desc: '波动大，上限高。', minEdu: '大学' },
   { id: 'retired', name: '退休', income: 4200, type: 'normal', req: '年满 60', desc: '领养老金。', minEdu: null },
 ];
 

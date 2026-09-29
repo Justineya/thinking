@@ -6,7 +6,7 @@ import {
   TOKEN_COST,
   JOB_CHOICES,
   JOB_SPECIAL,
-  JOB_ULTRA,
+  SOCIAL_ELITES,
   LOVE_CHOICES,
   LOVE_SPECIAL,
   LOVE_ULTRA,
@@ -77,8 +77,12 @@ function nextSchoolStage(person) {
 function hasUni(person) {
   return (person.education || '').includes('大学') || (person.education || '').includes('贵族');
 }
+function eliteForJob(jobId) {
+  return SOCIAL_ELITES.find((e) => e.jobId === jobId);
+}
 function jobAllowed(person, job) {
-  if (job.id === 'starlink') return state.metMusk && hasUni(person);
+  const elite = eliteForJob(job.id);
+  if (elite) return !!state[elite.once] && hasUni(person);
   if (job.id === 'civil' || job.id === 'engineer') return hasUni(person);
   if (job.id === 'didi' || job.id === 'factory') {
     return person.education.includes('高中') || hasUni(person);
@@ -305,6 +309,20 @@ function renderShop() {
       btn.addEventListener('click', () => buyLuxury(btn.dataset.lux));
     });
   }
+  const elites = $('#eliteList');
+  if (elites) {
+    elites.innerHTML = SOCIAL_ELITES.map((it) => {
+      const owned = it.once && state[it.once];
+      const ok = !owned && state.cash >= it.cash;
+      return `<button class="shop-row" data-elite="${it.id}" ${ok ? '' : 'disabled'}>
+        <div class="shop-row__txt"><b>${it.name}</b><span>${it.desc}</span></div>
+        <span class="cost-pill">${owned ? '已完成' : formatMoney(it.cash)}</span>
+      </button>`;
+    }).join('');
+    elites.querySelectorAll('.shop-row').forEach((btn) => {
+      btn.addEventListener('click', () => buyLuxury(btn.dataset.elite));
+    });
+  }
 }
 
 function renderLog() {
@@ -339,8 +357,15 @@ function buyShop(id) {
   renderAll();
 }
 
+function bumpStats(p, boost = {}) {
+  for (const [k, v] of Object.entries(boost)) {
+    if (p.stats[k] == null) continue;
+    p.stats[k] = Math.max(5, Math.min(100, p.stats[k] + v));
+  }
+}
+
 function buyLuxury(id) {
-  const it = CASH_LUXURIES.find((x) => x.id === id);
+  const it = CASH_LUXURIES.find((x) => x.id === id) || SOCIAL_ELITES.find((x) => x.id === id);
   if (!it) return;
   if (it.once && state[it.once]) return toast('已经做过了');
   if (state.cash < it.cash) return toast('现金不够');
@@ -351,13 +376,13 @@ function buyLuxury(id) {
       p.stats[it.stat] = Math.min(100, p.stats[it.stat] + it.amount);
     }
   }
-  if (it.id === 'musk') {
+  if (it.boost) {
     const pool = state.people.filter((p) => p.jobId !== 'retired');
     const p = pool[Math.floor(Math.random() * pool.length)] || state.people[0];
-    p.stats.charm = Math.min(100, p.stats.charm + 18);
-    p.stats.iq = Math.min(100, p.stats.iq + 8);
-    logEvent('shop', '结识马斯克', `${p.name} 见到了马斯克。魅力 +18，智商 +8。星链顾问岗已解锁。`);
-    toast(`${p.name} 结识了马斯克`);
+    bumpStats(p, it.boost);
+    const jobBit = it.jobId ? `解锁岗位：${getJob(it.jobId).name}。` : '';
+    logEvent('shop', it.name, `${p.name} 见到了${it.who || it.name}。${jobBit}`.trim());
+    toast(`${p.name} · ${it.name}`);
   } else if (it.studentIq) {
     const stu = state.people.filter((p) => p.jobId === 'student');
     const p = stu[Math.floor(Math.random() * stu.length)];
@@ -369,9 +394,6 @@ function buyLuxury(id) {
   } else {
     logEvent('shop', it.name, `花 ${formatMoney(it.cash)}：${it.desc}`);
     toast(it.name);
-  }
-  if (it.id === 'lab' || it.id === 'jet') {
-    /* flags already set */
   }
   renderAll();
 }
@@ -473,10 +495,15 @@ function openChoice(item) {
     });
   } else if (item.type === 'work') {
     $('#choiceStage').textContent = '工作';
-    $('#choiceTip').textContent = `${person.name} 该找工作了。按学历选；网红花灵感；结识马斯克后可当星链顾问。`;
-    const extraJob = state.metMusk
-      ? `<button type="button" class="opt opt--gold" data-ultra="1">${getJob(JOB_ULTRA).name} <small>+${formatMoney(getJob(JOB_ULTRA).income)}/月</small></button>`
-      : '';
+    $('#choiceTip').textContent = `${person.name} 该找工作了。普通岗看学历；网红花灵感；名流局解锁的岗在金色按钮。`;
+    const extraJobs = SOCIAL_ELITES.filter((e) => e.jobId && state[e.once])
+      .map((e) => {
+        const job = getJob(e.jobId);
+        const sample = { ...person, jobId: job.id, jobMonths: 0, jobRank: 0, tempBonus: 0 };
+        const ok = jobAllowed(person, job);
+        return `<button type="button" class="opt opt--gold" data-elite-job="${job.id}" ${ok ? '' : 'disabled'}>${job.name} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
+      })
+      .join('');
     list.innerHTML =
       JOB_CHOICES.map((id) => {
         const job = getJob(id);
@@ -485,7 +512,7 @@ function openChoice(item) {
         return `<button type="button" class="opt" data-id="${job.id}" ${ok ? '' : 'disabled'}>${job.name} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
       }).join('') +
       `<button type="button" class="opt opt--green" data-special="1">走网红路线 <small>灵感 ${TOKEN_COST}</small></button>` +
-      extraJob;
+      extraJobs;
     list.querySelectorAll('.opt').forEach((btn) => {
       btn.addEventListener('click', () => {
         if (btn.disabled) return;
@@ -493,9 +520,10 @@ function openChoice(item) {
           if (state.tokens < TOKEN_COST) return toast('灵感不够');
           state.tokens -= TOKEN_COST;
           applyJob(person, getJob(JOB_SPECIAL));
-        } else if (btn.dataset.ultra) {
-          if (!jobAllowed(person, getJob(JOB_ULTRA))) return toast('还没结识马斯克，或学历不够');
-          applyJob(person, getJob(JOB_ULTRA));
+        } else if (btn.dataset.eliteJob) {
+          const job = getJob(btn.dataset.eliteJob);
+          if (!jobAllowed(person, job)) return toast('还没结识对应名流，或学历不够');
+          applyJob(person, job);
         } else applyJob(person, getJob(btn.dataset.id));
         finishEvent();
       });
