@@ -212,6 +212,32 @@ export const JOBS = [
   { id: 'retired', name: '退休', income: 4200, type: 'normal', req: '年满 60', desc: '领养老金。', minEdu: null },
 ];
 
+/** 谐音公司/单位，不写原商标。入职时随机抽一家。 */
+export const JOB_FIRMS = {
+  didi: ['嘀嗒出行', '每团打车', '小黄车顺风'],
+  factory: ['富仕康精密', '伪创力代工', '立讯达电子'],
+  civil: ['县税务局', '市教育局', '街道办事处'],
+  engineer: ['疼讯', '阿狸巴巴', '字跳科技', '微软件中国', '谷鸽研发'],
+  influencer: ['快抖直播', '某书种草', '哔哩不哩'],
+  starlink: ['星涟航天', '特事拉电动'],
+  rd_director: ['滑为技术', '中兴味通信', '小迷生态链'],
+  media_host: ['欧普拉传媒', '卫视假日档'],
+  diplomat: ['达沃氏会务', '北海论坛秘书处'],
+  investor: ['波克暇资本', '高剩投行', '桥水不相'],
+};
+
+export function pickFirm(jobId) {
+  const list = JOB_FIRMS[jobId];
+  if (!list?.length) return '';
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+export function firmHint(jobId) {
+  const list = JOB_FIRMS[jobId];
+  if (!list?.length) return '';
+  return list.join(' / ');
+}
+
 export const JOB_CHOICES = ['didi', 'factory', 'civil', 'engineer'];
 export const JOB_SPECIAL = 'influencer';
 export const JOB_ULTRA = 'starlink';
@@ -420,6 +446,7 @@ export const INITIAL_FAMILY = {
       income: 18500,
       loveDrawn: true,
       workDrawn: true,
+      company: '疼讯',
     },
     {
       id: 'p2',
@@ -439,6 +466,7 @@ export const INITIAL_FAMILY = {
       income: 9200,
       loveDrawn: true,
       workDrawn: true,
+      company: '市教育局',
     },
     {
       id: 'c1',

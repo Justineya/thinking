@@ -1,6 +1,8 @@
 import {
   PORTRAITS,
   JOBS,
+  pickFirm,
+  firmHint,
   INITIAL_FAMILY,
   SCHOOL_STAGES,
   TOKEN_COST,
@@ -44,6 +46,11 @@ function getPerson(id) {
 }
 function getJob(jobId) {
   return JOBS.find((j) => j.id === jobId) || JOBS[0];
+}
+function jobLine(person) {
+  const job = getJob(person.jobId);
+  if (!person.company) return job.name;
+  return `${job.name} · ${person.company}`;
 }
 function allSchools() {
   return SCHOOL_STAGES.flatMap((s) => [...s.choices, s.special, s.luxury].filter(Boolean));
@@ -96,6 +103,9 @@ function normalizePerson(p) {
   }
   p.jobRank = p.jobRank || 0;
   p.tempBonus = p.tempBonus || 0;
+  if (!p.company && p.jobId && p.jobId !== 'student' && p.jobId !== 'retired') {
+    p.company = pickFirm(p.jobId);
+  }
   return p;
 }
 
@@ -255,7 +265,7 @@ function selectPerson(id) {
   $('#sheetBody').hidden = false;
   $('#sheetPortrait').src = PORTRAITS[p.portrait];
   $('#sheetName').textContent = p.name;
-  $('#sheetMeta').textContent = `${p.age}岁 · ${p.role} · ${getJob(p.jobId).name}`;
+  $('#sheetMeta').textContent = `${p.age}岁 · ${p.role} · ${jobLine(p)}`;
   const school = getSchoolById(p.schoolId);
   const rel = p.spouseId
     ? `已婚 · ${getPerson(p.spouseId)?.name || ''}`
@@ -269,6 +279,7 @@ function selectPerson(id) {
     <div><dt>学历</dt><dd>${p.education}</dd></div>
     <div><dt>学校</dt><dd>${school ? school.name : '—'}</dd></div>
     <div><dt>职级</dt><dd>${rank}</dd></div>
+    <div><dt>单位</dt><dd>${p.company || '—'}</dd></div>
     <div><dt>月流水</dt><dd>${formatMoney(personFlow(p))}</dd></div>
     <div><dt>感情</dt><dd>${rel}</dd></div>`;
   $('#sheetStats').innerHTML = Object.entries(p.stats)
@@ -291,10 +302,10 @@ function renderShop() {
   $('#shopList').querySelectorAll('.shop-row').forEach((btn) => {
     btn.addEventListener('click', () => buyShop(btn.dataset.id));
   });
-  $('#jobRules').innerHTML = JOBS.map(
-    (j) =>
-      `<div class="rule-row"><b>${j.name}</b><span>底薪 ${formatMoney(j.base ?? j.income)} · ${j.req} · ${j.desc}</span></div>`
-  ).join('');
+  $('#jobRules').innerHTML = JOBS.map((j) => {
+    const firms = firmHint(j.id);
+    return `<div class="rule-row"><b>${j.name}</b><span>底薪 ${formatMoney(j.base ?? j.income)} · ${j.req}${firms ? ` · ${firms}` : ''} · ${j.desc}</span></div>`;
+  }).join('');
   const lux = $('#luxList');
   if (lux) {
     lux.innerHTML = CASH_LUXURIES.map((it) => {
@@ -501,7 +512,7 @@ function openChoice(item) {
         const job = getJob(e.jobId);
         const sample = { ...person, jobId: job.id, jobMonths: 0, jobRank: 0, tempBonus: 0 };
         const ok = jobAllowed(person, job);
-        return `<button type="button" class="opt opt--gold" data-elite-job="${job.id}" ${ok ? '' : 'disabled'}>${job.name} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
+        return `<button type="button" class="opt opt--gold" data-elite-job="${job.id}" ${ok ? '' : 'disabled'}>${job.name} · ${firmHint(job.id)} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
       })
       .join('');
     list.innerHTML =
@@ -509,7 +520,7 @@ function openChoice(item) {
         const job = getJob(id);
         const ok = jobAllowed(person, job);
         const sample = { ...person, jobId: job.id, jobMonths: 0, jobRank: 0, tempBonus: 0 };
-        return `<button type="button" class="opt" data-id="${job.id}" ${ok ? '' : 'disabled'}>${job.name} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
+        return `<button type="button" class="opt" data-id="${job.id}" ${ok ? '' : 'disabled'}>${job.name} · ${firmHint(job.id)} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
       }).join('') +
       `<button type="button" class="opt opt--green" data-special="1">走网红路线 <small>灵感 ${TOKEN_COST}</small></button>` +
       extraJobs;
@@ -539,7 +550,7 @@ function openChoice(item) {
       loves
         .map(
           (s, i) =>
-            `<button type="button" class="opt" data-i="${i}">${s.name} · ${getJob(s.jobId).name} <small>${formatMoney(s.income)}/月</small></button>`
+            `<button type="button" class="opt" data-i="${i}">${s.name} · ${getJob(s.jobId).name}${firmHint(s.jobId) ? ' · ' + firmHint(s.jobId).split(' / ')[0] : ''} <small>${formatMoney(s.income)}/月</small></button>`
         )
         .join('') +
       `<button type="button" class="opt opt--green" data-special="1">接触高净值 <small>灵感 ${TOKEN_COST}</small></button>` +
@@ -649,13 +660,14 @@ function applyJob(person, job) {
   person.jobMonths = 0;
   person.jobRank = 0;
   person.tempBonus = 0;
+  person.company = pickFirm(job.id);
   person.income = calcSalary(person, job);
-  logEvent('special', '入职', `${person.name} 成为${job.name}。`);
+  logEvent('special', '入职', `${person.name} 入职${person.company || ''}，成为${job.name}。`);
 }
 
 function startDating(person, suitor) {
   person.loveDrawn = true;
-  person.dating = { ...suitor };
+  person.dating = { ...suitor, company: suitor.company || pickFirm(suitor.jobId) };
   person.datingYear = state.year;
   person.datingMonth = state.month;
   person.stats.mood = Math.min(100, person.stats.mood + 5);
@@ -687,6 +699,7 @@ function marryPerson(person, suitor, wedding) {
     tempBonus: 0,
     loveDrawn: true,
     workDrawn: true,
+    company: suitor.company || pickFirm(suitor.jobId),
   });
   person.spouseId = spouseId;
   person.marriedYear = state.year;
@@ -810,6 +823,7 @@ function advanceMonth() {
       if (p.age === 60 && p.jobId !== 'retired') {
         p.jobId = 'retired';
         p.jobMonths = 0;
+        p.company = '';
         p.income = getJob('retired').income;
         p.workDrawn = true;
         logEvent('special', '退休', `${p.name} 退休领养老金。`);
