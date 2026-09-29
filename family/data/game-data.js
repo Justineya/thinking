@@ -199,6 +199,8 @@ export const INDUSTRIES = [
 
 export const JOBS = [
   { id: 'student', name: '学生', income: 0, type: 'normal', req: '在读', desc: '专心学业。', minEdu: null },
+  { id: 'idle', name: '待业', income: 0, type: 'normal', req: '无', desc: '先活着，再找事做。', minEdu: null },
+  { id: 'apprentice', name: '学徒工', income: 3200, base: 3200, type: 'social', req: '初中及以上', desc: '包饭，工钱薄。', minEdu: '初中' },
   { id: 'didi', name: '网约车司机', income: 6800, base: 6800, type: 'social', req: '高中及以上', desc: '时间灵活。', minEdu: '高中' },
   { id: 'factory', name: '工厂技工', income: 7500, base: 7500, type: 'social', req: '高中及以上', desc: '到手稳定。', minEdu: '高中' },
   { id: 'civil', name: '公务员', income: 9200, base: 9200, type: 'social', req: '大学本科', desc: '编制内。', minEdu: '大学' },
@@ -214,6 +216,7 @@ export const JOBS = [
 
 /** 谐音公司/单位，不写原商标。入职时随机抽一家。 */
 export const JOB_FIRMS = {
+  apprentice: ['镇五金铺', '汽修学徒摊', '模具小作坊'],
   didi: ['嘀嗒出行', '每团打车', '小黄车顺风'],
   factory: ['富仕康精密', '伪创力代工', '立讯达电子'],
   civil: ['县税务局', '市教育局', '街道办事处'],
@@ -245,7 +248,7 @@ export function firmHintShort(jobId) {
   return `${list.slice(0, 2).join(' / ')} 等`;
 }
 
-export const JOB_CHOICES = ['didi', 'factory', 'civil', 'engineer'];
+export const JOB_CHOICES = ['apprentice', 'didi', 'factory', 'civil', 'engineer'];
 export const JOB_SPECIAL = 'influencer';
 export const JOB_ULTRA = 'starlink';
 
@@ -382,67 +385,8 @@ export const LOVE_ULTRA = {
   },
 };
 
-export const INITIAL_FAMILY = {
-  year: 2026,
-  month: 3,
-  cash: 331900,
-  assets: 860000,
-  tokens: 4,
-  ownedIndustries: ['house'],
-  metMusk: false,
-  ownedJet: false,
-  ownedFoundation: false,
-  eventLog: [],
-  paused: true,
-  selectedId: null,
-  nextPersonNum: 10,
-  people: [
-    {
-      id: 'p1',
-      name: '陈明',
-      gender: 'male',
-      portrait: 'young_male',
-      age: 26,
-      generation: 0,
-      role: '当家',
-      parentId: null,
-      spouseId: 'p2',
-      jobId: 'engineer',
-      schoolId: null,
-      schoolStage: 'uni',
-      education: '大学本科',
-      stats: { iq: 78, mood: 72, charm: 58, stamina: 70 },
-      income: 18500,
-      loveDrawn: true,
-      workDrawn: true,
-      company: '疼讯',
-      marriedYear: 2026,
-      marriedMonth: 3,
-    },
-    {
-      id: 'p2',
-      name: '王雅',
-      gender: 'female',
-      portrait: 'young_female',
-      age: 25,
-      generation: 0,
-      role: '当家娘',
-      parentId: null,
-      spouseId: 'p1',
-      jobId: 'civil',
-      schoolId: null,
-      schoolStage: 'uni',
-      education: '大学本科',
-      stats: { iq: 75, mood: 78, charm: 72, stamina: 66 },
-      income: 9200,
-      loveDrawn: true,
-      workDrawn: true,
-      company: '市教育局',
-      marriedYear: 2026,
-      marriedMonth: 3,
-    },
-  ],
-};
+/** 运行时开局见 `seeds.js` 的 `buildState()`。这里只留字段说明。 */
+export const INITIAL_FAMILY = null;
 
 export const BABY_NAMES = {
   male: ['陈宇轩', '陈子墨', '陈嘉树'],

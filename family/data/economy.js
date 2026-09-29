@@ -11,6 +11,7 @@ export const EDU_MULT = {
   小学: 0.82,
   初中: 0.9,
   高中: 1,
+  专科: 1.05,
   大学本科: 1.18,
   贵族本科: 1.38,
 };
@@ -34,7 +35,7 @@ export function yearsOnJob(person) {
 }
 
 export function calcSalary(person, job, { variance = false } = {}) {
-  if (!job || job.id === 'student') return 0;
+  if (!job || job.id === 'student' || job.id === 'idle') return 0;
   if (job.id === 'retired') return job.income || job.base || 4200;
   const base = job.base ?? job.income ?? 0;
   const edu = EDU_MULT[person.education] ?? 1;
@@ -51,7 +52,7 @@ export function calcSalary(person, job, { variance = false } = {}) {
 
 /** 工龄满 24 个月后，每年约 22% 触发升职（随机事件里也会升） */
 export function canTryPromote(person) {
-  if (person.jobId === 'student' || person.jobId === 'retired') return false;
+  if (person.jobId === 'student' || person.jobId === 'retired' || person.jobId === 'idle') return false;
   if ((person.jobRank || 0) >= 2) return false;
   return (person.jobMonths || 0) >= 24;
 }

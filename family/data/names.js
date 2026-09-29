@@ -40,15 +40,29 @@ function comboGiven(gender) {
   return pick(MALE_A) + pick(MALE_B);
 }
 
-/** 陈氏孩子：陈 + 随机两字名 */
-export function randomBabyName(gender, people) {
+export function randomSurname() {
+  return pick(SURNAMES);
+}
+
+export function randomFounderName(surname, gender, people) {
   const used = usedNames(people);
-  const pool = (gender === 'female' ? GIVEN_FEMALE : GIVEN_MALE).map((g) => `陈${g}`);
+  const givenPool = gender === 'female' ? GIVEN_FEMALE : GIVEN_MALE;
+  for (let i = 0; i < 80; i++) {
+    const n = `${surname}${pick(givenPool)}`;
+    if (!used.has(n)) return n;
+  }
+  return `${surname}${comboGiven(gender)}`;
+}
+
+/** 本族孩子：开局姓氏 + 随机两字名 */
+export function randomBabyName(gender, people, surname = '陈') {
+  const used = usedNames(people);
+  const pool = (gender === 'female' ? GIVEN_FEMALE : GIVEN_MALE).map((g) => `${surname}${g}`);
   return uniqueFrom(pool, used, () => {
-    let n = `陈${comboGiven(gender)}`;
+    let n = `${surname}${comboGiven(gender)}`;
     let i = 0;
     while (used.has(n) && i < 40) {
-      n = `陈${comboGiven(gender)}`;
+      n = `${surname}${comboGiven(gender)}`;
       i += 1;
     }
     return n;

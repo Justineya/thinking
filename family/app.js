@@ -4,7 +4,6 @@ import {
   pickFirm,
   firmHint,
   firmHintShort,
-  INITIAL_FAMILY,
   SCHOOL_STAGES,
   TOKEN_COST,
   JOB_CHOICES,
@@ -21,13 +20,18 @@ import {
 import { calcSalary, canTryPromote, RANK_NAMES, yearsOnJob, PROMOTE_OPTIONS, promoteCashCost } from './data/economy.js';
 import { pickRandomEvent, pickTarget } from './data/events.js';
 import { randomBabyName, randomAdultName } from './data/names.js';
+import { buildState } from './data/seeds.js';
 
 const TICK_MS = 3000;
 const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 const QUEUE_ORDER = { promote: 0, school: 1, work: 2, love: 3, marry: 4, baby: 5 };
 const STAT_LABELS = { iq: '智商', mood: '心情', charm: '魅力', stamina: '体力' };
 
-let state = JSON.parse(JSON.stringify(INITIAL_FAMILY));
+function hasJob(p) {
+  return p.jobId && p.jobId !== 'student' && p.jobId !== 'retired' && p.jobId !== 'idle';
+}
+
+let state = buildState();
 let tickTimer = null;
 let queue = [];
 let currentEvent = null;
@@ -91,20 +95,28 @@ function eliteForJob(jobId) {
 function jobAllowed(person, job) {
   const elite = eliteForJob(job.id);
   if (elite) return !!state[elite.once] && hasUni(person);
+  if (job.id === 'idle') return true;
   if (job.id === 'civil' || job.id === 'engineer') return hasUni(person);
   if (job.id === 'didi' || job.id === 'factory') {
-    return person.education.includes('高中') || hasUni(person);
+    return person.education.includes('高中') || person.education.includes('专科') || hasUni(person);
+  }
+  if (job.id === 'apprentice') {
+    return (
+      person.education.includes('初中') ||
+      person.education.includes('高中') ||
+      person.education.includes('专科') ||
+      hasUni(person)
+    );
   }
   return false;
 }
 function normalizePerson(p) {
   if (p.jobMonths == null) {
-    const working = p.jobId && p.jobId !== 'student' && p.jobId !== 'retired';
-    p.jobMonths = working ? Math.max(0, (p.age - 22) * 12) : 0;
+    p.jobMonths = hasJob(p) ? Math.max(0, (p.age - 22) * 12) : 0;
   }
   p.jobRank = p.jobRank || 0;
   p.tempBonus = p.tempBonus || 0;
-  if (!p.company && p.jobId && p.jobId !== 'student' && p.jobId !== 'retired') {
+  if (!p.company && hasJob(p)) {
     p.company = pickFirm(p.jobId);
   }
   return p;
@@ -163,7 +175,11 @@ function lifeHint(person) {
     if (person.age >= 22) return '该找工作了。';
     return '在上学。';
   }
-  if (!person.loveDrawn && person.age >= 22) return '有工作后会弹出对象列表。';
+  if (person.jobId === 'idle') return '先待业。点继续后会弹出找工作。';
+  if (hasJob(person) && !person.loveDrawn && person.age >= 22) {
+    const left = Math.max(0, 6 - (person.jobMonths || 0));
+    return left ? `再干 ${left} 个月才会弹出对象。` : '可以谈恋爱了。';
+  }
   return '人生节点到了会自动弹窗。';
 }
 
@@ -178,6 +194,14 @@ function renderHud() {
   $('#pauseIcon').textContent = state.paused ? '▶' : '⏸';
   $('#pauseBtn').classList.toggle('is-paused', state.paused);
   $('#pauseBtn').title = state.paused ? '继续' : '暂停';
+  const clan = `${state.surname || '陈'}氏家族`;
+  const bar = $('#clanBar');
+  if (bar) bar.textContent = clan;
+  document.title = clan;
+  const task = $('#taskBar');
+  if (task) {
+    task.textContent = `开局「${state.seedTitle || '单人'}」已暂停。点 ▶ 或空格开始。${state.seedBlurb || ''} 可随时点重开抽另一条命。`;
+  }
 }
 
 function renderTree() {
@@ -275,7 +299,7 @@ function selectPerson(id) {
     : p.dating
       ? `恋爱中 · ${p.dating.name}`
       : '单身';
-  const rank = getJob(p.jobId).id === 'student' || getJob(p.jobId).id === 'retired'
+  const rank = !hasJob(p)
     ? '—'
     : `${RANK_NAMES[p.jobRank || 0]} · 工龄 ${yearsOnJob(p)}年`;
   $('#sheetFacts').innerHTML = `
@@ -525,7 +549,8 @@ function openChoice(item) {
         return `<button type="button" class="opt" data-id="${job.id}" ${ok ? '' : 'disabled'}>${job.name} · ${firmHintShort(job.id)} <small>+${formatMoney(calcSalary(sample, job))}/月起</small></button>`;
       }).join('') +
       `<button type="button" class="opt opt--green" data-special="1">走网红路线 <small>灵感 ${TOKEN_COST}</small></button>` +
-      extraJobs;
+      extraJobs +
+      `<button type="button" class="opt" data-id="idle">先待业 <small>0/月</small></button>`;
     list.querySelectorAll('.opt').forEach((btn) => {
       btn.addEventListener('click', () => {
         if (btn.disabled) return;
@@ -662,9 +687,15 @@ function applyJob(person, job) {
   person.jobMonths = 0;
   person.jobRank = 0;
   person.tempBonus = 0;
-  person.company = pickFirm(job.id);
+  person.company = job.id === 'idle' ? '' : pickFirm(job.id);
   person.income = calcSalary(person, job);
-  logEvent('special', '入职', `${person.name} 入职${person.company || ''}，成为${job.name}。`);
+  if (job.id === 'idle') {
+    person.idleMonths = 0;
+    logEvent('special', '待业', `${person.name} 先待业，以后再找。`);
+  } else {
+    person.idleMonths = 0;
+    logEvent('special', '入职', `${person.name} 入职${person.company || ''}，成为${job.name}。`);
+  }
 }
 
 function startDating(person, suitor) {
@@ -716,7 +747,7 @@ function haveChild(person) {
   if (!spouse || countChildren(person) >= 2) return;
   const girl = Math.random() < 0.5;
   const gender = girl ? 'female' : 'male';
-  const name = randomBabyName(gender, state.people);
+  const name = randomBabyName(gender, state.people, state.surname || '陈');
   state.cash = Math.max(0, state.cash - 8000);
   state.people.push({
     id: nextPersonId(),
@@ -794,7 +825,17 @@ function collectAgeEvents() {
     const stage = nextSchoolStage(p);
     if (stage && p.jobId === 'student') enqueue({ type: 'school', personId: p.id, stage });
     if (!p.workDrawn && p.age >= 22 && p.jobId === 'student') enqueue({ type: 'work', personId: p.id });
-    if (p.workDrawn && p.jobId !== 'student' && !p.spouseId && !p.dating && !p.loveDrawn && p.age >= 22) {
+    if (p.jobId === 'idle' && p.age >= 18 && (!p.workDrawn || ((p.idleMonths || 0) > 0 && p.idleMonths % 6 === 0))) {
+      enqueue({ type: 'work', personId: p.id });
+    }
+    if (
+      hasJob(p) &&
+      (p.jobMonths || 0) >= 6 &&
+      !p.spouseId &&
+      !p.dating &&
+      !p.loveDrawn &&
+      p.age >= 22
+    ) {
       enqueue({ type: 'love', personId: p.id });
     }
     if (p.dating && !p.spouseId && monthsSince(p.datingYear, p.datingMonth) >= 6) enqueue({ type: 'marry', personId: p.id });
@@ -832,7 +873,8 @@ function advanceMonth() {
     }
   }
   for (const p of state.people) {
-    if (p.jobId !== 'student' && p.jobId !== 'retired') p.jobMonths = (p.jobMonths || 0) + 1;
+    if (hasJob(p)) p.jobMonths = (p.jobMonths || 0) + 1;
+    if (p.jobId === 'idle') p.idleMonths = (p.idleMonths || 0) + 1;
   }
   maybeRandomEvent();
   for (const p of state.people) p.income = personFlow(p);
@@ -876,13 +918,31 @@ function togglePause() {
   renderHud();
   if (state.paused) stopTick();
   else {
+    collectAgeEvents();
     startTick();
     processQueue();
   }
 }
 
+function restartRun() {
+  if (!window.confirm('重开会丢掉当前家族，随机抽一个穷开局。确定？')) return;
+  stopTick();
+  queue = [];
+  currentEvent = null;
+  const modal = $('#choiceModal');
+  if (modal.open) modal.close();
+  state = buildState();
+  state.people.forEach(normalizePerson);
+  tab = 'family';
+  setTab('family');
+  renderAll();
+  syncSheetLayout();
+  toast(`新开局：${state.seedTitle}`);
+}
+
 function bindUI() {
   $('#pauseBtn').addEventListener('click', () => togglePause());
+  $('#restartBtn').addEventListener('click', () => restartRun());
   $('#closeSheet').addEventListener('click', () => {
     state.selectedId = null;
     renderTree();
@@ -927,7 +987,7 @@ function bindUI() {
       toast(ev.title);
     }
     if (btn.dataset.promote) {
-      const p = state.people.find((x) => x.jobId !== 'student' && x.jobId !== 'retired' && (x.jobRank || 0) < 2);
+      const p = state.people.find((x) => hasJob(x) && (x.jobRank || 0) < 2);
       if (!p) return toast('没人能升');
       p.jobMonths = Math.max(p.jobMonths || 0, 24);
       enqueue({ type: 'promote', personId: p.id });

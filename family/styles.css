@@ -108,6 +108,26 @@ body {
   display: block;
 }
 
+.pause,
+.restart {
+  border: 0;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  background: #e8f3ff;
+  color: #1d4f86;
+}
+
+.restart {
+  width: auto;
+  padding: 0 8px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
 .pause.is-paused {
   background: #f5b942;
 }

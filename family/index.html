@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>陈氏家族</title>
+  <title>家族人生</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet" />
@@ -26,6 +26,7 @@
       </div>
       <div class="hud-date">
         <button id="pauseBtn" class="pause is-paused" type="button" title="暂停 / 继续（空格）"><span id="pauseIcon">▶</span></button>
+        <button id="restartBtn" class="restart" type="button" title="重开，随机抽一个穷开局">重开</button>
         <div>
           <b id="yearLabel">2026年</b>
           <span id="monthLabel">3月</span>
@@ -45,8 +46,8 @@
       <button type="button" data-promote="1">强升职</button>
     </div>
 
-    <div class="clan-bar">陈氏家族</div>
-    <p id="taskBar" class="task">开局已暂停。点右上角 ▶ 或按空格开始过日子。先只有你们俩，孩子要自己生。</p>
+    <div id="clanBar" class="clan-bar">家族</div>
+    <p id="taskBar" class="task">开局已暂停。点右上角 ▶ 开始过日子，或点重开换一条命。</p>
 
     <div class="workspace">
     <section id="viewFamily" class="view">

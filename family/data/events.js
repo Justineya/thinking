@@ -78,7 +78,7 @@ export function pickRandomEvent(people) {
   const bag = [];
   for (const ev of RANDOM_EVENTS) {
     const ok = people.some((p) => {
-      if (ev.needJob && (p.jobId === 'student' || p.jobId === 'retired' || !p.jobId)) return false;
+      if (ev.needJob && (p.jobId === 'student' || p.jobId === 'retired' || p.jobId === 'idle' || !p.jobId)) return false;
       if (ev.needStudent && p.jobId !== 'student') return false;
       return true;
     });
@@ -90,7 +90,7 @@ export function pickRandomEvent(people) {
 
 export function pickTarget(people, ev) {
   const list = people.filter((p) => {
-    if (ev.needJob && (p.jobId === 'student' || p.jobId === 'retired')) return false;
+    if (ev.needJob && (p.jobId === 'student' || p.jobId === 'retired' || p.jobId === 'idle')) return false;
     if (ev.needStudent && p.jobId !== 'student') return false;
     return true;
   });
