@@ -15,29 +15,29 @@ DEFAULT_WATCHLIST = [
     "COHR",
     "AAOI",
     "AXTI",
-    "WOLF",
-    "CRDO",
     "SNDK",
     "MU",
-    "RKLB",
-    "CRWV",
-    "000660.KS",  # SK Hynix / SKUU underlying
+    "QQQ",
+    "SNOW",
+    "ADBE",
+    "LITE",
+    "CIEN",
 ]
 
-# Synced from Futu App screenshot (保证金综合账户 9635) — 2026-09-09
+# Synced from Futu App screenshot (保证金综合账户 9635) — 2026-10-02
+# App cost is remaining-lot average (realized P&L already carved out).
+# Snapshot: MV≈19562 · holding P/L≈-3102 · today≈+455
+# Notable realized: AAOX≈-3286 · COHX≈-3918 · AXTX≈+2203 · SNXX≈+100
 # budget_used_pct: rough ladder usage so decision engine can reserve ammo
 DEFAULT_PORTFOLIO = [
-    {"symbol": "COHX", "underlying": "COHR", "shares": "270", "cost_price": "25.354", "last_buy_price": "25.354", "budget_used_pct": "0.55"},
-    {"symbol": "AAOX", "underlying": "AAOI", "shares": "420", "cost_price": "12.682", "last_buy_price": "12.682", "budget_used_pct": "0.55"},
-    {"symbol": "RKLB", "underlying": "RKLB", "shares": "60", "cost_price": "69.933", "last_buy_price": "69.933", "budget_used_pct": "0.35"},
-    {"symbol": "SNXX", "underlying": "SNDK", "shares": "180", "cost_price": "15.621", "last_buy_price": "15.621", "budget_used_pct": "0.55"},
-    {"symbol": "AXTI", "underlying": "AXTI", "shares": "40", "cost_price": "63.10", "last_buy_price": "63.10", "budget_used_pct": "0.35"},
-    {"symbol": "AXTX", "underlying": "AXTI", "shares": "300", "cost_price": "7.103", "last_buy_price": "7.103", "budget_used_pct": "0.35"},
-    {"symbol": "WOLF", "underlying": "WOLF", "shares": "50", "cost_price": "26.00", "last_buy_price": "26.00", "budget_used_pct": "0.35"},
-    {"symbol": "MULL", "underlying": "MU", "shares": "55", "cost_price": "22.757", "last_buy_price": "22.757", "budget_used_pct": "0.35"},
-    {"symbol": "SKUU", "underlying": "000660.KS", "shares": "29", "cost_price": "24.055", "last_buy_price": "24.055", "budget_used_pct": "0.35"},
-    {"symbol": "CRDO", "underlying": "CRDO", "shares": "5", "cost_price": "167.00", "last_buy_price": "167.00", "budget_used_pct": "0.20"},
-    {"symbol": "CRWV", "underlying": "CRWV", "shares": "7", "cost_price": "84.00", "last_buy_price": "84.00", "budget_used_pct": "0.20"},
+    {"symbol": "AAOX", "underlying": "AAOI", "shares": "380", "cost_price": "10.234", "last_buy_price": "10.234", "budget_used_pct": "0.55"},
+    {"symbol": "COHX", "underlying": "COHR", "shares": "150", "cost_price": "25.119", "last_buy_price": "25.119", "budget_used_pct": "0.55"},
+    {"symbol": "AXTX", "underlying": "AXTI", "shares": "70", "cost_price": "33.147", "last_buy_price": "33.147", "budget_used_pct": "0.45"},
+    {"symbol": "TQQQ", "underlying": "QQQ", "shares": "20", "cost_price": "80.60", "last_buy_price": "80.60", "budget_used_pct": "0.25"},
+    {"symbol": "SNOW", "underlying": "SNOW", "shares": "4", "cost_price": "344.72", "last_buy_price": "344.72", "budget_used_pct": "0.20"},
+    {"symbol": "ADBE", "underlying": "ADBE", "shares": "5", "cost_price": "241.286", "last_buy_price": "241.286", "budget_used_pct": "0.20"},
+    {"symbol": "MULL", "underlying": "MU", "shares": "40", "cost_price": "27.614", "last_buy_price": "27.614", "budget_used_pct": "0.30"},
+    {"symbol": "SNXX", "underlying": "SNDK", "shares": "61", "cost_price": "17.912", "last_buy_price": "17.912", "budget_used_pct": "0.30"},
 ]
 
 
@@ -57,14 +57,24 @@ async def seed_if_empty(db: AsyncSession) -> None:
             )
             await db.commit()
 
+    replace = bool(settings.seed_replace_portfolio)
+
     has_watch = (await db.execute(select(WatchlistItem.id).limit(1))).scalar_one_or_none()
-    if has_watch is None:
+    if has_watch is None or replace:
+        if replace and has_watch is not None:
+            for row in (await db.execute(select(WatchlistItem))).scalars().all():
+                await db.delete(row)
+            await db.commit()
         for ticker in DEFAULT_WATCHLIST:
             db.add(WatchlistItem(ticker=ticker, enabled=True))
         await db.commit()
 
     has_hold = (await db.execute(select(PortfolioHolding.id).limit(1))).scalar_one_or_none()
-    if has_hold is None:
+    if has_hold is None or replace:
+        if replace and has_hold is not None:
+            for row in (await db.execute(select(PortfolioHolding))).scalars().all():
+                await db.delete(row)
+            await db.commit()
         for row in DEFAULT_PORTFOLIO:
             db.add(PortfolioHolding(**row))
         await db.commit()
