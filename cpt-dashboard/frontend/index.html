@@ -47,9 +47,14 @@
       font: inherit; border: 1px solid var(--line); background: var(--panel);
       color: var(--text); padding: 0.55rem 0.8rem; border-radius: 0;
     }
-    button.active, button:hover { border-color: var(--accent); }
+    button { cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease; }
+    button.active, button:hover:not(:disabled) { border-color: var(--accent); }
     button.primary { background: #1a3d2a; border-color: #2f6b4a; }
+    button.primary:hover:not(:disabled) { background: #214d35; }
+    button.primary:active:not(:disabled) { background: #163226; }
+    button:disabled { opacity: 0.55; cursor: wait; }
     button.danger { border-color: rgba(239,68,68,0.5); color: #ffb4b4; }
+    #refreshStatus { min-width: 5.5rem; }
     main {
       display: grid; grid-template-columns: 1.35fr 0.95fr; gap: 1rem;
       padding: 1rem clamp(1rem, 3vw, 2rem) 2rem;
@@ -145,7 +150,9 @@
       <span class="pill">窗口</span>
       <button type="button" id="btn15">15 交易日</button>
       <button type="button" id="btn30" class="active primary">30 交易日</button>
+      <button type="button" id="btn90">90 交易日</button>
       <button type="button" id="btnRefresh" class="primary">刷新</button>
+      <span class="pill" id="refreshStatus"></span>
     </div>
   </header>
 
@@ -165,7 +172,7 @@
         <h2 id="chartTitle">价格曲线</h2>
         <div class="meta" id="meta"></div>
         <div id="priceChart" class="chart"></div>
-        <p class="hint">区间高/低标记线；悬停看日期价格。点击表格切换标的。</p>
+        <p class="hint">区间高/低随上方窗口（15 / 30 / 90 交易日）重算；悬停看日期价格。点击表格切换标的。</p>
         <p class="err" id="err" hidden></p>
       </div>
 
@@ -363,7 +370,33 @@
         quotes: {},
         portfolio: [],
         watchlist: [],
+        decisions: [],
+        refreshing: false,
       };
+
+      function setRefreshUi(busy, msg) {
+        const btn = document.getElementById('btnRefresh');
+        const status = document.getElementById('refreshStatus');
+        const btn15 = document.getElementById('btn15');
+        const btn30 = document.getElementById('btn30');
+        const btn90 = document.getElementById('btn90');
+        btn.disabled = !!busy;
+        btn15.disabled = !!busy;
+        btn30.disabled = !!busy;
+        if (btn90) btn90.disabled = !!busy;
+        btn.textContent = busy ? '刷新中…' : '刷新';
+        status.textContent = msg || '';
+      }
+
+      function setWindowDays(days) {
+        state.days = days;
+        [15, 30, 90].forEach(function (d) {
+          const el = document.getElementById('btn' + d);
+          if (!el) return;
+          if (d === days) el.classList.add('active', 'primary');
+          else el.classList.remove('active', 'primary');
+        });
+      }
 
       const priceChart = echarts.init(document.getElementById('priceChart'));
       const gaugeChart = echarts.init(document.getElementById('gaugeChart'));
@@ -426,17 +459,23 @@
           )
         );
         const bars = await fetchBars(symbol, state.days);
-        const summary = Object.assign({ bars: bars }, cycle, { symbol: symbol, days: state.days });
+        const asOf = (bars.length ? bars[bars.length - 1].date : null) || cycle.asOf;
+        const summary = Object.assign({ bars: bars }, cycle, {
+          symbol: symbol,
+          days: state.days,
+          asOf: asOf,
+        });
         state.quotes[symbol] = summary;
         return summary;
       }
 
       function renderMeta(s, symbol) {
-        document.getElementById('chartTitle').textContent = symbol + ' · ' + state.days + ' 交易日';
+        document.getElementById('chartTitle').textContent = symbol + ' · ' + state.days + ' 交易日' +
+          (s.asOf ? ' · 截至 ' + s.asOf : '');
         document.getElementById('meta').innerHTML =
           '<div class="stat"><label>现价</label><strong>' + s.current.toFixed(2) + '</strong></div>' +
-          '<div class="stat"><label>区间高</label><strong>' + s.high.toFixed(2) + '</strong></div>' +
-          '<div class="stat"><label>区间低</label><strong>' + s.low.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>' + state.days + '日高</label><strong>' + s.high.toFixed(2) + '</strong></div>' +
+          '<div class="stat"><label>' + state.days + '日低</label><strong>' + s.low.toFixed(2) + '</strong></div>' +
           '<div class="stat"><label>周期分</label><strong class="' + ZONE_CLASS[s.zone] + '">' +
             s.score + ' · ' + zoneLabel(s.zone) + '</strong></div>';
       }
@@ -482,8 +521,8 @@
               symbol: 'none',
               label: { color: '#c8d4cb', formatter: '{b}' },
               data: [
-                { yAxis: summary.high, name: '高', lineStyle: { color: '#ef4444', type: 'dashed' } },
-                { yAxis: summary.low, name: '低', lineStyle: { color: '#22c55e', type: 'dashed' } },
+                { yAxis: summary.high, name: state.days + '日高', lineStyle: { color: '#ef4444', type: 'dashed' } },
+                { yAxis: summary.low, name: state.days + '日低', lineStyle: { color: '#22c55e', type: 'dashed' } },
               ],
             },
           }],
@@ -697,14 +736,18 @@
         } catch (_) {}
       }
 
-      async function loadPortfolio() {
-        const rows = await apiJson('/api/portfolio?window_days=' + state.days);
+      async function loadPortfolio(days) {
+        const d = days != null ? days : state.days;
+        const rows = await apiJson('/api/portfolio?window_days=' + d);
         state.portfolio = rows || [];
       }
 
-      async function loadScanner() {
-        await apiJson('/api/cycle/refresh?window_days=' + state.days, { method: 'POST' });
-        const rows = await apiJson('/api/cycle?window_days=' + state.days);
+      async function loadScanner(days, soft) {
+        const d = days != null ? days : state.days;
+        if (!soft) {
+          await apiJson('/api/cycle/refresh?window_days=' + d, { method: 'POST' });
+        }
+        const rows = await apiJson('/api/cycle?window_days=' + d);
         state.rows = (rows || []).map(normalizeCycle).sort(function (a, b) { return a.score - b.score; });
       }
 
@@ -729,6 +772,12 @@
           const drop = c.change_from_last_buy == null ? '—' : (c.change_from_last_buy * 100).toFixed(1) + '%';
           const need = c.add_gap == null ? '—' : (c.add_gap * 100).toFixed(0) + '%';
           const tprog = c.time_progress == null ? '—' : Math.round(c.time_progress * 100) + '%';
+          const tAvg = c.t_avg_days != null ? Math.round(c.t_avg_days) + '日' : '—';
+          const tLast = c.t_last_days != null ? Math.round(c.t_last_days) + '日' : '—';
+          const tNow = c.days_since_low != null ? c.days_since_low + '日' : '—';
+          const tRecent = (c.t_recent_days && c.t_recent_days.length)
+            ? c.t_recent_days.map(function (x) { return Math.round(x); }).join('/')
+            : '—';
           return '<article class="dcard clickable" data-symbol="' + (c.underlying || c.symbol) + '">' +
             '<div class="sym">' + c.symbol + (c.underlying && c.underlying !== c.symbol ? ' → ' + c.underlying : '') + '</div>' +
             '<div class="act ' + actionClass(c.action) + '">' + c.action + '</div>' +
@@ -736,7 +785,8 @@
             '<div class="meta-line">个股位置 ' + (c.position_score ?? '—') +
               ' · 板块 ' + (c.sector_label || '—') +
               (c.sector_score != null ? ' (' + c.sector_score + ')' : '') + '</div>' +
-            '<div class="meta-line">仓位使用 ' + usage + ' · 时间进度 ' + tprog + '</div>' +
+            '<div class="meta-line">仓位使用 ' + usage + ' · T ' + tprog + '（对本股均值）</div>' +
+            '<div class="meta-line">本轮 ' + tNow + ' · 均 ' + tAvg + ' · 上次 ' + tLast + ' · 近几轮 ' + tRecent + '</div>' +
             '<div class="meta-line">距上次买 ' + drop + ' / 需间隔 ' + need +
               (c.failed_breakout ? ' · 冲顶失败' : '') + '</div>' +
             '<div class="why">' + (c.reason || '') + '</div>' +
@@ -744,8 +794,9 @@
         }).join('');
       }
 
-      async function loadDecisions() {
-        const data = await apiJson('/api/decision/cards?window_days=' + state.days);
+      async function loadDecisions(days) {
+        const d = days != null ? days : state.days;
+        const data = await apiJson('/api/decision/cards?window_days=' + d);
         state.decisions = data.cards || [];
         renderDecisions(state.decisions);
       }
@@ -765,17 +816,24 @@
       }
 
       async function refreshAll() {
+        if (state.refreshing) return;
+        state.refreshing = true;
+        const days = state.days;
         showErr('');
         state.quotes = {};
+        setRefreshUi(true, days + '日 · 拉取中');
         try {
           await loadWatchlist();
-          await loadPortfolio();
-          await loadScanner();
+          setRefreshUi(true, days + '日 · 持仓');
+          await loadPortfolio(days);
+          setRefreshUi(true, days + '日 · 评分');
+          await loadScanner(days, false);
           renderTable();
           renderHeat();
           renderPortfolio();
           try {
-            await loadDecisions();
+            setRefreshUi(true, days + '日 · 决策');
+            await loadDecisions(days);
           } catch (de) {
             console.warn(de);
             document.getElementById('decisionGrid').innerHTML =
@@ -785,10 +843,21 @@
           if (!state.rows.find(function (r) { return (r.ticker || r.symbol) === state.symbol; }) && state.rows[0]) {
             state.symbol = state.rows[0].ticker || state.rows[0].symbol;
           }
-          if (state.symbol) await selectSymbol(state.symbol);
+          if (state.symbol) {
+            setRefreshUi(true, days + '日 · 图表');
+            await selectSymbol(state.symbol);
+          }
+          const asOf = (state.quotes[state.symbol] && state.quotes[state.symbol].asOf) ||
+            (state.rows[0] && state.rows[0].updated_at) || '';
+          setRefreshUi(false, asOf ? ('已更新 · ' + String(asOf).slice(0, 10)) : '已更新');
         } catch (e) {
           showErr(String(e.message || e));
           renderPortfolio();
+          setRefreshUi(false, '失败');
+        } finally {
+          state.refreshing = false;
+          const btn = document.getElementById('btnRefresh');
+          if (btn.disabled) setRefreshUi(false, document.getElementById('refreshStatus').textContent);
         }
       }
 
@@ -874,18 +943,24 @@
       });
 
       document.getElementById('btn15').addEventListener('click', function () {
-        state.days = 15;
-        document.getElementById('btn15').classList.add('active', 'primary');
-        document.getElementById('btn30').classList.remove('active', 'primary');
+        if (state.refreshing) return;
+        setWindowDays(15);
         refreshAll();
       });
       document.getElementById('btn30').addEventListener('click', function () {
-        state.days = 30;
-        document.getElementById('btn30').classList.add('active', 'primary');
-        document.getElementById('btn15').classList.remove('active', 'primary');
+        if (state.refreshing) return;
+        setWindowDays(30);
         refreshAll();
       });
-      document.getElementById('btnRefresh').addEventListener('click', refreshAll);
+      document.getElementById('btn90').addEventListener('click', function () {
+        if (state.refreshing) return;
+        setWindowDays(90);
+        refreshAll();
+      });
+      document.getElementById('btnRefresh').addEventListener('click', function () {
+        if (state.refreshing) return;
+        refreshAll();
+      });
       document.getElementById('btnSaveApi').addEventListener('click', function () {
         localStorage.setItem(API_KEY, document.getElementById('apiBase').value.trim());
         refreshAll();

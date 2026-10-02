@@ -54,7 +54,7 @@ async def build_card_for_holding(
     has_position = float(holding.shares) > 0
 
     bars = await asyncio.to_thread(fetch_daily_bars, underlying, max(120, window_days * 4))
-    metrics = cycle_metrics_from_bars(bars)
+    metrics = cycle_metrics_from_bars(bars, window_days=window_days)
     # Prefer live cycle cache score for P when available (consistent with scanner)
     cached = await _score_for(db, underlying, window_days)
     position_score = float(cached) if cached is not None else float(metrics["position_score"])
@@ -95,6 +95,13 @@ async def build_card_for_holding(
         profit_pct=profit_pct,
         failed_breakout=bool(metrics["failed_breakout"]),
         has_position=has_position,
+        days_since_low=int(metrics.get("days_since_low") or 0),
+        t_avg_days=metrics.get("t_avg_days"),
+        t_last_days=metrics.get("t_last_days"),
+        t_median_days=metrics.get("t_median_days"),
+        t_recent_days=list(metrics.get("t_recent_days") or []),
+        time_progress_vs_last=metrics.get("time_progress_vs_last"),
+        time_progress_vs_median=metrics.get("time_progress_vs_median"),
     )
 
 
@@ -135,7 +142,7 @@ async def build_cards(
             # bypass shares>0 check via decide has_position=False — build_card uses shares
             try:
                 bars = await asyncio.to_thread(fetch_daily_bars, t, max(120, window_days * 4))
-                metrics = cycle_metrics_from_bars(bars)
+                metrics = cycle_metrics_from_bars(bars, window_days=window_days)
                 cached = await _score_for(db, t, window_days)
                 p = float(cached) if cached is not None else float(metrics["position_score"])
                 s = await sector_temperature(db, t, window_days)
@@ -152,6 +159,13 @@ async def build_cards(
                         profit_pct=None,
                         failed_breakout=bool(metrics["failed_breakout"]),
                         has_position=False,
+                        days_since_low=int(metrics.get("days_since_low") or 0),
+                        t_avg_days=metrics.get("t_avg_days"),
+                        t_last_days=metrics.get("t_last_days"),
+                        t_median_days=metrics.get("t_median_days"),
+                        t_recent_days=list(metrics.get("t_recent_days") or []),
+                        time_progress_vs_last=metrics.get("time_progress_vs_last"),
+                        time_progress_vs_median=metrics.get("time_progress_vs_median"),
                     )
                 )
             except Exception:  # noqa: BLE001
