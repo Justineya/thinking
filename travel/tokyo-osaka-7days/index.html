@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>东京 · 大阪七日｜含环球影城</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #141820;
+      --ink-soft: #3a4250;
+      --mist: #e8eef4;
+      --paper: #f4f7fa;
+      --line: #c5d0dc;
+      --accent: #c8102e;
+      --accent-deep: #8f0b20;
+      --sea: #4a6fa5;
+      --max: 72rem;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Zen Kaku Gothic New", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.7;
+      font-weight: 400;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    /* —— Hero —— */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      color: #fff;
+    }
+    .hero__media {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+    .hero__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.06);
+      animation: heroZoom 18s var(--ease) forwards;
+    }
+    .hero__shade {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(20, 24, 32, 0.15) 0%, rgba(20, 24, 32, 0.55) 48%, rgba(20, 24, 32, 0.88) 100%);
+    }
+    .hero__inner {
+      position: relative;
+      z-index: 1;
+      width: min(100% - 2.5rem, var(--max));
+      margin: 0 auto;
+      padding: 0 0 4.5rem;
+    }
+    .hero__brand {
+      font-family: "Shippori Mincho", serif;
+      font-size: clamp(2.6rem, 7vw, 4.75rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: rise 1s var(--ease) 0.2s forwards;
+    }
+    .hero__lead {
+      max-width: 28rem;
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      color: rgba(255, 255, 255, 0.88);
+      margin-bottom: 1.75rem;
+      opacity: 0;
+      animation: rise 1s var(--ease) 0.4s forwards;
+    }
+    .hero__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.9rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      transition: background 0.25s var(--ease), transform 0.25s var(--ease);
+      opacity: 0;
+      animation: rise 1s var(--ease) 0.55s forwards;
+    }
+    .hero__cta:hover {
+      background: var(--accent-deep);
+      transform: translateY(-2px);
+    }
+    .hero__cta span {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    @keyframes heroZoom {
+      to { transform: scale(1); }
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* —— Sections —— */
+    .wrap {
+      width: min(100% - 2.5rem, var(--max));
+      margin: 0 auto;
+    }
+    section {
+      padding: clamp(3.5rem, 8vw, 6rem) 0;
+    }
+    .section-kicker {
+      font-size: 0.8rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sea);
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+    }
+    .section-title {
+      font-family: "Shippori Mincho", serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+    .section-desc {
+      color: var(--ink-soft);
+      max-width: 36rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Route overview */
+    .route {
+      background:
+        radial-gradient(ellipse at 10% 0%, rgba(74, 111, 165, 0.12), transparent 50%),
+        linear-gradient(180deg, var(--mist), var(--paper));
+    }
+    .route-rail {
+      display: grid;
+      gap: 0;
+      border-top: 1px solid var(--line);
+    }
+    .route-item {
+      display: grid;
+      grid-template-columns: 4.5rem 1fr;
+      gap: 1.25rem;
+      padding: 1.35rem 0;
+      border-bottom: 1px solid var(--line);
+      align-items: baseline;
+    }
+    .route-item strong {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.15rem;
+      color: var(--accent);
+    }
+    .route-item p { color: var(--ink-soft); }
+    .route-item em {
+      font-style: normal;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    /* Day blocks */
+    .day {
+      display: grid;
+      gap: 1.75rem;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+    }
+    .day.is-in {
+      opacity: 1;
+      transform: none;
+    }
+    .day + .day {
+      margin-top: clamp(3rem, 7vw, 5rem);
+      padding-top: clamp(3rem, 7vw, 5rem);
+      border-top: 1px solid var(--line);
+    }
+    .day__visual {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 16 / 10;
+      background: var(--mist);
+    }
+    .day__visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 1.2s var(--ease);
+    }
+    .day.is-in .day__visual img { transform: scale(1.03); }
+    .day__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      align-items: baseline;
+      margin-bottom: 0.85rem;
+    }
+    .day__num {
+      font-family: "Shippori Mincho", serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .day__city {
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      color: var(--sea);
+      font-weight: 500;
+    }
+    .day h3 {
+      font-family: "Shippori Mincho", serif;
+      font-size: clamp(1.45rem, 3vw, 1.9rem);
+      margin-bottom: 0.85rem;
+      letter-spacing: 0.03em;
+    }
+    .day__body { color: var(--ink-soft); max-width: 40rem; }
+    .day__body ul {
+      margin-top: 1rem;
+      padding-left: 1.1rem;
+    }
+    .day__body li { margin-bottom: 0.4rem; }
+    .day__body li::marker { color: var(--accent); }
+
+    @media (min-width: 860px) {
+      .day {
+        grid-template-columns: 1.15fr 1fr;
+        gap: 2.75rem;
+        align-items: center;
+      }
+      .day:nth-child(even) .day__visual { order: 2; }
+    }
+
+    /* USJ highlight */
+    .usj {
+      background: var(--ink);
+      color: #f2f5f8;
+    }
+    .usj .section-kicker { color: #f0a8b0; }
+    .usj .section-desc { color: rgba(242, 245, 248, 0.72); }
+    .usj-grid {
+      display: grid;
+      gap: 2rem;
+    }
+    @media (min-width: 800px) {
+      .usj-grid { grid-template-columns: 1.2fr 1fr; align-items: start; }
+    }
+    .usj-visual {
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+    }
+    .usj-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .usj-list {
+      list-style: none;
+      display: grid;
+      gap: 1.1rem;
+    }
+    .usj-list li {
+      padding-bottom: 1.1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .usj-list strong {
+      display: block;
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+      color: #fff;
+    }
+    .usj-list span { color: rgba(242, 245, 248, 0.7); font-size: 0.95rem; }
+
+    /* Practice */
+    .practice-list {
+      display: grid;
+      gap: 1.5rem;
+    }
+    @media (min-width: 700px) {
+      .practice-list { grid-template-columns: 1fr 1fr; gap: 2rem 3rem; }
+    }
+    .practice-item h4 {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.15rem;
+      margin-bottom: 0.4rem;
+    }
+    .practice-item p { color: var(--ink-soft); font-size: 0.98rem; }
+
+    /* Budget strip */
+    .budget {
+      border-top: 1px solid var(--line);
+      padding-top: 2rem;
+      margin-top: 2.5rem;
+      color: var(--ink-soft);
+    }
+    .budget strong { color: var(--ink); }
+
+    footer {
+      padding: 2.5rem 0 3.5rem;
+      border-top: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__media" aria-hidden="true">
+      <img
+        src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=2000&q=80"
+        alt=""
+        width="2000"
+        height="1333"
+      />
+      <div class="hero__shade"></div>
+    </div>
+    <div class="hero__inner">
+      <h1 class="hero__brand">东京 · 大阪<br />七日</h1>
+      <p class="hero__lead">黄金路线慢走版：东京四日气息，大阪坐镇环球与京都一日，不去迪士尼。</p>
+      <a class="hero__cta" href="#days">查看行程 <span aria-hidden="true">↓</span></a>
+    </div>
+  </header>
+
+  <section class="route" id="overview" aria-labelledby="overview-title">
+    <div class="wrap">
+      <p class="section-kicker">Route</p>
+      <h2 class="section-title" id="overview-title">路线一览</h2>
+      <p class="section-desc">东京 3.5 天 → 新干线南下 → 大阪 3.5 天。全国 JR Pass 一般不必买，东京到新大阪单买指定席即可。</p>
+      <div class="route-rail">
+        <div class="route-item"><strong>D1</strong><p><em>东京</em> · 浅草、晴空塔、秋叶原</p></div>
+        <div class="route-item"><strong>D2</strong><p><em>东京</em> · 明治神宫、原宿、表参道、涩谷</p></div>
+        <div class="route-item"><strong>D3</strong><p><em>东京</em> · 丰洲寿司、teamLab / 台场</p></div>
+        <div class="route-item"><strong>D4</strong><p><em>转移</em> · 新干线赴大阪，心斋桥、道顿堀</p></div>
+        <div class="route-item"><strong>D5</strong><p><em>京都一日</em> · 伏见稻荷、清水寺、祇园</p></div>
+        <div class="route-item"><strong>D6</strong><p><em>大阪</em> · 全日环球影城 USJ</p></div>
+        <div class="route-item"><strong>D7</strong><p><em>奈良半日</em> · 东大寺、喂鹿，返程</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="days" aria-labelledby="days-title">
+    <div class="wrap">
+      <p class="section-kicker">Itinerary</p>
+      <h2 class="section-title" id="days-title">逐日行程</h2>
+      <p class="section-desc">每天两到三个主点，给走路和排队留余量。</p>
+
+      <article class="day">
+        <div class="day__visual">
+          <img src="https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?auto=format&fit=crop&w=1400&q=80" alt="浅草寺雷门" width="1400" height="875" loading="lazy" />
+        </div>
+        <div>
+          <div class="day__meta"><span class="day__num">DAY 01</span><span class="day__city">TOKYO</span></div>
+          <h3>下町初印象</h3>
+          <div class="day__body">
+            <p>入住建议浅草、上野或秋叶原。机场线可坐京成 Skyliner 到上野，手机钱包开通 Suica。</p>
+            <ul>
+              <li>雷门 → 仲见世通 → 浅草寺</li>
+              <li>傍晚晴空塔看灯</li>
+              <li>晚饭秋叶原拉面或烧肉</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="day">
+        <div class="day__visual">
+          <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=1400&q=80" alt="涩谷十字路口" width="1400" height="875" loading="lazy" />
+        </div>
+        <div>
+          <div class="day__meta"><span class="day__num">DAY 02</span><span class="day__city">TOKYO</span></div>
+          <h3>神社与潮流街区</h3>
+          <div class="day__body">
+            <p>明治神宫早去人少。竹下通可匆匆穿过，表参道适合慢慢走。</p>
+            <ul>
+              <li>明治神宫 → 原宿 → 表参道</li>
+              <li>涩谷十字路口；SHIBUYA SKY 需预约</li>
+              <li>晚间新宿东口逛一圈即可</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="day">
+        <div class="day__visual">
+          <img src="https://images.unsplash.com/photo-1554797589-7241bb691973?auto=format&fit=crop&w=1400&q=80" alt="东京台场海滨" width="1400" height="875" loading="lazy" />
+        </div>
+        <div>
+          <div class="day__meta"><span class="day__num">DAY 03</span><span class="day__city">TOKYO</span></div>
+          <h3>丰洲与台场（不去迪士尼）</h3>
+          <div class="day__body">
+            <p>用一天做轻松主题，把体力留给大阪环球。</p>
+            <ul>
+              <li>早：丰洲市场吃寿司</li>
+              <li>午后：teamLab Planets（提前购票）或台场海滨</li>
+              <li>晚：整理行李，预订次日新干线指定席</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="day">
+        <div class="day__visual">
+          <img src="https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&w=1400&q=80" alt="新干线" width="1400" height="875" loading="lazy" />
+        </div>
+        <div>
+          <div class="day__meta"><span class="day__num">DAY 04</span><span class="day__city">TOKYO → OSAKA</span></div>
+          <h3>南下关西</h3>
+          <div class="day__body">
+            <p>东京站或品川站搭东海道新干线至新大阪，约两个半小时。单程约一万四千日元。</p>
+            <ul>
+              <li>上午：皇居外苑或银座轻逛</li>
+              <li>下午：入住心斋桥 / 难波 / 本町</li>
+              <li>道顿堀、固力果跑跑人、章鱼烧</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="day">
+        <div class="day__visual">
+          <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1400&q=80" alt="伏见稻荷千本鸟居" width="1400" height="875" loading="lazy" />
+        </div>
+        <div>
+          <div class="day__meta"><span class="day__num">DAY 05</span><span class="day__city">KYOTO</span></div>
+          <h3>京都一日</h3>
+          <div class="day__body">
+            <p>从大阪坐 JR 快速约三十分钟到京都。巴士易堵，能走路就走路。</p>
+            <ul>
+              <li>伏见稻荷大社（尽早）</li>
+              <li>清水寺 → 二年坂三年坂</li>
+              <li>祇园散步；晚饭可回大阪吃更热闹的</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="day" id="usj-day">
+        <div class="day__visual">
+          <img src="https://images.unsplash.com/photo-1569288063643-5d29ad64df09?auto=format&fit=crop&w=1400&q=80" alt="游乐园夜景氛围" width="1400" height="875" loading="lazy" />
+        </div>
+        <div>
+          <div class="day__meta"><span class="day__num">DAY 06</span><span class="day__city">USJ</span></div>
+          <h3>全日环球影城</h3>
+          <div class="day__body">
+            <p>这天只办一件事。难波 / 心斋桥坐地铁到 Universal City。</p>
+            <ul>
+              <li>开园前 60～90 分钟到达</li>
+              <li>优先任天堂世界、哈利波特、飞天翼龙</li>
+              <li>出园回心斋桥吃串炸或大阪烧</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="day">
+        <div class="day__visual">
+          <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=1400&q=80" alt="奈良公园" width="1400" height="875" loading="lazy" />
+        </div>
+        <div>
+          <div class="day__meta"><span class="day__num">DAY 07</span><span class="day__city">NARA · DEPART</span></div>
+          <h3>奈良半日与返程</h3>
+          <div class="day__body">
+            <p>近铁到奈良。关西机场预留起飞前 2.5～3 小时出门。</p>
+            <ul>
+              <li>东大寺 → 奈良公园喂鹿</li>
+              <li>回大阪取行李，药妆手信补购</li>
+              <li>南海电铁或 JR 空港急行列关西空港</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="usj" id="usj" aria-labelledby="usj-title">
+    <div class="wrap usj-grid">
+      <div>
+        <p class="section-kicker">Universal Studios Japan</p>
+        <h2 class="section-title" id="usj-title">环球影城备忘</h2>
+        <p class="section-desc">任天堂世界需分区入场。想稳进，买带 Area Timed Entry / SUPER NINTENDO WORLD 字样的 Express；入园前装好官方 App 并登记门票。</p>
+        <div class="usj-visual">
+          <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=1200&q=80" alt="大阪夜景" width="1200" height="900" loading="lazy" />
+        </div>
+      </div>
+      <ul class="usj-list">
+        <li>
+          <strong>票务组合</strong>
+          <span>Studio Pass 入园票 + Express Pass（建议含任天堂预约）。Power-Up Band 可选。</span>
+        </li>
+        <li>
+          <strong>App 必做</strong>
+          <span>2026 年起同日分区票多在官方 App 领取；进园前完成登记，别在门口现装。</span>
+        </li>
+        <li>
+          <strong>游玩顺序</strong>
+          <span>马里奥赛车 / 咚奇刚矿车 → 哈利波特禁忌之旅 → 飞天翼龙或小黄人。</span>
+        </li>
+        <li>
+          <strong>体力安排</strong>
+          <span>D5 京都回来早点睡；D6 不塞其他景点。</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="tips" aria-labelledby="tips-title">
+    <div class="wrap">
+      <p class="section-kicker">Essentials</p>
+      <h2 class="section-title" id="tips-title">实用与预算</h2>
+      <p class="section-desc">出行前把交通卡、预约和行李寄送想清楚，比多排两个景点更重要。</p>
+      <div class="practice-list">
+        <div class="practice-item">
+          <h4>交通</h4>
+          <p>手机 Suica / ICOCA。东京至新大阪单买指定席；市内地铁巴士刷卡即可。</p>
+        </div>
+        <div class="practice-item">
+          <h4>预约</h4>
+          <p>teamLab、SHIBUYA SKY、USJ 门票与 Express 尽量提前。人气餐厅可订位。</p>
+        </div>
+        <div class="practice-item">
+          <h4>行李</h4>
+          <p>D4 可用宅急便把大件寄到大阪酒店，人只带隔夜包坐新干线。</p>
+        </div>
+        <div class="practice-item">
+          <h4>礼仪</h4>
+          <p>电车不打电话，神社内保持安静，垃圾桶很少——垃圾随身带走。</p>
+        </div>
+      </div>
+      <p class="budget">
+        <strong>预算粗算（不含机票）：</strong>
+        住宿每晚约 ¥12,000–20,000，餐饮每天 ¥5,000–8,000，新干线单程约 ¥14,000，USJ 门票 + Express 另计。七天一人约 ¥8–13 万（含乐园）。
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">东京 · 大阪七日攻略 · 含环球 · 不含迪士尼</div>
+  </footer>
+
+  <script>
+    const days = document.querySelectorAll(".day");
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add("is-in");
+        });
+      },
+      { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
+    );
+    days.forEach((d) => io.observe(d));
+  </script>
+</body>
+</html>
