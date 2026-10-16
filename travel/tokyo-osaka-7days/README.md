@@ -2,12 +2,18 @@
 
 含大阪环球影城，不含迪士尼。
 
-## 打开方式
+## 在线地址（GitHub Pages）
 
-用浏览器直接打开 `index.html`，或在本目录执行：
+合并进 `main` 并开启 Pages（Source = GitHub Actions）后：
+
+**https://justineya.github.io/thinking/**
+
+## 本地打开
+
+用浏览器直接打开 `index.html`，或：
 
 ```bash
 python3 -m http.server 8765
 ```
 
-然后访问 `http://localhost:8765`。
+访问 `http://localhost:8765`。
