@@ -1,18 +1,12 @@
 # 东京 · 大阪七日游（网页版）
 
-含大阪环球影城，不含迪士尼。
+含大阪环球影城，不含迪士尼。页内含携程 / 飞猪预订入口，以及大众点评餐厅链接。
 
 ## 在线地址（GitHub Pages）
 
-静态站已推到 **`gh-pages`** 分支。请你本地打开一次仓库设置完成发布：
-
-1. 打开 https://github.com/Justineya/thinking/settings/pages  
-2. **Build and deployment → Source** 选 **Deploy from a branch**  
-3. Branch 选 **`gh-pages`** / **`/`（root）** → Save  
-
-约 1～2 分钟后访问：
-
 **https://justineya.github.io/thinking/**
+
+Pages 源：`gh-pages` / `/`（root）。
 
 ## 本地打开
 
