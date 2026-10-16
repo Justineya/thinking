@@ -14,8 +14,6 @@
 
 **https://justineya.github.io/thinking/**
 
-（也可在 Source 选 GitHub Actions，用 `.github/workflows/deploy-tokyo-osaka.yml` 自动部署。）
-
 ## 本地打开
 
 用浏览器直接打开 `index.html`，或：
