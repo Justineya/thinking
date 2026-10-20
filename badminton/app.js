@@ -69,27 +69,34 @@ function getShot(id) {
 }
 
 function layout() {
-  const pad = 28;
-  const w = court.width - pad * 2;
-  const h = court.height - pad * 2;
-  return { pad, w, h };
+  const margin = 36;
+  const availW = court.width - margin * 2;
+  const availH = court.height - margin * 2;
+  const aspect = W / L;
+  let h = availH;
+  let w = h * aspect;
+  if (w > availW) {
+    w = availW;
+    h = w / aspect;
+  }
+  return { x: (court.width - w) / 2, y: (court.height - h) / 2, w, h };
 }
 function toPx(p) {
-  const { pad, w, h } = layout();
-  return { x: pad + (p.x / W) * w, y: pad + (1 - p.y / L) * h };
+  const { x, y, w, h } = layout();
+  return { x: x + (p.x / W) * w, y: y + (1 - p.y / L) * h };
 }
 function toM(px, py) {
-  const { pad, w, h } = layout();
-  return { x: ((px - pad) / w) * W, y: (1 - (py - pad) / h) * L };
+  const { x, y, w, h } = layout();
+  return { x: ((px - x) / w) * W, y: (1 - (py - y) / h) * L };
 }
 
 function drawCourt() {
-  const { pad, w, h } = layout();
+  const box = layout();
   ctx.clearRect(0, 0, court.width, court.height);
-  ctx.fillStyle = '#1f6b3a';
+  ctx.fillStyle = '#0b1f12';
   ctx.fillRect(0, 0, court.width, court.height);
   ctx.fillStyle = '#24824a';
-  ctx.fillRect(pad, pad, w, h);
+  ctx.fillRect(box.x, box.y, box.w, box.h);
 
   const line = (x1, y1, x2, y2, width = 2.2) => {
     const a = toPx({ x: x1, y: y1 });
