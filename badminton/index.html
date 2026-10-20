@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>球路训练</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div>
+        <h1>球路训练</h1>
+        <p class="sub">按你的技术打：杀得准，吊不稳，反手侧身容易打飞。接不到就是接不到。</p>
+      </div>
+      <div class="score">
+        <span>你 <b id="youScore">0</b></span>
+        <span>对方 <b id="oppScore">0</b></span>
+        <span>回合 <b id="rallyN">1</b></span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <section class="stage">
+        <canvas id="court" width="560" height="860"></canvas>
+        <aside class="height-card">
+          <div class="height-lab">侧视高度</div>
+          <canvas id="heightView" width="220" height="140"></canvas>
+        </aside>
+      </section>
+
+      <section class="panel">
+        <div class="block">
+          <div class="lab">你的技术</div>
+          <div id="skillCard" class="skills"></div>
+        </div>
+        <div class="block">
+          <div class="lab">球种</div>
+          <div id="shotBar" class="chips"></div>
+        </div>
+        <div class="block">
+          <div class="lab">对方风格</div>
+          <div id="styleBar" class="chips"></div>
+        </div>
+        <p id="hint" class="hint">先选球种，再点对面场地。发球从你这边底线附近发出。</p>
+        <p id="callout" class="callout">等待开球。</p>
+        <div class="lab">针对你的提升</div>
+        <div id="planBox" class="plan"></div>
+        <div class="lab">推荐打法</div>
+        <div id="recList" class="recs"></div>
+        <div class="btns">
+          <button id="serveBtn" type="button">重新发球</button>
+          <button id="replayBtn" type="button" class="ghost">看复盘路线</button>
+          <button id="resetBtn" type="button" class="ghost">清空比分</button>
+        </div>
+        <div class="lab">本回合复盘</div>
+        <div id="reviewBox" class="review">还没打完。结束后看这一分怎么丢、下一分怎么打。</div>
+        <div class="lab">球路记录</div>
+        <ol id="log" class="log"></ol>
+      </section>
+    </div>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
