@@ -38,7 +38,7 @@ const PLAN = {
     '回位：每拍杀完先回T。训练里你是准备好再接，比赛里你是杀完才找球。',
     '反手只挑高、深：侧身没转完就出手，球会又短又高，对面直接杀。先求到位。',
     '多球要加难度：喂球加快、压平、往反手髋。能回10个高远，再算练到了。',
-    '两点控制：推反手底线 + 放网。他起高再杀。吊球先不当实战轴心。',
+    '两点控制：推反手底线 + 放网。他起高再杀。反手侧身吊对角很帅，等侧身能转完再练。',
   ],
 };
 
@@ -167,7 +167,19 @@ function executeYouShot(shot, intended, from) {
     x: intended.x + gauss() * spread * 0.55,
     y: intended.y + gauss() * spread * 0.7,
   };
-  if (shot.id === 'drop' && skill < 0.5 && Math.random() < 0.28) {
+  const bhDrop = shot.id === 'drop' && sideOf(from, false) === 'backhand';
+  if (bhDrop) {
+    const roll = Math.random();
+    if (roll < 0.42) {
+      return { ok: false, reason: '反手侧身吊对角下网。帅是帅，侧身没转完拍面就打开了。', dest };
+    }
+    if (roll < 0.62) {
+      return { ok: false, reason: '反手吊对角出边线。角度够帅，落点你现在锁不住。', dest };
+    }
+    dest.x += (Math.random() - 0.5) * 1.8;
+    dest.y = NET + 1.6 + Math.random() * 2.2;
+  }
+  if (shot.id === 'drop' && !bhDrop && skill < 0.5 && Math.random() < 0.28) {
     return { ok: false, reason: '吊球下网。这拍你本来就不稳。', dest };
   }
   if (shot.id === 'hook' && skill < 0.55 && Math.random() < 0.16) {
@@ -428,7 +440,12 @@ function recommendPlay() {
   if (bh) {
     return [
       { shotId: 'lift', title: '反手先挑后场', why: '你反手侧身回球不到位。别吊、别勾，先挑高保住。', ghost: open.back },
-      { shotId: 'push', title: '能推就推直线', why: '反手推比吊稳一点，但落点仍会偏。', ghost: { x: clamp(state.opp.x < W / 2 ? W - 0.8 : 0.8, 0.4, W - 0.4), y: L - 1.4 } },
+      {
+        shotId: 'drop',
+        title: '反手侧身吊对角（帅）',
+        why: '这拍看起来最帅。按你现在的吊球和侧身，十次里多数下网、出界或变成半场高球。',
+        ghost: open.front,
+      },
     ];
   }
   if (incoming.id === 'smash') {
@@ -884,6 +901,8 @@ function tryHit(dest) {
   const drift = dist(dest, hit.dest);
   if (drift > 1.1) {
     setCall(`你想打${placeLabel(dest, true)}，实际落到${placeLabel(hit.dest, true)}。`);
+  } else if (shot.id === 'drop' && sideOf(from, false) === 'backhand') {
+    setCall('反手吊对角很帅。这拍碰巧过网了，落点多半偏浅，对方能抢。');
   } else if (shot.id === 'drop') {
     setCall(hit.skill > 0.7 ? '这拍吊球偶尔到位了。' : '吊球你一般，落点会漂。');
   }
