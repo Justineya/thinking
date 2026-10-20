@@ -677,7 +677,8 @@ function finishFlight(sh) {
   const reach = (() => {
     const d = dist(receiver, sh.to);
     const need = d / (sh.who === 'you' ? 4.7 : 4.4);
-    return { reach: need <= sh.hang + 0.18, late: need > sh.hang * 0.78, need };
+    const slack = sh.shot.id === 'smash' ? 0.04 : 0.18;
+    return { reach: need <= sh.hang + slack, late: need > sh.hang * 0.78, need };
   })();
 
   if (sh.who === 'you') {
