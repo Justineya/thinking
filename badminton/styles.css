@@ -104,6 +104,19 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.08em; }
   min-height: 3.4em;
   margin: 8px 0 12px;
 }
+.skills { display: flex; flex-wrap: wrap; gap: 5px; }
+.sk {
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 8px;
+  background: #e7ece8;
+  color: #2a3f32;
+}
+.sk.good { background: #d5f0de; color: #146536; }
+.sk.ok { background: #e8f0e6; }
+.sk.weak { background: #fde8d8; color: #9a3412; }
+
 .recs { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
 .rec {
   border: 0;
@@ -117,7 +130,9 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.08em; }
 .rec:hover, .rec.is-on { outline: 2px solid var(--on); }
 .rec b { display: block; font-size: 0.84rem; }
 .rec span { display: block; color: var(--muted); font-size: 0.74rem; line-height: 1.4; margin-top: 2px; }
-.rec .tag { display: inline-block; background: #def3e4; color: var(--on); font-size: 0.66rem; font-weight: 800; border-radius: 999px; padding: 1px 6px; margin-bottom: 3px; }
+.rec .tag { display: inline-block; background: #def3e4; color: var(--on); font-size: 0.66rem; font-weight: 800; border-radius: 999px; padding: 1px 6px; margin-bottom: 3px; margin-right: 4px; }
+.rec .tag.warn { background: #fde8d8; color: #9a3412; }
+.rec .tag.hard { background: #fee2e2; color: #991b1b; }
 
 .review {
   background: #fff;

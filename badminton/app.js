@@ -3,12 +3,42 @@ const W = 5.18;
 const NET = L / 2;
 
 const SHOTS = [
-  { id: 'clear', name: '高远', hang: 1.35, peak: 7.2, speed: 5.1, prefer: 'back' },
-  { id: 'drop', name: '吊球', hang: 1.05, peak: 2.4, speed: 4.8, prefer: 'front' },
   { id: 'smash', name: '杀球', hang: 0.52, peak: 2.6, speed: 5.4, prefer: 'mid' },
-  { id: 'net', name: '搓球', hang: 0.72, peak: 1.15, speed: 4.4, prefer: 'front' },
-  { id: 'lift', name: '挑球', hang: 1.28, peak: 6.4, speed: 5.0, prefer: 'back' },
+  { id: 'net', name: '放网', hang: 0.72, peak: 1.15, speed: 4.4, prefer: 'front' },
+  { id: 'push', name: '推后场', hang: 0.64, peak: 1.85, speed: 5.0, prefer: 'back' },
+  { id: 'lift', name: '挑后场', hang: 1.28, peak: 6.4, speed: 5.0, prefer: 'back' },
+  { id: 'hook', name: '勾对角', hang: 0.76, peak: 1.22, speed: 4.5, prefer: 'front' },
+  { id: 'drop', name: '吊球', hang: 1.05, peak: 2.4, speed: 4.8, prefer: 'front' },
+  { id: 'clear', name: '高远', hang: 1.35, peak: 7.2, speed: 5.1, prefer: 'back' },
   { id: 'drive', name: '平抽', hang: 0.48, peak: 1.55, speed: 5.2, prefer: 'mid' },
+];
+
+/** 按你的自述：杀精通；放网/推/挑可用；勾对角简单；吊球偶尔到位；反手侧身不到位。 */
+const YOU = {
+  smash: 0.92,
+  net: 0.72,
+  push: 0.7,
+  lift: 0.68,
+  hook: 0.6,
+  drop: 0.3,
+  clear: 0.55,
+  drive: 0.5,
+  backhand: 0.28,
+  speed: 3.45,
+  bhSpeed: 2.85,
+  reach: 0.92,
+  bhReach: 0.72,
+  recover: 1.65,
+};
+
+const SKILL_LABELS = [
+  { id: 'smash', name: '杀球精通', cls: 'good' },
+  { id: 'net', name: '放网正常', cls: 'ok' },
+  { id: 'push', name: '推后场正常', cls: 'ok' },
+  { id: 'lift', name: '挑后场还可以', cls: 'ok' },
+  { id: 'hook', name: '简单勾对角', cls: 'ok' },
+  { id: 'drop', name: '吊球一般', cls: 'weak' },
+  { id: 'backhand', name: '反手侧身不到位', cls: 'weak' },
 ];
 
 const STYLES = [
@@ -23,7 +53,7 @@ const OPP_HOME = { x: W / 2, y: L - 4.55 };
 const state = {
   you: { ...YOU_HOME },
   opp: { ...OPP_HOME },
-  shotId: 'clear',
+  shotId: 'push',
   style: 'balanced',
   phase: 'serve',
   youScore: 0,
@@ -90,6 +120,65 @@ function oppOpenCorner() {
     back: { x: leftOpen ? 0.7 : W - 0.7, y: L - 1.15 },
     front: { x: leftOpen ? 0.75 : W - 0.75, y: NET + 0.7 },
   };
+}
+function youOnBackhand() {
+  return sideOf(state.you, false) === 'backhand';
+}
+function incomingOnBackhand(p) {
+  return sideOf(p, false) === 'backhand';
+}
+function skillOf(shot, from) {
+  let s = YOU[shot.id] ?? 0.55;
+  if (sideOf(from, false) === 'backhand') {
+    s *= 0.42 + YOU.backhand * 0.5;
+  }
+  return clamp(s, 0.08, 0.98);
+}
+function recFit(shotId) {
+  const s = skillOf(getShot(shotId), state.you);
+  if (s >= 0.66) return { tag: '你稳', cls: '' };
+  if (s >= 0.45) return { tag: '勉强', cls: 'warn' };
+  return { tag: '你打不准', cls: 'hard' };
+}
+function gauss() {
+  let u = 0;
+  let v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+function executeYouShot(shot, intended, from) {
+  let skill = skillOf(shot, from);
+  if (shot.id === 'drop' && Math.random() < 0.18) skill = Math.min(0.86, skill + 0.45);
+  const spread = (1 - skill) * 2.15;
+  const dest = {
+    x: intended.x + gauss() * spread * 0.55,
+    y: intended.y + gauss() * spread * 0.7,
+  };
+  if (shot.id === 'drop' && skill < 0.5 && Math.random() < 0.28) {
+    return { ok: false, reason: '吊球下网。这拍你本来就不稳。', dest };
+  }
+  if (shot.id === 'hook' && skill < 0.55 && Math.random() < 0.16) {
+    return { ok: false, reason: '勾对角出边线。简单勾可以，但现在角度够呛。', dest };
+  }
+  if (sideOf(from, false) === 'backhand' && skill < 0.4 && Math.random() < 0.22) {
+    dest.x += (from.x < W / 2 ? -1 : 1) * (0.8 + Math.random());
+    dest.y += (Math.random() - 0.2) * 1.4;
+  }
+  dest.x = clamp(dest.x, -0.4, W + 0.4);
+  dest.y = clamp(dest.y, NET - 0.4, L + 0.45);
+  if (dest.y < NET + 0.08 && !['net', 'hook', 'drop'].includes(shot.id)) {
+    return { ok: false, reason: `${shot.name}下网了。`, dest };
+  }
+  if (dest.y < NET + 0.05) {
+    return { ok: false, reason: `${shot.name}下网了。`, dest };
+  }
+  if (dest.x < 0 || dest.x > W || dest.y > L) {
+    return { ok: false, reason: `${shot.name}出界。反手侧身时落点更容易飞。`, dest };
+  }
+  dest.x = clamp(dest.x, 0.15, W - 0.15);
+  dest.y = clamp(dest.y, NET + 0.12, L - 0.12);
+  return { ok: true, dest, skill, spread };
 }
 
 function layout() {
@@ -302,22 +391,11 @@ function recommendPlay() {
   const open = oppOpenCorner();
   const incoming = state.incoming;
   const style = state.style;
+  const bh = youOnBackhand();
   if (state.phase === 'serve') {
-    if (style === 'attack') {
-      return [
-        { shotId: 'drop', title: '发吊反手网前', why: '抢攻型会扑网，先看他起动。不到位下一拍就能压后场。', ghost: open.front },
-        { shotId: 'clear', title: '发高远压反手底线', why: '即使他抢攻，先把他逼回底线再找空当。', ghost: open.back },
-      ];
-    }
-    if (style === 'defend') {
-      return [
-        { shotId: 'clear', title: '连续压反手底线', why: '防守型爱回高远，落点单一就压同一角，下一拍再吊。', ghost: open.back },
-        { shotId: 'drop', title: '高吊结合：先吊网前', why: '他习惯待在后场，吊网前逼他前后跑。', ghost: open.front },
-      ];
-    }
     return [
-      { shotId: 'clear', title: '发高远到反手底线', why: '最稳的开局。看回球质量再决定杀还是吊。', ghost: open.back },
-      { shotId: 'drop', title: '发网前试探', why: '对方在中场，网前是空的，看他是否跟上。', ghost: open.front },
+      { shotId: 'push', title: '推后场反手', why: '你推后场稳。先把人逼回去，下一拍再找杀。', ghost: open.back },
+      { shotId: 'net', title: '发放网', why: '放网你正常。别发吊，吊球你偶尔才到位。', ghost: open.front },
     ];
   }
   if (state.phase !== 'your' || !incoming) {
@@ -325,43 +403,51 @@ function recommendPlay() {
   }
   const z = zoneOf(state.you, false);
   const oppZ = zoneOf(state.opp, true);
+  if (bh) {
+    return [
+      { shotId: 'lift', title: '反手先挑后场', why: '你反手侧身回球不到位。别吊、别勾，先挑高保住。', ghost: open.back },
+      { shotId: 'push', title: '能推就推直线', why: '反手推比吊稳一点，但落点仍会偏。', ghost: { x: clamp(state.opp.x < W / 2 ? W - 0.8 : 0.8, 0.4, W - 0.4), y: L - 1.4 } },
+    ];
+  }
   if (incoming.id === 'smash') {
     return [
-      { shotId: 'net', title: '挡对角网前', why: '杀球质量高，先挡网不给连续进攻。', ghost: open.front },
-      { shotId: 'lift', title: '被动挑反手底线', why: '来不及挡就挑高，把节奏拉慢。', ghost: open.back },
+      { shotId: 'net', title: '挡放网', why: '杀球你接得紧。能挡就放网，别想反吊。', ghost: open.front },
+      { shotId: 'lift', title: '挑后场过渡', why: '来不及挡就挑，这拍你还可以。', ghost: open.back },
     ];
   }
-  if (incoming.id === 'drop' || incoming.id === 'net') {
+  if (['drop', 'net', 'hook'].includes(incoming.id)) {
     if (oppZ === 'back') {
       return [
-        { shotId: 'net', title: '跟上搓对角', why: '对方还在底线，网前空了，别挑高给他杀。', ghost: open.front },
-        { shotId: 'drive', title: '推后场空当', why: '他扑网来不及，推直线后场。用平抽打深。', ghost: open.back },
+        { shotId: 'net', title: '跟上放网', why: '对方还在底线。放网你正常，别改吊。', ghost: open.front },
+        { shotId: 'push', title: '推后场空当', why: '他扑网来不及，推后场是你的稳球。', ghost: open.back },
       ];
     }
     return [
-      { shotId: 'lift', title: '挑反手底线', why: '对方已经贴网，搓容易被扑，挑远角。', ghost: open.back },
-      { shotId: 'net', title: '软搓另一边', why: '他贴网但偏一侧，搓空当还能抢网。', ghost: open.front },
+      { shotId: 'lift', title: '挑后场', why: '对方已贴网，放网容易被扑。挑是你能打出来的。', ghost: open.back },
+      { shotId: 'hook', title: '简单勾对角', why: '他偏一侧可以勾。别勾太尖。', ghost: open.front },
     ];
   }
-  if (incoming.id === 'clear' || incoming.id === 'lift') {
+  if (incoming.id === 'clear' || incoming.id === 'lift' || incoming.id === 'push') {
     if (z === 'back') {
       return [
-        { shotId: 'drop', title: '假动作吊对角', why: '对方以为你杀，吊网前最能拉开。', ghost: open.front },
-        { shotId: 'smash', title: '下压中路/追身', why: '到位了可以杀。别杀太深，落点靠近他身前。', ghost: { x: clamp(state.opp.x, 0.8, W - 0.8), y: NET + 2.6 } },
+        { shotId: 'smash', title: '杀追身/中前场', why: '杀球你精通。别杀底线，落点靠近他身前。', ghost: { x: clamp(state.opp.x, 0.8, W - 0.8), y: NET + 2.55 } },
+        { shotId: 'push', title: '再推一个反手底线', why: '不到位别硬吊。你吊球一般，推更稳。', ghost: open.back },
       ];
     }
     return [
-      { shotId: 'clear', title: '先过渡回高远', why: '你不在后场，强杀质量差，先压反手底线。', ghost: open.back },
-      { shotId: 'drive', title: '平抽抢节奏', why: '中场来球可以抽对角，不给对方架拍。', ghost: { x: open.front.x, y: NET + 2.2 } },
+      { shotId: 'push', title: '中场推后场', why: '不在后场就别杀。推后场你打得出效果。', ghost: open.back },
+      { shotId: 'lift', title: '挑高重新组织', why: '节奏乱了先挑，再等杀的机会。', ghost: open.back },
     ];
   }
   if (incoming.id === 'drive') {
     return [
-      { shotId: 'drive', title: '对抽空当一侧', why: '平抽要对压，打他拉开的那一边。', ghost: { x: open.front.x, y: NET + 2.4 } },
-      { shotId: 'lift', title: '挑高摆脱', why: '对抽吃亏就挑高，重新组织。', ghost: open.back },
+      { shotId: 'lift', title: '挑后场摆脱', why: '对抽不是你的强项，挑高更稳。', ghost: open.back },
+      { shotId: 'push', title: '推对角后场', why: '能推就推空当，别改吊。', ghost: open.back },
     ];
   }
-  return [{ shotId: 'clear', title: '回高远稳住', why: '先把球抬起来再找空当。', ghost: open.back }];
+  return [
+    { shotId: 'lift', title: '挑后场稳住', why: '先把球抬起来。按你的技术，挑比吊靠谱。', ghost: open.back },
+  ];
 }
 
 function gradeYourStroke(st, oppThen) {
@@ -370,8 +456,14 @@ function gradeYourStroke(st, oppThen) {
   if (st.shot.id === 'smash' && z === 'back') {
     return { mark: 'mid', text: '杀球落点太深，对方更好借力回高远。' };
   }
+  if (st.shot.id === 'drop') {
+    return { mark: 'mid', text: '吊球按你的技术本来就不稳，落点漂了也正常。' };
+  }
+  if (sideOf(st.from, false) === 'backhand') {
+    return { mark: 'mid', text: '反手侧身回球不到位，这拍落点很难准。' };
+  }
   if (st.shot.id === 'net' && z === 'back') {
-    return { mark: 'mid', text: '搓球打深了，变成半场高球，对方能抢攻。' };
+    return { mark: 'mid', text: '放网打深了，变成半场高球，对方能抢攻。' };
   }
   if (howFar > 3.2) return { mark: 'good', text: `拉开明显，落点在${placeLabel(st.to, true)}，对方要跑超过 3 米。` };
   if (howFar > 1.8) return { mark: 'mid', text: '落点一般，对方能赶到，但已经离开中心。' };
@@ -401,15 +493,15 @@ function buildReview(winner, reason) {
 function recommendPlayAfter(winner) {
   const style = STYLES.find((s) => s.id === state.style)?.name || '均衡';
   if (winner === 'you') {
-    return `对方是「${style}」。重复刚才能得分的套路：先压反手底线，再吊对角网前。`;
+    return `按你的技术复用：推/挑拉开，到位就杀。不要用吊球当战术轴心。对方是「${style}」。`;
   }
   if (state.style === 'attack') {
-    return '对方抢攻。少给高球到他正手后场；多发网前和推追身，逼他起高再打。';
+    return '对方抢攻。你少给高球；用放网和推后场，逼他起高再杀。吊球别指望。';
   }
   if (state.style === 'defend') {
-    return '对方防守。不要跟他对拉高远，第二拍必须吊或杀，让他前后跑。';
+    return '对方防守。用推后场把人钉住，第二拍杀。别跟他对拉高远，也别连续吊。';
   }
-  return '下一分按「后场反手 → 对角网前」两点控制，看他回球质量再决定是否下压。';
+  return '下一分：推反手底线 → 放网或勾对角 → 他起高再杀。反手侧身只挑不吊。';
 }
 
 function renderRecs() {
@@ -423,8 +515,10 @@ function renderRecs() {
   $('#recList').innerHTML = state.recs
     .map((r, i) => {
       const shot = getShot(r.shotId);
+      const fit = r.title === '等球落地' ? { tag: '等', cls: '' } : recFit(r.shotId);
       return `<button type="button" class="rec${i === state.recPick ? ' is-on' : ''}" data-rec="${i}">
         <span class="tag">${shot.name}</span>
+        <span class="tag ${fit.cls}">${fit.tag}</span>
         <b>${r.title}</b>
         <span>${r.why}</span>
       </button>`;
@@ -466,6 +560,10 @@ function renderHud() {
     .reverse()
     .map((row) => `<li class="${row.who}">${row.text}</li>`)
     .join('');
+  const skillEl = $('#skillCard');
+  if (skillEl) {
+    skillEl.innerHTML = SKILL_LABELS.map((s) => `<span class="sk ${s.cls}">${s.name}</span>`).join('');
+  }
   renderRecs();
   renderReview();
 }
@@ -586,10 +684,14 @@ function pickOppReply(incoming, dest, reach) {
       { shot: getShot('drop'), aim: 'net-straight', why: '高吊结合，看你是否起动' },
     ]);
   }
-  if (incoming.id === 'drive') {
+  if (incoming.id === 'drive' || incoming.id === 'push') {
     return ready
       ? { shot: getShot('drive'), aim: 'mid-cross', why: '平抽对压，打你空出来的一侧' }
       : { shot: getShot('lift'), aim: 'deep-straight', why: '抽球来不及，挑高摆脱' };
+  }
+  if (incoming.id === 'hook') {
+    if (late) return { shot: getShot('lift'), aim: 'deep-straight', why: '勾过来上网慢了，挑后场' };
+    return { shot: getShot('net'), aim: 'net-cross', why: '跟上放网' };
   }
   if (side === 'backhand' && style !== 'attack') {
     return { shot: getShot('clear'), aim: 'deep-cross', why: '反手位先回高远稳住' };
@@ -663,8 +765,14 @@ function tick(ts) {
     }
     const mover = sh.who === 'you' ? state.opp : state.you;
     const home = sh.who === 'you' ? YOU_HOME : OPP_HOME;
-    moveToward(mover, sh.to, dt, sh.who === 'you' ? 4.7 : 4.5);
-    moveToward(sh.who === 'you' ? state.you : state.opp, home, dt, 2.4);
+    if (sh.who === 'you') {
+      moveToward(state.opp, sh.to, dt, 4.7);
+      moveToward(state.you, home, dt, YOU.recover);
+    } else {
+      const youSpd = incomingOnBackhand(sh.to) ? YOU.bhSpeed : YOU.speed;
+      moveToward(state.you, sh.to, dt, youSpd);
+      moveToward(state.opp, home, dt, 2.4);
+    }
 
     if (sh.t >= 1) finishFlight(sh);
   }
@@ -676,8 +784,13 @@ function finishFlight(sh) {
   const receiver = sh.who === 'you' ? state.opp : state.you;
   const reach = (() => {
     const d = dist(receiver, sh.to);
-    const limit = sh.shot.id === 'smash' ? 1.05 : 1.35;
-    return { reach: d <= limit, late: d > 0.72, need: d };
+    if (sh.who === 'you') {
+      const limit = sh.shot.id === 'smash' ? 1.05 : 1.35;
+      return { reach: d <= limit, late: d > 0.72, need: d };
+    }
+    const limit = incomingOnBackhand(sh.to) ? YOU.bhReach : YOU.reach;
+    const smashIn = sh.shot.id === 'smash' ? 0.78 : 1;
+    return { reach: d <= limit * smashIn, late: d > limit * 0.62, need: d };
   })();
 
   if (sh.who === 'you') {
@@ -694,8 +807,10 @@ function finishFlight(sh) {
   }
 
   const d = dist(state.you, sh.to);
-  if (d > 1.4) {
-    endRally('opp', `你没赶到，对方这拍${sh.shot.name}得分。`);
+  const youLimit = (incomingOnBackhand(sh.to) ? YOU.bhReach : YOU.reach) * (sh.shot.id === 'smash' ? 0.78 : 1);
+  if (d > youLimit) {
+    const why = incomingOnBackhand(sh.to) ? '反手侧那一侧你更慢，' : '';
+    endRally('opp', `${why}你没赶到，对方这拍${sh.shot.name}得分。`);
     return;
   }
   state.you.x = sh.to.x;
@@ -718,10 +833,18 @@ function tryHit(dest) {
   dest.y = clamp(dest.y, NET + 0.2, L - 0.2);
   const shot = getShot(state.shotId);
   const from = state.phase === 'serve' ? { x: state.you.x, y: 1.2 } : { ...state.you };
-  if (shot.id === 'net' && dest.y > NET + 2.4) {
-    setCall('搓球太深了，会变成推后场。仍按你点的落点打。');
+  const hit = executeYouShot(shot, dest, from);
+  if (!hit.ok) {
+    endRally('opp', hit.reason);
+    return;
   }
-  launch({ from, to: dest, shot, who: 'you', startH: state.phase === 'serve' ? 1.7 : 1.45 });
+  const drift = dist(dest, hit.dest);
+  if (drift > 1.1) {
+    setCall(`你想打${placeLabel(dest, true)}，实际落到${placeLabel(hit.dest, true)}。`);
+  } else if (shot.id === 'drop') {
+    setCall(hit.skill > 0.7 ? '这拍吊球偶尔到位了。' : '吊球你一般，落点会漂。');
+  }
+  launch({ from, to: hit.dest, shot, who: 'you', startH: state.phase === 'serve' ? 1.7 : 1.45 });
 }
 
 function bindUi() {
