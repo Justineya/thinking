@@ -676,9 +676,8 @@ function finishFlight(sh) {
   const receiver = sh.who === 'you' ? state.opp : state.you;
   const reach = (() => {
     const d = dist(receiver, sh.to);
-    const need = d / (sh.who === 'you' ? 4.7 : 4.4);
-    const slack = sh.shot.id === 'smash' ? 0.04 : 0.18;
-    return { reach: need <= sh.hang + slack, late: need > sh.hang * 0.78, need };
+    const limit = sh.shot.id === 'smash' ? 1.05 : 1.35;
+    return { reach: d <= limit, late: d > 0.72, need: d };
   })();
 
   if (sh.who === 'you') {
@@ -695,8 +694,7 @@ function finishFlight(sh) {
   }
 
   const d = dist(state.you, sh.to);
-  const need = d / 4.4;
-  if (need > sh.hang + 0.2) {
+  if (d > 1.4) {
     endRally('opp', `你没赶到，对方这拍${sh.shot.name}得分。`);
     return;
   }
