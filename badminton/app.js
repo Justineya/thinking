@@ -33,12 +33,12 @@ const YOU = {
 
 const PLAN = {
   title: '先补短板，别加杀球',
-  intro: '你已经能杀。输在接不到、反手侧身不到位、吊球想得到打不出。按这个顺序练。',
+  intro: '训练能碰到反手，比赛回不出质量：多球慢、高、你知道球来；实战快、平、杀完才侧身。碰到≠到位。',
   steps: [
-    '回位：每拍杀完必须先回到中场T。杀完站在原地，下一拍你一定接不到。',
-    '反手只挑：反手侧身先取位再出手，默认挑后场高、深。先求到位，不求变化。',
-    '两点控制：推反手底线 + 放网/勾对角。他起高再杀。吊球这周不当主战术。',
-    '吊球单练：多球轻吊前发球线附近的大框，10 个进 6 个再上实战。现在实战里吊会漂、会下网。',
+    '回位：每拍杀完先回T。训练里你是准备好再接，比赛里你是杀完才找球。',
+    '反手只挑高、深：侧身没转完就出手，球会又短又高，对面直接杀。先求到位。',
+    '多球要加难度：喂球加快、压平、往反手髋。能回10个高远，再算练到了。',
+    '两点控制：推反手底线 + 放网。他起高再杀。吊球先不当实战轴心。',
   ],
 };
 
@@ -83,6 +83,7 @@ const state = {
   trail: [],
   lastCall: '先选球种，点对面半场发球。',
   lastArc: null,
+  forcedWeak: false,
 };
 
 const $ = (s) => document.querySelector(s);
@@ -403,6 +404,16 @@ function recommendPlay() {
   const incoming = state.incoming;
   const style = state.style;
   const bh = youOnBackhand();
+  if (state.forcedWeak) {
+    return [
+      {
+        shotId: 'lift',
+        title: '已经被动了',
+        why: '你碰到了，但侧身没转完。这种球在比赛里就是给对方杀。下一拍先回T。',
+        ghost: null,
+      },
+    ];
+  }
   if (state.phase === 'serve') {
     return [
       { shotId: 'push', title: '推后场反手', why: '你推后场稳。先把人逼回去，下一拍再找杀。', ghost: open.back },
@@ -494,8 +505,8 @@ function buildReview(winner, reason) {
   if (sameSide) lessons.push('落点太集中同一侧，对方不用左右移动。下一分左右拉开。');
   if (yours.length && frontHits === 0 && winner !== 'you') lessons.push('整分都在后场对拉，没有吊网前，对方站着就能防。');
   if (yours.length && frontHits === yours.length && winner !== 'you') lessons.push('一直打网前，对方跟上之后你没有后场变化。');
-  if (winner === 'you') lessons.push('这分赢在把对方拉出位置。下一分继续先拉开再下压。');
-  else lessons.push('丢分前一拍没有把对方调开，回位也慢。先打空当，再准备下一拍。');
+  if (winner === 'you') lessons.push('这分赢在拉开再杀。继续推/挑拉开，到位再杀。');
+  else lessons.push('按提升计划：先回T，反手只挑，不要用吊球救场。');
 
   const next = recommendPlayAfter(winner);
   return { winner, reason, notes, lessons, next, strokes: state.strokes.map((s) => ({ ...s })) };
@@ -615,6 +626,7 @@ function startServe() {
   state.strokes = [];
   state.incoming = null;
   state.recPick = 0;
+  state.forcedWeak = false;
   state.showReplay = false;
   setCall('发球。先看推荐，或自己点落点。');
   renderHud();
@@ -632,6 +644,7 @@ function newRallyKeepScore() {
   state.strokes = [];
   state.incoming = null;
   state.recPick = 0;
+  state.forcedWeak = false;
   state.showReplay = !!state.lastReview;
   state.rally += 1;
   setCall('下一回合，你发球。上一分复盘还在右侧。');
@@ -831,6 +844,21 @@ function finishFlight(sh) {
   state.you.x = sh.to.x;
   state.you.y = sh.to.y;
   state.shuttle = null;
+  const bh = incomingOnBackhand(sh.to);
+  const fast = ['smash', 'drive', 'push'].includes(sh.shot.id);
+  const noQuality = bh && (reach.late || (fast && d > 0.4) || d > 0.5);
+  if (noQuality) {
+    const sit = {
+      x: clamp(W / 2 + (Math.random() - 0.5) * 1.1, 0.9, W - 0.9),
+      y: clamp(NET + 2.1 + Math.random() * 1.6, NET + 1.8, NET + 4.2),
+    };
+    state.forcedWeak = true;
+    state.incoming = sh.shot;
+    setCall('你碰到了。反手侧身没转完，过渡又短又高——训练能过网，比赛就是给对方杀。');
+    launch({ from: { ...state.you }, to: sit, shot: getShot('lift'), who: 'you', startH: 1.2 });
+    return;
+  }
+  state.forcedWeak = false;
   state.phase = 'your';
   state.incoming = sh.shot;
   state.recPick = 0;
