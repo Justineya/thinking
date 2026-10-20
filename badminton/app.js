@@ -31,6 +31,17 @@ const YOU = {
   recover: 1.65,
 };
 
+const PLAN = {
+  title: '先补短板，别加杀球',
+  intro: '你已经能杀。输在接不到、反手侧身不到位、吊球想得到打不出。按这个顺序练。',
+  steps: [
+    '回位：每拍杀完必须先回到中场T。杀完站在原地，下一拍你一定接不到。',
+    '反手只挑：反手侧身先取位再出手，默认挑后场高、深。先求到位，不求变化。',
+    '两点控制：推反手底线 + 放网/勾对角。他起高再杀。吊球这周不当主战术。',
+    '吊球单练：多球轻吊前发球线附近的大框，10 个进 6 个再上实战。现在实战里吊会漂、会下网。',
+  ],
+};
+
 const SKILL_LABELS = [
   { id: 'smash', name: '杀球精通', cls: 'good' },
   { id: 'net', name: '放网正常', cls: 'ok' },
@@ -563,6 +574,10 @@ function renderHud() {
   const skillEl = $('#skillCard');
   if (skillEl) {
     skillEl.innerHTML = SKILL_LABELS.map((s) => `<span class="sk ${s.cls}">${s.name}</span>`).join('');
+  }
+  const planEl = $('#planBox');
+  if (planEl) {
+    planEl.innerHTML = `<b>${PLAN.title}</b><div>${PLAN.intro}</div><ol>${PLAN.steps.map((s) => `<li>${s}</li>`).join('')}</ol>`;
   }
   renderRecs();
   renderReview();
