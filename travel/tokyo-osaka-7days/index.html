@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>东京 · 大阪七日｜含环球影城</title>
+  <title>东京 · 京都 · 大阪｜2026.10.25–11.01</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -17,6 +17,7 @@
       --accent: #c8102e;
       --accent-deep: #8f0b20;
       --sea: #4a6fa5;
+      --ok: #1a7a4c;
       --max: 72rem;
       --ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -33,7 +34,6 @@
     img { max-width: 100%; display: block; }
     a { color: inherit; text-decoration: none; }
 
-    /* —— Hero —— */
     .hero {
       position: relative;
       min-height: 100svh;
@@ -42,11 +42,7 @@
       overflow: hidden;
       color: #fff;
     }
-    .hero__media {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-    }
+    .hero__media { position: absolute; inset: 0; z-index: 0; }
     .hero__media img {
       width: 100%;
       height: 100%;
@@ -67,9 +63,17 @@
       margin: 0 auto;
       padding: 0 0 4.5rem;
     }
+    .hero__dates {
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.85rem;
+      color: rgba(255, 255, 255, 0.75);
+      opacity: 0;
+      animation: rise 1s var(--ease) 0.1s forwards;
+    }
     .hero__brand {
       font-family: "Shippori Mincho", serif;
-      font-size: clamp(2.6rem, 7vw, 4.75rem);
+      font-size: clamp(2.4rem, 6.5vw, 4.5rem);
       font-weight: 700;
       letter-spacing: 0.08em;
       line-height: 1.15;
@@ -78,7 +82,7 @@
       animation: rise 1s var(--ease) 0.2s forwards;
     }
     .hero__lead {
-      max-width: 28rem;
+      max-width: 30rem;
       font-size: clamp(1rem, 2.2vw, 1.15rem);
       color: rgba(255, 255, 255, 0.88);
       margin-bottom: 1.75rem;
@@ -103,27 +107,18 @@
       background: var(--accent-deep);
       transform: translateY(-2px);
     }
-    .hero__cta span {
-      font-size: 1.1rem;
-      line-height: 1;
-    }
 
-    @keyframes heroZoom {
-      to { transform: scale(1); }
-    }
+    @keyframes heroZoom { to { transform: scale(1); } }
     @keyframes rise {
       from { opacity: 0; transform: translateY(18px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* —— Sections —— */
     .wrap {
       width: min(100% - 2.5rem, var(--max));
       margin: 0 auto;
     }
-    section {
-      padding: clamp(3.5rem, 8vw, 6rem) 0;
-    }
+    section { padding: clamp(3.5rem, 8vw, 6rem) 0; }
     .section-kicker {
       font-size: 0.8rem;
       letter-spacing: 0.22em;
@@ -142,11 +137,10 @@
     }
     .section-desc {
       color: var(--ink-soft);
-      max-width: 36rem;
+      max-width: 38rem;
       margin-bottom: 2.5rem;
     }
 
-    /* Route overview */
     .route {
       background:
         radial-gradient(ellipse at 10% 0%, rgba(74, 111, 165, 0.12), transparent 50%),
@@ -159,16 +153,17 @@
     }
     .route-item {
       display: grid;
-      grid-template-columns: 4.5rem 1fr;
+      grid-template-columns: 5.5rem 1fr;
       gap: 1.25rem;
-      padding: 1.35rem 0;
+      padding: 1.25rem 0;
       border-bottom: 1px solid var(--line);
       align-items: baseline;
     }
     .route-item strong {
       font-family: "Shippori Mincho", serif;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       color: var(--accent);
+      letter-spacing: 0.02em;
     }
     .route-item p { color: var(--ink-soft); }
     .route-item em {
@@ -176,8 +171,15 @@
       color: var(--ink);
       font-weight: 500;
     }
+    .route-item .tag {
+      display: inline-block;
+      margin-left: 0.4rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      font-weight: 500;
+    }
 
-    /* Bookings */
     .book {
       background:
         linear-gradient(165deg, #f7fafc 0%, #eef3f8 55%, #e8eef4 100%);
@@ -198,9 +200,39 @@
     .book-block > p {
       color: var(--ink-soft);
       font-size: 0.95rem;
-      max-width: 40rem;
+      max-width: 42rem;
       margin-bottom: 1.15rem;
     }
+    .status {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: var(--ok);
+      font-weight: 500;
+      margin-bottom: 0.85rem;
+    }
+    .flight-line, .stay-line {
+      display: grid;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed var(--line);
+    }
+    .flight-line:last-of-type, .stay-line:last-of-type {
+      border-bottom: none;
+      margin-bottom: 1.15rem;
+      padding-bottom: 0;
+    }
+    .flight-line strong, .stay-line strong {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.05rem;
+      color: var(--ink);
+    }
+    .flight-line span, .stay-line span {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
     .link-row {
       display: flex;
       flex-wrap: wrap;
@@ -241,7 +273,6 @@
       letter-spacing: 0.08em;
     }
 
-    /* Day blocks */
     .day {
       display: grid;
       gap: 1.75rem;
@@ -249,10 +280,7 @@
       transform: translateY(28px);
       transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
     }
-    .day.is-in {
-      opacity: 1;
-      transform: none;
-    }
+    .day.is-in { opacity: 1; transform: none; }
     .day + .day {
       margin-top: clamp(3rem, 7vw, 5rem);
       padding-top: clamp(3rem, 7vw, 5rem);
@@ -304,6 +332,14 @@
     }
     .day__body li { margin-bottom: 0.4rem; }
     .day__body li::marker { color: var(--accent); }
+    .stay-chip {
+      display: inline-block;
+      margin-top: 0.85rem;
+      font-size: 0.88rem;
+      color: var(--ink);
+      border-left: 2px solid var(--accent);
+      padding-left: 0.75rem;
+    }
 
     .eat {
       margin-top: 1.35rem;
@@ -322,10 +358,7 @@
       display: grid;
       gap: 0.85rem;
     }
-    .eat-list li {
-      display: grid;
-      gap: 0.2rem;
-    }
+    .eat-list li { display: grid; gap: 0.2rem; }
     .eat-list strong {
       color: var(--ink);
       font-weight: 500;
@@ -336,9 +369,7 @@
       font-size: 0.88rem;
     }
     .eat-list .link-row { margin-top: 0.35rem; }
-    .day-book {
-      margin-top: 1rem;
-    }
+    .day-book { margin-top: 1rem; }
 
     @media (min-width: 860px) {
       .day {
@@ -349,17 +380,13 @@
       .day:nth-child(even) .day__visual { order: 2; }
     }
 
-    /* USJ highlight */
     .usj {
       background: var(--ink);
       color: #f2f5f8;
     }
     .usj .section-kicker { color: #f0a8b0; }
     .usj .section-desc { color: rgba(242, 245, 248, 0.72); }
-    .usj-grid {
-      display: grid;
-      gap: 2rem;
-    }
+    .usj-grid { display: grid; gap: 2rem; }
     @media (min-width: 800px) {
       .usj-grid { grid-template-columns: 1.2fr 1fr; align-items: start; }
     }
@@ -405,11 +432,7 @@
     }
     .usj .day-book { margin-top: 1.5rem; }
 
-    /* Practice */
-    .practice-list {
-      display: grid;
-      gap: 1.5rem;
-    }
+    .practice-list { display: grid; gap: 1.5rem; }
     @media (min-width: 700px) {
       .practice-list { grid-template-columns: 1fr 1fr; gap: 2rem 3rem; }
     }
@@ -420,7 +443,6 @@
     }
     .practice-item p { color: var(--ink-soft); font-size: 0.98rem; }
 
-    /* Budget strip */
     .budget {
       border-top: 1px solid var(--line);
       padding-top: 2rem;
@@ -428,7 +450,6 @@
       color: var(--ink-soft);
     }
     .budget strong { color: var(--ink); }
-
     .note {
       margin-top: 1.5rem;
       font-size: 0.85rem;
@@ -457,113 +478,127 @@
       <div class="hero__shade"></div>
     </div>
     <div class="hero__inner">
-      <h1 class="hero__brand">东京 · 大阪<br />七日</h1>
-      <p class="hero__lead">黄金路线慢走版：东京四日气息，大阪坐镇环球与京都一日，不去迪士尼。</p>
-      <a class="hero__cta" href="#book">去预订 <span aria-hidden="true">↓</span></a>
+      <p class="hero__dates">2026.10.25 — 11.01</p>
+      <h1 class="hero__brand">东京 · 京都<br />大阪</h1>
+      <p class="hero__lead">按携程已订行程整理：港航进出、三城酒店已落定，10 月 31 日万圣节全日环球影城。</p>
+      <a class="hero__cta" href="#confirmed">已订信息 <span aria-hidden="true">↓</span></a>
     </div>
   </header>
 
   <section class="route" id="overview" aria-labelledby="overview-title">
     <div class="wrap">
       <p class="section-kicker">Route</p>
-      <h2 class="section-title" id="overview-title">路线一览</h2>
-      <p class="section-desc">东京 3.5 天 → 新干线南下 → 大阪 3.5 天。全国 JR Pass 一般不必买，东京到新大阪单买指定席即可。</p>
+      <h2 class="section-title" id="overview-title">日历一览</h2>
+      <p class="section-desc">东京 2 晚 → 京都 2 晚 → 大阪至返程。全国 JR Pass 一般不必买；东京赴京都、再赴大阪，分段买新干线指定席即可。</p>
       <div class="route-rail">
-        <div class="route-item"><strong>D1</strong><p><em>东京</em> · 浅草、晴空塔、秋叶原</p></div>
-        <div class="route-item"><strong>D2</strong><p><em>东京</em> · 明治神宫、原宿、表参道、涩谷</p></div>
-        <div class="route-item"><strong>D3</strong><p><em>东京</em> · 丰洲寿司、teamLab / 台场</p></div>
-        <div class="route-item"><strong>D4</strong><p><em>转移</em> · 新干线赴大阪，心斋桥、道顿堀</p></div>
-        <div class="route-item"><strong>D5</strong><p><em>京都一日</em> · 伏见稻荷、清水寺、祇园</p></div>
-        <div class="route-item"><strong>D6</strong><p><em>大阪</em> · 全日环球影城 USJ</p></div>
-        <div class="route-item"><strong>D7</strong><p><em>奈良半日</em> · 东大寺、喂鹿，返程</p></div>
+        <div class="route-item"><strong>10/25</strong><p><em>抵东京</em> · UO646 成田晚到，入住东京王子</p></div>
+        <div class="route-item"><strong>10/26</strong><p><em>东京</em> · 明治神宫、原宿、涩谷</p></div>
+        <div class="route-item"><strong>10/27</strong><p><em>东京 → 京都</em> · 新干线南下，入住四条里士满</p></div>
+        <div class="route-item"><strong>10/28</strong><p><em>京都</em> · 伏见稻荷、清水寺、祇园</p></div>
+        <div class="route-item"><strong>10/29</strong><p><em>京都 → 大阪</em> · 转住丽嘉皇家</p></div>
+        <div class="route-item"><strong>10/30</strong><p><em>大阪</em> · 心斋桥、道顿堀，养足体力</p></div>
+        <div class="route-item"><strong>10/31</strong><p><em>USJ</em> · 万圣节全日环球<span class="tag">已订</span></p></div>
+        <div class="route-item"><strong>11/01</strong><p><em>返港</em> · UO851 关西 15:15 起飞</p></div>
       </div>
     </div>
   </section>
 
-  <section class="book" id="book" aria-labelledby="book-title">
+  <section class="book" id="confirmed" aria-labelledby="confirmed-title">
     <div class="wrap">
-      <p class="section-kicker">Book</p>
-      <h2 class="section-title" id="book-title">途中预订</h2>
-      <p class="section-desc">机票、酒店、门票优先用携程或飞猪比价；餐厅用大众点评看评价与排队情况。链接会跳转到对应搜索/详情页，选好日期再下单。</p>
+      <p class="section-kicker">Confirmed</p>
+      <h2 class="section-title" id="confirmed-title">已订行程</h2>
+      <p class="section-desc">以下摘自携程订单。酒店、机票状态为已出票 / 预订成功；环球影城为 10 月 31 日万圣节当日。</p>
 
       <div class="book-block">
         <h3>机票</h3>
-        <p>建议双点进出：去程飞东京（成田 NRT / 羽田 HND），回程从大阪关西（KIX）回。提前 1～2 个月比价。</p>
+        <p class="status">已出票</p>
+        <div class="flight-line">
+          <strong>10/25 去程 · 香港快运 UO646</strong>
+          <span>香港 HKG T2 13:00 → 成田 NRT T2 18:05（约 4h05）· 两位</span>
+        </div>
+        <div class="flight-line">
+          <strong>11/01 回程 · 香港快运 UO851</strong>
+          <span>关西 KIX T1 15:15 → 香港 HKG T1 18:55（约 4h40）· 两位</span>
+        </div>
         <div class="link-row">
-          <a class="link-pill link-pill--accent" href="https://flights.ctrip.com/international/search" target="_blank" rel="noopener noreferrer">携程国际机票 <small>CTRIP</small></a>
-          <a class="link-pill" href="https://www.fliggy.com/ijipiao/" target="_blank" rel="noopener noreferrer">飞猪国际机票 <small>FLIGGY</small></a>
+          <a class="link-pill" href="https://flights.ctrip.com/international/search" target="_blank" rel="noopener noreferrer">携程查航班 <small>CTRIP</small></a>
+          <a class="link-pill" href="https://www.fliggy.com/ijipiao/" target="_blank" rel="noopener noreferrer">飞猪查航班 <small>FLIGGY</small></a>
         </div>
       </div>
 
       <div class="book-block">
         <h3>酒店</h3>
-        <p>东京住浅草 / 上野 / 秋叶原一带（D1–D3）；大阪住心斋桥 / 难波（D4–D6），去环球、京都、奈良都方便。</p>
+        <p class="status">预订成功</p>
+        <div class="stay-line">
+          <strong>东京王子大饭店</strong>
+          <span>10/25–10/27 · 2 晚 · 高级双人床房（上层）1 间 · 芝公园 / 东京塔旁</span>
+        </div>
+        <div class="stay-line">
+          <strong>京都四条里士满高级酒店</strong>
+          <span>10/27–10/29 · 2 晚 · 中型双人床房 1 间 · 四条大宫附近</span>
+        </div>
+        <div class="stay-line">
+          <strong>洲至奢选大阪丽嘉皇家酒店</strong>
+          <span>10/29 起入住（订单明细多为 10/30–11/01 · 2 晚）· 大床房（无烟）1 间 · 中之岛</span>
+        </div>
         <div class="link-row">
-          <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotel/tokyo228/zone98464192" target="_blank" rel="noopener noreferrer">携程 · 东京浅草酒店 <small>CTRIP</small></a>
-          <a class="link-pill" href="https://hotel.fliggy.com/hotel_list2.htm?cityName=%E4%B8%9C%E4%BA%AC" target="_blank" rel="noopener noreferrer">飞猪 · 东京酒店 <small>FLIGGY</small></a>
-          <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotel/osaka219/zone860" target="_blank" rel="noopener noreferrer">携程 · 大阪难波/心斋桥 <small>CTRIP</small></a>
-          <a class="link-pill" href="https://hotel.fliggy.com/hotel_list2.htm?cityName=%E5%A4%A7%E9%98%A2" target="_blank" rel="noopener noreferrer">飞猪 · 大阪酒店 <small>FLIGGY</small></a>
+          <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotels/688271.html" target="_blank" rel="noopener noreferrer">携程 · 东京王子 <small>CTRIP</small></a>
+          <a class="link-pill link-pill--accent" href="https://m.ctrip.com/html5/hotel/hoteldetail/86134094.html" target="_blank" rel="noopener noreferrer">携程 · 京都里士满 <small>CTRIP</small></a>
+          <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotels/688103.html" target="_blank" rel="noopener noreferrer">携程 · 大阪丽嘉皇家 <small>CTRIP</small></a>
         </div>
       </div>
 
       <div class="book-block">
-        <h3>门票与新干线</h3>
-        <p>USJ 入园票 + Express（尽量含任天堂）提前至少一周；teamLab、SHIBUYA SKY 选时段票；东京→新大阪指定席可在飞猪搜「新干线」。</p>
+        <h3>门票 · 还可补订</h3>
+        <p>万圣节 USJ 已订。teamLab、SHIBUYA SKY、新干线指定席若未买，可用下面入口补。</p>
         <div class="link-row">
-          <a class="link-pill link-pill--accent" href="https://you.ctrip.com/sight/osaka293/22197.html" target="_blank" rel="noopener noreferrer">携程 · USJ 门票 <small>CTRIP</small></a>
-          <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer">飞猪 · USJ 门票 <small>FLIGGY</small></a>
-          <a class="link-pill" href="https://you.ctrip.com/sight/tokyo294/5538361.html" target="_blank" rel="noopener noreferrer">携程 · teamLab Planets <small>CTRIP</small></a>
-          <a class="link-pill" href="https://you.ctrip.com/sight/tokyo294/136018827.html" target="_blank" rel="noopener noreferrer">携程 · SHIBUYA SKY <small>CTRIP</small></a>
-          <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%96%B0%E5%B9%B2%E7%BA%BF%E4%B8%9C%E4%BA%AC%E5%A4%A7%E9%98%A2" target="_blank" rel="noopener noreferrer">飞猪 · 东京大阪新干线 <small>FLIGGY</small></a>
+          <a class="link-pill link-pill--accent" href="https://you.ctrip.com/sight/osaka293/22197.html" target="_blank" rel="noopener noreferrer">携程 · USJ / 万圣节 <small>CTRIP</small></a>
+          <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer">飞猪 · USJ <small>FLIGGY</small></a>
+          <a class="link-pill" href="https://you.ctrip.com/sight/tokyo294/5538361.html" target="_blank" rel="noopener noreferrer">teamLab Planets</a>
+          <a class="link-pill" href="https://you.ctrip.com/sight/tokyo294/136018827.html" target="_blank" rel="noopener noreferrer">SHIBUYA SKY</a>
+          <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%96%B0%E5%B9%B2%E7%BA%BF%E4%B8%9C%E4%BA%AC%E4%BA%AC%E9%83%BD" target="_blank" rel="noopener noreferrer">飞猪 · 东京→京都新干线</a>
         </div>
       </div>
 
-      <p class="note">价格随日期浮动；购票后核对入园日期、电子票邮箱与官方 App 绑定方式。大众点评链接建议用手机 App 打开，日本门店详情更全。</p>
+      <p class="note">大阪丽嘉：行程页挂在 10/29，订单卡常见 10/30–11/01（2 晚）。出发前请打开携程确认函核对入住日；10/29 京都退房后直接赴大阪即可。</p>
     </div>
   </section>
 
   <section id="days" aria-labelledby="days-title">
     <div class="wrap">
       <p class="section-kicker">Itinerary</p>
-      <h2 class="section-title" id="days-title">逐日行程 · 吃与订</h2>
-      <p class="section-desc">每天两到三个主点，并附餐厅与当日相关预订入口。</p>
+      <h2 class="section-title" id="days-title">逐日安排</h2>
+      <p class="section-desc">按已订酒店位置微调：东京以芝公园为据点，京都住四条，大阪住中之岛去环球。</p>
 
       <article class="day">
         <div class="day__visual">
-          <img src="https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?auto=format&fit=crop&w=1400&q=80" alt="浅草寺雷门" width="1400" height="875" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?auto=format&fit=crop&w=1400&q=80" alt="东京塔夜景" width="1400" height="875" loading="lazy" />
         </div>
         <div>
-          <div class="day__meta"><span class="day__num">DAY 01</span><span class="day__city">TOKYO</span></div>
-          <h3>下町初印象</h3>
+          <div class="day__meta"><span class="day__num">10/25 周日</span><span class="day__city">HKG → NRT</span></div>
+          <h3>抵达东京</h3>
           <div class="day__body">
-            <p>入住浅草、上野或秋叶原。机场线可坐京成 Skyliner 到上野，手机钱包开通 Suica。</p>
+            <p>UO646 18:05 到成田 T2。京成 Skyliner 或机场巴士进城；手机开通 Suica。酒店在芝公园，傍晚可看东京塔。</p>
             <ul>
-              <li>雷门 → 仲见世通 → 浅草寺</li>
-              <li>傍晚晴空塔看灯</li>
-              <li>晚饭拉面或烧肉</li>
+              <li>出关取行李 → 进市区</li>
+              <li>入住东京王子，放下行李</li>
+              <li>附近增上寺 / 东京塔轻走一圈即可</li>
             </ul>
+            <p class="stay-chip">住 · 东京王子大饭店（高级双人床房上层）</p>
             <div class="eat">
               <p class="eat__label">EAT</p>
               <ul class="eat-list">
                 <li>
-                  <strong>一兰拉面 · 浅草店</strong>
-                  <span>豚骨拉面，单人隔间，人均约 ¥1,200。浅草站步行 1 分钟。</span>
+                  <strong>酒店周边晚饭</strong>
+                  <span>落地日别跑远；芝公园、滨松町一带拉面或定食即可。</span>
                   <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/shop/G9LQvm5RKsBACcVU" target="_blank" rel="noopener noreferrer">大众点评 <small>DP</small></a>
-                    <a class="link-pill" href="https://ichiran.com/shop/tokyo/asakusa/" target="_blank" rel="noopener noreferrer">店铺官网</a>
-                  </div>
-                </li>
-                <li>
-                  <strong>浅草今半 · 寿喜烧（备选）</strong>
-                  <span>想吃老东京寿喜烧可订位；人均偏高，适合第一顿「迎接」。</span>
-                  <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E6%B5%85%E8%8D%89%E4%BB%8A%E5%8D%8A" target="_blank" rel="noopener noreferrer">大众点评搜索 <small>DP</small></a>
+                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E4%B8%9C%E4%BA%AC%E5%A1%94%20%E6%8B%89%E9%9D%A2" target="_blank" rel="noopener noreferrer">大众点评 · 东京塔附近</a>
                   </div>
                 </li>
               </ul>
             </div>
             <div class="day-book link-row">
-              <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotel/tokyo228/zone98464192" target="_blank" rel="noopener noreferrer">订东京浅草酒店</a>
+              <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotels/688271.html" target="_blank" rel="noopener noreferrer">酒店详情 · 东京王子</a>
             </div>
           </div>
         </div>
@@ -574,30 +609,30 @@
           <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=1400&q=80" alt="涩谷十字路口" width="1400" height="875" loading="lazy" />
         </div>
         <div>
-          <div class="day__meta"><span class="day__num">DAY 02</span><span class="day__city">TOKYO</span></div>
+          <div class="day__meta"><span class="day__num">10/26 周一</span><span class="day__city">TOKYO</span></div>
           <h3>神社与潮流街区</h3>
           <div class="day__body">
-            <p>明治神宫早去人少。竹下通可匆匆穿过，表参道适合慢慢走。</p>
+            <p>从芝公园坐地铁去明治神宫（早去人少），再原宿、表参道、涩谷。</p>
             <ul>
               <li>明治神宫 → 原宿 → 表参道</li>
               <li>涩谷十字路口；SHIBUYA SKY 需预约</li>
-              <li>晚间新宿东口逛一圈即可</li>
+              <li>回酒店方向可顺路看夜景东京塔</li>
             </ul>
+            <p class="stay-chip">住 · 东京王子大饭店</p>
             <div class="eat">
               <p class="eat__label">EAT</p>
               <ul class="eat-list">
                 <li>
-                  <strong>银座小野寺 · 表参道本店（回转寿司）</strong>
-                  <span>原宿/表参道午饭；取号排队，人均约 ¥3,000–4,000。</span>
+                  <strong>银座小野寺 · 表参道（回转寿司）</strong>
+                  <span>取号排队，人均约 ¥3,000–4,000。</span>
                   <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E9%93%B6%E5%BA%A7%E5%B0%8F%E9%87%8E%E5%AF%BA%20%E8%A1%A8%E5%8F%82%E9%81%93" target="_blank" rel="noopener noreferrer">大众点评搜索 <small>DP</small></a>
+                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E9%93%B6%E5%BA%A7%E5%B0%8F%E9%87%8E%E5%AF%BA%20%E8%A1%A8%E5%8F%82%E9%81%93" target="_blank" rel="noopener noreferrer">大众点评</a>
                   </div>
                 </li>
                 <li>
-                  <strong>一兰 / Afuri · 涩谷（晚饭备选）</strong>
-                  <span>逛完涩谷吃一碗拉面；Afuri 柚子盐拉面更清爽。</span>
+                  <strong>Afuri / 一兰 · 涩谷</strong>
+                  <span>柚子盐或豚骨拉面，逛完正合适。</span>
                   <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E6%B6%A9%E8%B0%B7%20%E4%B8%80%E5%85%B0" target="_blank" rel="noopener noreferrer">大众点评 · 一兰涩谷</a>
                     <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_Afuri%20%E6%B6%A9%E8%B0%B7" target="_blank" rel="noopener noreferrer">大众点评 · Afuri</a>
                   </div>
                 </li>
@@ -612,83 +647,34 @@
 
       <article class="day">
         <div class="day__visual">
-          <img src="https://images.unsplash.com/photo-1554797589-7241bb691973?auto=format&fit=crop&w=1400&q=80" alt="东京台场海滨" width="1400" height="875" loading="lazy" />
-        </div>
-        <div>
-          <div class="day__meta"><span class="day__num">DAY 03</span><span class="day__city">TOKYO</span></div>
-          <h3>丰洲与台场（不去迪士尼）</h3>
-          <div class="day__body">
-            <p>用一天做轻松主题，把体力留给大阪环球。</p>
-            <ul>
-              <li>早：丰洲市场吃寿司</li>
-              <li>午后：teamLab Planets（提前购票）或台场海滨</li>
-              <li>晚：整理行李，预订次日新干线指定席</li>
-            </ul>
-            <div class="eat">
-              <p class="eat__label">EAT</p>
-              <ul class="eat-list">
-                <li>
-                  <strong>寿司大 · 丰洲市场</strong>
-                  <span>传奇板前寿司，早到排队；店长推荐套餐约 ¥4,000+。也可选市场内其他寿司店避峰。</span>
-                  <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E5%AF%BF%E5%8F%B8%E5%A4%A7%20%E4%B8%B0%E6%B4%B2" target="_blank" rel="noopener noreferrer">大众点评 · 寿司大 <small>DP</small></a>
-                  </div>
-                </li>
-                <li>
-                  <strong>根室花丸 · 回转寿司（备选）</strong>
-                  <span>不想排寿司大时，东京站 KITTE 等分店性价比高。</span>
-                  <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E6%A0%B9%E5%AE%A4%E8%8A%B1%E4%B8%B8" target="_blank" rel="noopener noreferrer">大众点评搜索 <small>DP</small></a>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="day-book link-row">
-              <a class="link-pill link-pill--accent" href="https://you.ctrip.com/sight/tokyo294/5538361.html" target="_blank" rel="noopener noreferrer">订 teamLab Planets</a>
-              <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%96%B0%E5%B9%B2%E7%BA%BF%E4%B8%9C%E4%BA%AC%E5%A4%A7%E9%98%A2" target="_blank" rel="noopener noreferrer">订次日新干线</a>
-            </div>
-          </div>
-        </div>
-      </article>
-
-      <article class="day">
-        <div class="day__visual">
           <img src="https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&w=1400&q=80" alt="新干线" width="1400" height="875" loading="lazy" />
         </div>
         <div>
-          <div class="day__meta"><span class="day__num">DAY 04</span><span class="day__city">TOKYO → OSAKA</span></div>
-          <h3>南下关西</h3>
+          <div class="day__meta"><span class="day__num">10/27 周二</span><span class="day__city">TOKYO → KYOTO</span></div>
+          <h3>南下京都</h3>
           <div class="day__body">
-            <p>东京站或品川站搭东海道新干线至新大阪，约两个半小时。单程约一万四千日元。</p>
+            <p>上午可浅草或丰洲二选一；下午东京站 / 品川搭新干线到京都。入住四条里士满，靠近四条大宫。</p>
             <ul>
-              <li>上午：皇居外苑或银座轻逛</li>
-              <li>下午：入住心斋桥 / 难波 / 本町</li>
-              <li>道顿堀、固力果跑跑人、章鱼烧</li>
+              <li>退房前寄大件或随身带走</li>
+              <li>新干线约 2h10 到京都</li>
+              <li>傍晚四条、先斗町散步</li>
             </ul>
+            <p class="stay-chip">住 · 京都四条里士满高级酒店</p>
             <div class="eat">
               <p class="eat__label">EAT</p>
               <ul class="eat-list">
                 <li>
-                  <strong>千房 · 道顿堀支店</strong>
-                  <span>大阪烧老字号，综合大阪烧约 ¥2,200；人多可错峰。</span>
+                  <strong>四条周边 · 京料理 / 乌冬</strong>
+                  <span>落地京都别排太久；先斗町、锦市场附近选一家即可。</span>
                   <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/shop/kayGZwhwfzUAJg1j" target="_blank" rel="noopener noreferrer">大众点评 · 千房 <small>DP</small></a>
-                    <a class="link-pill" href="https://www.chibo.com/" target="_blank" rel="noopener noreferrer">千房官网</a>
-                  </div>
-                </li>
-                <li>
-                  <strong>元祖串かつ だるま · 道顿堀店</strong>
-                  <span>串炸，禁止二次蘸酱；人均约 ¥1,500–2,500。</span>
-                  <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E4%B8%B2%E3%81%8B%E3%81%A4%E3%81%A0%E3%82%8B%E3%81%BE%20%E9%81%93%E9%A1%BF%E5%A0%80" target="_blank" rel="noopener noreferrer">大众点评搜索 <small>DP</small></a>
-                    <a class="link-pill" href="https://www.kushikatu-daruma.com/location/doutonbori" target="_blank" rel="noopener noreferrer">达摩官网</a>
+                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E4%BA%AC%E9%83%BD%E5%9B%9B%E6%9D%A1%20%E4%B9%8C%E5%86%AC" target="_blank" rel="noopener noreferrer">大众点评 · 四条</a>
                   </div>
                 </li>
               </ul>
             </div>
             <div class="day-book link-row">
-              <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotel/osaka219/zone860" target="_blank" rel="noopener noreferrer">订大阪难波酒店</a>
-              <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%96%B0%E5%B9%B2%E7%BA%BF%E4%B8%9C%E4%BA%AC%E5%A4%A7%E9%98%A2" target="_blank" rel="noopener noreferrer">飞猪新干线</a>
+              <a class="link-pill link-pill--accent" href="https://m.ctrip.com/html5/hotel/hoteldetail/86134094.html" target="_blank" rel="noopener noreferrer">酒店详情 · 里士满</a>
+              <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%96%B0%E5%B9%B2%E7%BA%BF%E4%B8%9C%E4%BA%AC%E4%BA%AC%E9%83%BD" target="_blank" rel="noopener noreferrer">订新干线</a>
             </div>
           </div>
         </div>
@@ -699,31 +685,104 @@
           <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1400&q=80" alt="伏见稻荷千本鸟居" width="1400" height="875" loading="lazy" />
         </div>
         <div>
-          <div class="day__meta"><span class="day__num">DAY 05</span><span class="day__city">KYOTO</span></div>
-          <h3>京都一日</h3>
+          <div class="day__meta"><span class="day__num">10/28 周三</span><span class="day__city">KYOTO</span></div>
+          <h3>京都全日</h3>
           <div class="day__body">
-            <p>从大阪坐 JR 快速约三十分钟到京都。巴士易堵，能走路就走路。</p>
+            <p>住四条比大阪一日往返轻松。巴士易堵，能走路或地铁就优先。</p>
             <ul>
               <li>伏见稻荷大社（尽早）</li>
               <li>清水寺 → 二年坂三年坂</li>
-              <li>祇园散步；晚饭可回大阪吃更热闹的</li>
+              <li>祇园；晚饭回四条一带</li>
             </ul>
+            <p class="stay-chip">住 · 京都四条里士满高级酒店</p>
             <div class="eat">
               <p class="eat__label">EAT</p>
               <ul class="eat-list">
                 <li>
-                  <strong>清水寺周边 · 米饭豆腐 / 抹茶甜品</strong>
-                  <span>二年坂、三年坂小吃即可，别塞正餐；晚饭回道顿堀更痛快。</span>
+                  <strong>清水坂 · 米饭豆腐 / 抹茶</strong>
+                  <span>景区小吃当午饭；正餐留晚上。</span>
                   <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E6%B8%85%E6%B0%B4%E5%AF%BA%20%E8%B1%86%E8%85%90" target="_blank" rel="noopener noreferrer">大众点评 · 清水豆腐</a>
+                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E6%B8%85%E6%B0%B4%E5%AF%BA%20%E8%B1%86%E8%85%90" target="_blank" rel="noopener noreferrer">大众点评</a>
                   </div>
                 </li>
                 <li>
-                  <strong>回大阪晚饭 · 神座 / 金龙拉面</strong>
-                  <span>道顿堀白菜酱油面或金龙，夜宵友好。</span>
+                  <strong>先斗町 / 锦市场晚饭</strong>
+                  <span>烤串、京豆腐或寿司，避开最热门窗口的人潮。</span>
                   <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E7%A5%9E%E5%BA%A7%20%E9%81%93%E9%A1%BF%E5%A0%80" target="_blank" rel="noopener noreferrer">大众点评 · 神座</a>
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E9%87%91%E9%BE%99%E6%8B%89%E9%9D%A2%20%E9%81%93%E9%A1%BF%E5%A0%80" target="_blank" rel="noopener noreferrer">大众点评 · 金龙</a>
+                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E5%85%88%E6%96%97%E7%94%BA" target="_blank" rel="noopener noreferrer">大众点评 · 先斗町</a>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="day">
+        <div class="day__visual">
+          <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?auto=format&fit=crop&w=1400&q=80" alt="从京都前往大阪" width="1400" height="875" loading="lazy" />
+        </div>
+        <div>
+          <div class="day__meta"><span class="day__num">10/29 周四</span><span class="day__city">KYOTO → OSAKA</span></div>
+          <h3>转住大阪</h3>
+          <div class="day__body">
+            <p>京都退房后 JR 约 30 分钟到大阪。丽嘉皇家在中之岛，JR 大阪站有酒店班车；也可地铁到渡边桥 / 肥后桥再步行。</p>
+            <ul>
+              <li>上午京都补一个点（可选）</li>
+              <li>下午入住丽嘉皇家</li>
+              <li>晚上去梅田或本町吃一顿，别透支体力</li>
+            </ul>
+            <p class="stay-chip">住 · 洲至奢选大阪丽嘉皇家（核对入住日）</p>
+            <div class="eat">
+              <p class="eat__label">EAT</p>
+              <ul class="eat-list">
+                <li>
+                  <strong>梅田 / 中之岛晚饭</strong>
+                  <span>酒店周边餐厅多；也可坐地铁去心斋桥预热明天的道顿堀。</span>
+                  <div class="link-row">
+                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E5%A4%A7%E9%98%A2%E4%B8%AD%E4%B9%8B%E5%B2%9B%20%E7%83%A7%E8%82%89" target="_blank" rel="noopener noreferrer">大众点评 · 中之岛</a>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="day-book link-row">
+              <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotels/688103.html" target="_blank" rel="noopener noreferrer">酒店详情 · 丽嘉皇家</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="day">
+        <div class="day__visual">
+          <img src="https://images.unsplash.com/photo-1590559899731-a38248c3d4f4?auto=format&fit=crop&w=1400&q=80" alt="大阪街景" width="1400" height="875" loading="lazy" />
+        </div>
+        <div>
+          <div class="day__meta"><span class="day__num">10/30 周五</span><span class="day__city">OSAKA</span></div>
+          <h3>大阪闲逛 · 养足明天</h3>
+          <div class="day__body">
+            <p>万圣节前一天别排太满。心斋桥、道顿堀走一圈，早睡。</p>
+            <ul>
+              <li>心斋桥筋 → 道顿堀打卡</li>
+              <li>可选黑门市场轻食</li>
+              <li>确认 USJ 电子票、App、Express、移动电源</li>
+            </ul>
+            <p class="stay-chip">住 · 大阪丽嘉皇家</p>
+            <div class="eat">
+              <p class="eat__label">EAT</p>
+              <ul class="eat-list">
+                <li>
+                  <strong>千房 · 道顿堀</strong>
+                  <span>大阪烧综合约 ¥2,200。</span>
+                  <div class="link-row">
+                    <a class="link-pill" href="https://www.dianping.com/shop/kayGZwhwfzUAJg1j" target="_blank" rel="noopener noreferrer">大众点评 · 千房</a>
+                  </div>
+                </li>
+                <li>
+                  <strong>串かつだるま · 道顿堀</strong>
+                  <span>串炸；禁止二次蘸酱。</span>
+                  <div class="link-row">
+                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E4%B8%B2%E3%81%8B%E3%81%A4%E3%81%A0%E3%82%8B%E3%81%BE%20%E9%81%93%E9%A1%BF%E5%A0%80" target="_blank" rel="noopener noreferrer">大众点评 · 达摩</a>
+                    <a class="link-pill" href="https://www.kushikatu-daruma.com/location/doutonbori" target="_blank" rel="noopener noreferrer">达摩官网</a>
                   </div>
                 </li>
               </ul>
@@ -734,33 +793,33 @@
 
       <article class="day" id="usj-day">
         <div class="day__visual">
-          <img src="https://images.unsplash.com/photo-1569288063643-5d29ad64df09?auto=format&fit=crop&w=1400&q=80" alt="游乐园夜景氛围" width="1400" height="875" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1569288063643-5d29ad64df09?auto=format&fit=crop&w=1400&q=80" alt="万圣节乐园氛围" width="1400" height="875" loading="lazy" />
         </div>
         <div>
-          <div class="day__meta"><span class="day__num">DAY 06</span><span class="day__city">USJ</span></div>
-          <h3>全日环球影城</h3>
+          <div class="day__meta"><span class="day__num">10/31 周六</span><span class="day__city">USJ · HALLOWEEN</span></div>
+          <h3>万圣节全日环球</h3>
           <div class="day__body">
-            <p>这天只办一件事。难波 / 心斋桥坐地铁到 Universal City。</p>
+            <p>已订当日入园。万圣节人多、夜场活动多，开园前 60～90 分钟到。从中之岛 / 梅田转 JR 到 Universal City。</p>
             <ul>
-              <li>开园前 60～90 分钟到达</li>
               <li>优先任天堂世界、哈利波特、飞天翼龙</li>
-              <li>出园回心斋桥吃串炸或大阪烧</li>
+              <li>万圣节游行 / 鬼屋量力而行</li>
+              <li>出园回酒店或心斋桥吃串炸</li>
             </ul>
+            <p class="stay-chip">住 · 大阪丽嘉皇家</p>
             <div class="eat">
               <p class="eat__label">EAT</p>
               <ul class="eat-list">
                 <li>
-                  <strong>园内简餐 + 出园串炸</strong>
-                  <span>园内贵且排队；出园再去达摩或千房更划算。</span>
+                  <strong>园内简餐 + 出园再吃</strong>
+                  <span>园内贵且排队；出园达摩或千房更划算。</span>
                   <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E4%B8%B2%E3%81%8B%E3%81%A4%E3%81%A0%E3%82%8B%E3%81%BE" target="_blank" rel="noopener noreferrer">大众点评 · 串炸达摩</a>
+                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E4%B8%B2%E3%81%8B%E3%81%A4%E3%81%A0%E3%82%8B%E3%81%BE" target="_blank" rel="noopener noreferrer">大众点评 · 串炸</a>
                   </div>
                 </li>
               </ul>
             </div>
             <div class="day-book link-row">
-              <a class="link-pill link-pill--accent" href="https://you.ctrip.com/sight/osaka293/22197.html" target="_blank" rel="noopener noreferrer">携程订 USJ</a>
-              <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer">飞猪订 USJ</a>
+              <a class="link-pill link-pill--accent" href="https://you.ctrip.com/sight/osaka293/22197.html" target="_blank" rel="noopener noreferrer">USJ 携程票务页</a>
             </div>
           </div>
         </div>
@@ -768,33 +827,21 @@
 
       <article class="day">
         <div class="day__visual">
-          <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=1400&q=80" alt="奈良公园" width="1400" height="875" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=1400&q=80" alt="关西机场方向" width="1400" height="875" loading="lazy" />
         </div>
         <div>
-          <div class="day__meta"><span class="day__num">DAY 07</span><span class="day__city">NARA · DEPART</span></div>
-          <h3>奈良半日与返程</h3>
+          <div class="day__meta"><span class="day__num">11/01 周日</span><span class="day__city">KIX → HKG</span></div>
+          <h3>返程香港</h3>
           <div class="day__body">
-            <p>近铁到奈良。关西机场预留起飞前 2.5～3 小时出门。</p>
+            <p>UO851 关西 15:15 起飞。退房后药妆手信补购，预留下午出门时间（建议起飞前 2.5～3 小时到机场）。</p>
             <ul>
-              <li>东大寺 → 奈良公园喂鹿</li>
-              <li>回大阪取行李，药妆手信补购</li>
-              <li>南海电铁或 JR 空港急行列关西空港</li>
+              <li>11:00 前退房（可寄存行李）</li>
+              <li>南海电铁 / JR 空港急行 → 关西空港 T1</li>
+              <li>UO851 → 香港 T1 18:55 到达</li>
             </ul>
-            <div class="eat">
-              <p class="eat__label">EAT</p>
-              <ul class="eat-list">
-                <li>
-                  <strong>奈良 · 柿叶寿司 / 葛切</strong>
-                  <span>东大寺周边轻食即可，别吃太撑赶飞机。</span>
-                  <div class="link-row">
-                    <a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E5%A5%88%E8%89%AF%20%E6%9F%BF%E5%8F%B6%E5%AF%BF%E5%8F%B8" target="_blank" rel="noopener noreferrer">大众点评 · 柿叶寿司</a>
-                  </div>
-                </li>
-              </ul>
-            </div>
+            <p class="stay-chip">退房 · 大阪丽嘉皇家</p>
             <div class="day-book link-row">
-              <a class="link-pill link-pill--accent" href="https://flights.ctrip.com/international/search" target="_blank" rel="noopener noreferrer">查回程机票（KIX）</a>
-              <a class="link-pill" href="https://www.fliggy.com/ijipiao/" target="_blank" rel="noopener noreferrer">飞猪回程机票</a>
+              <a class="link-pill link-pill--accent" href="https://flights.ctrip.com/international/search" target="_blank" rel="noopener noreferrer">回程航班查询</a>
             </div>
           </div>
         </div>
@@ -805,33 +852,33 @@
   <section class="usj" id="usj" aria-labelledby="usj-title">
     <div class="wrap usj-grid">
       <div>
-        <p class="section-kicker">Universal Studios Japan</p>
-        <h2 class="section-title" id="usj-title">环球影城备忘</h2>
-        <p class="section-desc">任天堂世界需分区入场。想稳进，买带 Area Timed Entry / SUPER NINTENDO WORLD 字样的 Express；入园前装好官方 App 并登记门票。</p>
+        <p class="section-kicker">Halloween · USJ</p>
+        <h2 class="section-title" id="usj-title">10/31 环球备忘</h2>
+        <p class="section-desc">万圣节当日园区活动多、人流更大。任天堂世界仍建议 Express 含 Area Timed Entry；入园前装好官方 App 并登记门票。</p>
         <div class="usj-visual">
           <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=1200&q=80" alt="大阪夜景" width="1200" height="900" loading="lazy" />
         </div>
         <div class="day-book link-row">
-          <a class="link-pill link-pill--accent" href="https://you.ctrip.com/sight/osaka293/22197.html" target="_blank" rel="noopener noreferrer">携程购票</a>
-          <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer">飞猪购票</a>
+          <a class="link-pill link-pill--accent" href="https://you.ctrip.com/sight/osaka293/22197.html" target="_blank" rel="noopener noreferrer">携程 USJ</a>
+          <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer">飞猪 USJ</a>
         </div>
       </div>
       <ul class="usj-list">
         <li>
+          <strong>已订日期</strong>
+          <span>2026 年 10 月 31 日（周六）万圣节全日。</span>
+        </li>
+        <li>
           <strong>票务组合</strong>
-          <span>Studio Pass 入园票 + Express Pass（建议含任天堂预约）。Power-Up Band 可选。</span>
+          <span>Studio Pass + Express（尽量含任天堂）。Power-Up Band 可选。</span>
         </li>
         <li>
-          <strong>App 必做</strong>
-          <span>2026 年起同日分区票多在官方 App 领取；进园前完成登记，别在门口现装。</span>
+          <strong>交通</strong>
+          <span>中之岛丽嘉 → JR / 地铁转 Universal City；开园前到达。</span>
         </li>
         <li>
-          <strong>游玩顺序</strong>
-          <span>马里奥赛车 / 咚奇刚矿车 → 哈利波特禁忌之旅 → 飞天翼龙或小黄人。</span>
-        </li>
-        <li>
-          <strong>体力安排</strong>
-          <span>D5 京都回来早点睡；D6 不塞其他景点。</span>
+          <strong>体力</strong>
+          <span>10/30 早睡；万圣节夜场若参加，预留回程体力给 11/1 航班。</span>
         </li>
       </ul>
     </div>
@@ -840,35 +887,35 @@
   <section id="tips" aria-labelledby="tips-title">
     <div class="wrap">
       <p class="section-kicker">Essentials</p>
-      <h2 class="section-title" id="tips-title">实用与预算</h2>
-      <p class="section-desc">出行前把交通卡、预约和行李寄送想清楚，比多排两个景点更重要。</p>
+      <h2 class="section-title" id="tips-title">实用提醒</h2>
+      <p class="section-desc">酒店与机票已落定，出发前把交通卡、新干线和 App 再核一遍。</p>
       <div class="practice-list">
         <div class="practice-item">
           <h4>交通</h4>
-          <p>手机 Suica / ICOCA。东京至新大阪单买指定席；市内地铁巴士刷卡即可。</p>
-        </div>
-        <div class="practice-item">
-          <h4>预约</h4>
-          <p>teamLab、SHIBUYA SKY、USJ 门票与 Express 尽量提前。人气餐厅可用大众点评看排队，部分店需电话订位。</p>
+          <p>Suica / ICOCA。东京→京都、京都→大阪分段买指定席。关西机场预留充足时间。</p>
         </div>
         <div class="practice-item">
           <h4>行李</h4>
-          <p>D4 可用宅急便把大件寄到大阪酒店，人只带隔夜包坐新干线。</p>
+          <p>三城换住：王子 → 里士满 → 丽嘉。大件可用宅急便跨城寄，人只带隔夜包。</p>
+        </div>
+        <div class="practice-item">
+          <h4>万圣节 USJ</h4>
+          <p>电子票、护照姓名一致；鬼屋怕吓可跳过。充电宝必备。</p>
         </div>
         <div class="practice-item">
           <h4>礼仪</h4>
-          <p>电车不打电话，神社内保持安静，垃圾桶很少——垃圾随身带走。</p>
+          <p>电车不打电话，神社安静，垃圾随身带走。</p>
         </div>
       </div>
       <p class="budget">
-        <strong>预算粗算（不含机票）：</strong>
-        住宿每晚约 ¥12,000–20,000，餐饮每天 ¥5,000–8,000，新干线单程约 ¥14,000，USJ 门票 + Express 另计。七天一人约 ¥8–13 万（含乐园）。
+        <strong>已订锚点：</strong>
+        UO646 / UO851 · 东京王子 2 晚 · 京都里士满 2 晚 · 大阪丽嘉至 11/1 · USJ 10/31。
       </p>
     </div>
   </section>
 
   <footer>
-    <div class="wrap">东京 · 大阪七日攻略 · 含环球 · 预订链接：携程 / 飞猪 / 大众点评</div>
+    <div class="wrap">2026.10.25–11.01 · 东京 · 京都 · 大阪 · 万圣节 USJ</div>
   </footer>
 
   <script>
