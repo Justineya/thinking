@@ -30,6 +30,14 @@ const state = {
   oppScore: 0,
   rally: 1,
   log: [],
+  strokes: [],
+  incoming: null,
+  recs: [],
+  recPick: 0,
+  lastReview: null,
+  history: [],
+  showReplay: false,
+  ghost: null,
   shuttle: null,
   trail: [],
   lastCall: '先选球种，点对面半场发球。',
@@ -66,6 +74,22 @@ function sideOf(p, facingDown) {
 }
 function getShot(id) {
   return SHOTS.find((s) => s.id === id) || SHOTS[0];
+}
+function zoneName(z) {
+  return z === 'front' ? '前场' : z === 'mid' ? '中场' : '后场';
+}
+function sideName(s) {
+  return s === 'backhand' ? '反手' : '正手';
+}
+function placeLabel(p, forOpp) {
+  return `${sideName(sideOf(p, forOpp))}${zoneName(zoneOf(p, forOpp))}`;
+}
+function oppOpenCorner() {
+  const leftOpen = state.opp.x > W / 2;
+  return {
+    back: { x: leftOpen ? 0.7 : W - 0.7, y: L - 1.15 },
+    front: { x: leftOpen ? 0.75 : W - 0.75, y: NET + 0.7 },
+  };
 }
 
 function layout() {
@@ -181,9 +205,51 @@ function drawShuttle() {
   ctx.fill();
 }
 
+function drawReplay() {
+  if (!state.showReplay || !state.strokes.length) return;
+  state.strokes.forEach((st, i) => {
+    const a = toPx(st.from);
+    const b = toPx(st.to);
+    ctx.strokeStyle = st.who === 'you' ? 'rgba(47,107,255,0.75)' : 'rgba(232,93,42,0.75)';
+    ctx.lineWidth = 2.4;
+    ctx.setLineDash(st.who === 'you' ? [] : [6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = st.who === 'you' ? '#2f6bff' : '#e85d2a';
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '800 10px "Noto Sans SC"';
+    ctx.textAlign = 'center';
+    ctx.fillText(String(i + 1), b.x, b.y - 8);
+    ctx.textAlign = 'start';
+  });
+}
+
+function drawGhost() {
+  if (!state.ghost || (state.phase !== 'your' && state.phase !== 'serve')) return;
+  const p = toPx(state.ghost);
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255,236,140,0.9)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 3]);
+  ctx.arc(p.x, p.y, 11, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,236,140,0.85)';
+  ctx.font = '700 11px "Noto Sans SC"';
+  ctx.fillText('推荐落点', p.x + 12, p.y + 4);
+}
+
 function render() {
   drawCourt();
+  drawReplay();
   drawTrail();
+  drawGhost();
   drawPlayer(state.you, '#2f6bff', '你');
   drawPlayer(state.opp, '#e85d2a', '对');
   drawShuttle();
@@ -231,23 +297,177 @@ function setCall(text) {
   state.lastCall = text;
   $('#callout').textContent = text;
 }
+
+function recommendPlay() {
+  const open = oppOpenCorner();
+  const incoming = state.incoming;
+  const style = state.style;
+  if (state.phase === 'serve') {
+    if (style === 'attack') {
+      return [
+        { shotId: 'drop', title: '发吊反手网前', why: '抢攻型会扑网，先看他起动。不到位下一拍就能压后场。', ghost: open.front },
+        { shotId: 'clear', title: '发高远压反手底线', why: '即使他抢攻，先把他逼回底线再找空当。', ghost: open.back },
+      ];
+    }
+    if (style === 'defend') {
+      return [
+        { shotId: 'clear', title: '连续压反手底线', why: '防守型爱回高远，落点单一就压同一角，下一拍再吊。', ghost: open.back },
+        { shotId: 'drop', title: '高吊结合：先吊网前', why: '他习惯待在后场，吊网前逼他前后跑。', ghost: open.front },
+      ];
+    }
+    return [
+      { shotId: 'clear', title: '发高远到反手底线', why: '最稳的开局。看回球质量再决定杀还是吊。', ghost: open.back },
+      { shotId: 'drop', title: '发网前试探', why: '对方在中场，网前是空的，看他是否跟上。', ghost: open.front },
+    ];
+  }
+  if (state.phase !== 'your' || !incoming) {
+    return [{ shotId: state.shotId, title: '等球落地', why: '这一拍飞完再选。', ghost: null }];
+  }
+  const z = zoneOf(state.you, false);
+  const oppZ = zoneOf(state.opp, true);
+  if (incoming.id === 'smash') {
+    return [
+      { shotId: 'net', title: '挡对角网前', why: '杀球质量高，先挡网不给连续进攻。', ghost: open.front },
+      { shotId: 'lift', title: '被动挑反手底线', why: '来不及挡就挑高，把节奏拉慢。', ghost: open.back },
+    ];
+  }
+  if (incoming.id === 'drop' || incoming.id === 'net') {
+    if (oppZ === 'back') {
+      return [
+        { shotId: 'net', title: '跟上搓对角', why: '对方还在底线，网前空了，别挑高给他杀。', ghost: open.front },
+        { shotId: 'drive', title: '推后场空当', why: '他扑网来不及，推直线后场。用平抽打深。', ghost: open.back },
+      ];
+    }
+    return [
+      { shotId: 'lift', title: '挑反手底线', why: '对方已经贴网，搓容易被扑，挑远角。', ghost: open.back },
+      { shotId: 'net', title: '软搓另一边', why: '他贴网但偏一侧，搓空当还能抢网。', ghost: open.front },
+    ];
+  }
+  if (incoming.id === 'clear' || incoming.id === 'lift') {
+    if (z === 'back') {
+      return [
+        { shotId: 'drop', title: '假动作吊对角', why: '对方以为你杀，吊网前最能拉开。', ghost: open.front },
+        { shotId: 'smash', title: '下压中路/追身', why: '到位了可以杀。别杀太深，落点靠近他身前。', ghost: { x: clamp(state.opp.x, 0.8, W - 0.8), y: NET + 2.6 } },
+      ];
+    }
+    return [
+      { shotId: 'clear', title: '先过渡回高远', why: '你不在后场，强杀质量差，先压反手底线。', ghost: open.back },
+      { shotId: 'drive', title: '平抽抢节奏', why: '中场来球可以抽对角，不给对方架拍。', ghost: { x: open.front.x, y: NET + 2.2 } },
+    ];
+  }
+  if (incoming.id === 'drive') {
+    return [
+      { shotId: 'drive', title: '对抽空当一侧', why: '平抽要对压，打他拉开的那一边。', ghost: { x: open.front.x, y: NET + 2.4 } },
+      { shotId: 'lift', title: '挑高摆脱', why: '对抽吃亏就挑高，重新组织。', ghost: open.back },
+    ];
+  }
+  return [{ shotId: 'clear', title: '回高远稳住', why: '先把球抬起来再找空当。', ghost: open.back }];
+}
+
+function gradeYourStroke(st, oppThen) {
+  const howFar = dist(oppThen, st.to);
+  const z = zoneOf(st.to, true);
+  if (st.shot.id === 'smash' && z === 'back') {
+    return { mark: 'mid', text: '杀球落点太深，对方更好借力回高远。' };
+  }
+  if (st.shot.id === 'net' && z === 'back') {
+    return { mark: 'mid', text: '搓球打深了，变成半场高球，对方能抢攻。' };
+  }
+  if (howFar > 3.2) return { mark: 'good', text: `拉开明显，落点在${placeLabel(st.to, true)}，对方要跑超过 3 米。` };
+  if (howFar > 1.8) return { mark: 'mid', text: '落点一般，对方能赶到，但已经离开中心。' };
+  return { mark: 'bad', text: '几乎打到人身上，对方原地就能接，下一拍你会被动。' };
+}
+
+function buildReview(winner, reason) {
+  const yours = state.strokes.filter((s) => s.who === 'you');
+  const notes = yours.map((st) => {
+    const g = gradeYourStroke(st, st.oppAtHit);
+    return { ...g, title: `${st.shot.name} → ${placeLabel(st.to, true)}` };
+  });
+  const backhandHits = yours.filter((s) => sideOf(s.to, true) === 'backhand').length;
+  const frontHits = yours.filter((s) => zoneOf(s.to, true) === 'front').length;
+  const sameSide = yours.length >= 3 && (backhandHits === 0 || backhandHits === yours.length);
+  const lessons = [];
+  if (sameSide) lessons.push('落点太集中同一侧，对方不用左右移动。下一分左右拉开。');
+  if (yours.length && frontHits === 0 && winner !== 'you') lessons.push('整分都在后场对拉，没有吊网前，对方站着就能防。');
+  if (yours.length && frontHits === yours.length && winner !== 'you') lessons.push('一直打网前，对方跟上之后你没有后场变化。');
+  if (winner === 'you') lessons.push('这分赢在把对方拉出位置。下一分继续先拉开再下压。');
+  else lessons.push('丢分前一拍没有把对方调开，回位也慢。先打空当，再准备下一拍。');
+
+  const next = recommendPlayAfter(winner);
+  return { winner, reason, notes, lessons, next, strokes: state.strokes.map((s) => ({ ...s })) };
+}
+
+function recommendPlayAfter(winner) {
+  const style = STYLES.find((s) => s.id === state.style)?.name || '均衡';
+  if (winner === 'you') {
+    return `对方是「${style}」。重复刚才能得分的套路：先压反手底线，再吊对角网前。`;
+  }
+  if (state.style === 'attack') {
+    return '对方抢攻。少给高球到他正手后场；多发网前和推追身，逼他起高再打。';
+  }
+  if (state.style === 'defend') {
+    return '对方防守。不要跟他对拉高远，第二拍必须吊或杀，让他前后跑。';
+  }
+  return '下一分按「后场反手 → 对角网前」两点控制，看他回球质量再决定是否下压。';
+}
+
+function renderRecs() {
+  state.recs = recommendPlay();
+  if (state.phase === 'your' || state.phase === 'serve') {
+    const pick = state.recs[state.recPick] || state.recs[0];
+    state.ghost = pick?.ghost || null;
+  } else {
+    state.ghost = null;
+  }
+  $('#recList').innerHTML = state.recs
+    .map((r, i) => {
+      const shot = getShot(r.shotId);
+      return `<button type="button" class="rec${i === state.recPick ? ' is-on' : ''}" data-rec="${i}">
+        <span class="tag">${shot.name}</span>
+        <b>${r.title}</b>
+        <span>${r.why}</span>
+      </button>`;
+    })
+    .join('');
+}
+
+function renderReview() {
+  const box = $('#reviewBox');
+  const r = state.lastReview;
+  if (!r) {
+    box.innerHTML = '还没打完。结束后看这一分怎么丢、下一分怎么打。';
+    return;
+  }
+  const who = r.winner === 'you' ? '你得分' : '对方得分';
+  const notes = r.notes
+    .map((n) => `<div><span class="mark-${n.mark}">${n.mark === 'good' ? '好' : n.mark === 'mid' ? '一般' : '弱'}</span> ${n.title} — ${n.text}</div>`)
+    .join('');
+  const lessons = r.lessons.map((x) => `<div>${x}</div>`).join('');
+  box.innerHTML = `<b>${who}。</b> ${r.reason}<div style="margin-top:6px">${notes || '没有你的击球记录。'}</div>
+    <div style="margin-top:8px"><b>下一分推荐</b><br />${r.next}</div>
+    <div style="margin-top:6px">${lessons}</div>`;
+}
+
 function renderHud() {
   $('#youScore').textContent = String(state.youScore);
   $('#oppScore').textContent = String(state.oppScore);
   $('#rallyN').textContent = String(state.rally);
   $('#hint').textContent =
     state.phase === 'serve'
-      ? '发球：选球种，点对面半场。'
+      ? '发球：点推荐，或自己选球种再点对面。'
       : state.phase === 'your'
-        ? '轮到你回球。选球种，点对面落点。'
+        ? '轮到你。推荐在右侧，点一下会帮你选好球种和落点提示。'
         : state.phase === 'fly'
           ? '球在飞，看对方怎么移动。'
-          : '回合结束，点重新发球。';
+          : '回合结束。先看复盘，再点重新发球。';
   $('#log').innerHTML = state.log
     .slice()
     .reverse()
     .map((row) => `<li class="${row.who}">${row.text}</li>`)
     .join('');
+  renderRecs();
+  renderReview();
 }
 
 function pushLog(who, text) {
@@ -262,6 +482,11 @@ function endRally(winner, reason) {
   setCall(reason);
   pushLog(winner === 'you' ? 'you' : 'opp', reason);
   state.shuttle = null;
+  state.lastReview = buildReview(winner, reason);
+  state.history.unshift(state.lastReview);
+  state.history = state.history.slice(0, 8);
+  state.showReplay = true;
+  state.incoming = null;
   renderHud();
   render();
 }
@@ -274,7 +499,11 @@ function startServe() {
   state.shuttle = null;
   state.lastArc = null;
   state.log = [];
-  setCall('发球。高远压底线，或吊网前看对方起动。');
+  state.strokes = [];
+  state.incoming = null;
+  state.recPick = 0;
+  state.showReplay = false;
+  setCall('发球。先看推荐，或自己点落点。');
   renderHud();
   render();
 }
@@ -287,8 +516,12 @@ function newRallyKeepScore() {
   state.shuttle = null;
   state.lastArc = null;
   state.log = [];
+  state.strokes = [];
+  state.incoming = null;
+  state.recPick = 0;
+  state.showReplay = !!state.lastReview;
   state.rally += 1;
-  setCall('下一回合，你发球。');
+  setCall('下一回合，你发球。上一分复盘还在右侧。');
   renderHud();
   render();
 }
@@ -403,11 +636,15 @@ function launch({ from, to, shot, who, startH = 1.55 }) {
   state.lastArc = { peak: shot.peak, hang };
   state.trail = [{ ...from }];
   state.phase = 'fly';
-  const z = zoneOf(to, who === 'you');
-  const side = sideOf(to, who === 'you');
-  const sideName = side === 'backhand' ? '反手' : '正手';
-  const zName = z === 'front' ? '前场' : z === 'mid' ? '中场' : '后场';
-  pushLog(who, `${who === 'you' ? '你' : '对方'} ${shot.name} → ${sideName}${zName}`);
+  state.strokes.push({
+    who,
+    shot,
+    from: { ...from },
+    to: { ...to },
+    oppAtHit: { ...state.opp },
+    youAtHit: { ...state.you },
+  });
+  pushLog(who, `${who === 'you' ? '你' : '对方'} ${shot.name} → ${placeLabel(to, who === 'you')}`);
   renderHud();
 }
 
@@ -466,7 +703,9 @@ function finishFlight(sh) {
   state.you.y = sh.to.y;
   state.shuttle = null;
   state.phase = 'your';
-  setCall(`球到你这边了。对方打的是${sh.shot.name}，选球种回击。`);
+  state.incoming = sh.shot;
+  state.recPick = 0;
+  setCall(`球到你这边了。对方打的是${sh.shot.name}，先看推荐再回。`);
   renderHud();
 }
 
@@ -498,6 +737,34 @@ function bindUi() {
     shotBar.querySelectorAll('.chip').forEach((c) => c.classList.toggle('is-on', c.dataset.shot === state.shotId));
   });
 
+  function syncShotChips() {
+    shotBar.querySelectorAll('.chip').forEach((c) => c.classList.toggle('is-on', c.dataset.shot === state.shotId));
+  }
+
+  $('#recList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-rec]');
+    if (!btn) return;
+    state.recPick = Number(btn.dataset.rec);
+    const rec = state.recs[state.recPick];
+    if (!rec) return;
+    state.shotId = rec.shotId;
+    state.ghost = rec.ghost;
+    syncShotChips();
+    renderHud();
+  });
+
+  $('#replayBtn').addEventListener('click', () => {
+    const src = state.strokes.length ? state.strokes : state.lastReview?.strokes;
+    if (!src?.length) {
+      setCall('这一分还没有球路可看。');
+      return;
+    }
+    if (!state.strokes.length && state.lastReview?.strokes) state.strokes = state.lastReview.strokes.map((s) => ({ ...s }));
+    state.showReplay = !state.showReplay;
+    setCall(state.showReplay ? '场上蓝线是你，橙线是对方。数字是落点顺序。' : '复盘路线已关。');
+    render();
+  });
+
   const styleBar = $('#styleBar');
   styleBar.innerHTML = STYLES.map(
     (s) => `<button type="button" class="chip style${s.id === state.style ? ' is-on' : ''}" data-style="${s.id}">${s.name}</button>`
@@ -508,6 +775,7 @@ function bindUi() {
     state.style = btn.dataset.style;
     styleBar.querySelectorAll('.chip').forEach((c) => c.classList.toggle('is-on', c.dataset.style === state.style));
     setCall(`对方改成「${STYLES.find((x) => x.id === state.style).name}」：防守多挑高远，抢攻会杀和上网。`);
+    renderHud();
   });
 
   court.addEventListener('click', (e) => {
