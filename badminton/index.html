@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>球路训练</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div>
+        <h1>球路训练</h1>
+        <p class="sub">你打什么球，对方怎么接。点对面半场落点。</p>
+      </div>
+      <div class="score">
+        <span>你 <b id="youScore">0</b></span>
+        <span>对方 <b id="oppScore">0</b></span>
+        <span>回合 <b id="rallyN">1</b></span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <section class="stage">
+        <canvas id="court" width="560" height="860"></canvas>
+        <aside class="height-card">
+          <div class="height-lab">侧视高度</div>
+          <canvas id="heightView" width="220" height="140"></canvas>
+        </aside>
+      </section>
+
+      <section class="panel">
+        <div class="block">
+          <div class="lab">球种</div>
+          <div id="shotBar" class="chips"></div>
+        </div>
+        <div class="block">
+          <div class="lab">对方风格</div>
+          <div id="styleBar" class="chips"></div>
+        </div>
+        <p id="hint" class="hint">先选球种，再点对面场地。发球从你这边底线附近发出。</p>
+        <p id="callout" class="callout">等待开球。</p>
+        <div class="btns">
+          <button id="serveBtn" type="button">重新发球</button>
+          <button id="resetBtn" type="button" class="ghost">清空比分</button>
+        </div>
+        <div class="lab">本回合球路</div>
+        <ol id="log" class="log"></ol>
+      </section>
+    </div>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
