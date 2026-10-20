@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>东京 · 京都 · 大阪｜浅草寺与数码宝贝同款 · 2026.10.25–11.01</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #141820;
+      --ink-soft: #3a4250;
+      --mist: #e8eef4;
+      --paper: #f4f7fa;
+      --line: #c5d0dc;
+      --accent: #c8102e;
+      --accent-deep: #8f0b20;
+      --sea: #4a6fa5;
+      --ok: #1a7a4c;
+      --max: 72rem;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Zen Kaku Gothic New", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.7;
+      font-weight: 400;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      color: #fff;
+    }
+    .hero__media { position: absolute; inset: 0; z-index: 0; }
+    .hero__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.06);
+      animation: heroZoom 18s var(--ease) forwards;
+    }
+    .hero__shade {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(20, 24, 32, 0.15) 0%, rgba(20, 24, 32, 0.55) 48%, rgba(20, 24, 32, 0.88) 100%);
+    }
+    .hero__inner {
+      position: relative;
+      z-index: 1;
+      width: min(100% - 2.5rem, var(--max));
+      margin: 0 auto;
+      padding: 0 0 4.5rem;
+    }
+    .hero__dates {
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.85rem;
+      color: rgba(255, 255, 255, 0.75);
+      opacity: 0;
+      animation: rise 1s var(--ease) 0.1s forwards;
+    }
+    .hero__brand {
+      font-family: "Shippori Mincho", serif;
+      font-size: clamp(2.4rem, 6.5vw, 4.5rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: rise 1s var(--ease) 0.2s forwards;
+    }
+    .hero__lead {
+      max-width: 30rem;
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      color: rgba(255, 255, 255, 0.88);
+      margin-bottom: 1.75rem;
+      opacity: 0;
+      animation: rise 1s var(--ease) 0.4s forwards;
+    }
+    .hero__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.9rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      transition: background 0.25s var(--ease), transform 0.25s var(--ease);
+      opacity: 0;
+      animation: rise 1s var(--ease) 0.55s forwards;
+    }
+    .hero__cta:hover {
+      background: var(--accent-deep);
+      transform: translateY(-2px);
+    }
+
+    @keyframes heroZoom { to { transform: scale(1); } }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .wrap {
+      width: min(100% - 2.5rem, var(--max));
+      margin: 0 auto;
+    }
+    section { padding: clamp(3.5rem, 8vw, 6rem) 0; }
+    .section-kicker {
+      font-size: 0.8rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sea);
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+    }
+    .section-title {
+      font-family: "Shippori Mincho", serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+    .section-desc {
+      color: var(--ink-soft);
+      max-width: 38rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .route {
+      background:
+        radial-gradient(ellipse at 10% 0%, rgba(74, 111, 165, 0.12), transparent 50%),
+        linear-gradient(180deg, var(--mist), var(--paper));
+    }
+    .route-rail {
+      display: grid;
+      gap: 0;
+      border-top: 1px solid var(--line);
+    }
+    .route-item {
+      display: grid;
+      grid-template-columns: 5.5rem 1fr;
+      gap: 1.25rem;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--line);
+      align-items: baseline;
+    }
+    .route-item strong {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.05rem;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+    }
+    .route-item p { color: var(--ink-soft); }
+    .route-item em {
+      font-style: normal;
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .route-item .tag {
+      display: inline-block;
+      margin-left: 0.4rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .book {
+      background:
+        linear-gradient(165deg, #f7fafc 0%, #eef3f8 55%, #e8eef4 100%);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .book-block + .book-block {
+      margin-top: 2.75rem;
+      padding-top: 2.75rem;
+      border-top: 1px solid var(--line);
+    }
+    .book-block h3 {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.35rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.45rem;
+    }
+    .book-block > p {
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      max-width: 42rem;
+      margin-bottom: 1.15rem;
+    }
+    .status {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: var(--ok);
+      font-weight: 500;
+      margin-bottom: 0.85rem;
+    }
+    .flight-line, .stay-line {
+      display: grid;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed var(--line);
+    }
+    .flight-line:last-of-type, .stay-line:last-of-type {
+      border-bottom: none;
+      margin-bottom: 1.15rem;
+      padding-bottom: 0;
+    }
+    .flight-line strong, .stay-line strong {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.05rem;
+      color: var(--ink);
+    }
+    .flight-line span, .stay-line span {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    .link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+    }
+    .link-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 0.95rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.75);
+      color: var(--ink);
+      font-size: 0.88rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: border-color 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease);
+    }
+    .link-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent-deep);
+      background: #fff;
+    }
+    .link-pill--accent {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .link-pill--accent:hover {
+      background: var(--accent-deep);
+      border-color: var(--accent-deep);
+      color: #fff;
+    }
+    .link-pill small {
+      font-size: 0.72rem;
+      opacity: 0.7;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+    }
+
+    .day {
+      display: grid;
+      gap: 1.75rem;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+    }
+    .day.is-in { opacity: 1; transform: none; }
+    .day + .day {
+      margin-top: clamp(3rem, 7vw, 5rem);
+      padding-top: clamp(3rem, 7vw, 5rem);
+      border-top: 1px solid var(--line);
+    }
+    .day__visual {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 16 / 10;
+      background: var(--mist);
+    }
+    .day__visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 1.2s var(--ease);
+    }
+    .day.is-in .day__visual img { transform: scale(1.03); }
+    .day__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      align-items: baseline;
+      margin-bottom: 0.85rem;
+    }
+    .day__num {
+      font-family: "Shippori Mincho", serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .day__city {
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      color: var(--sea);
+      font-weight: 500;
+    }
+    .day h3 {
+      font-family: "Shippori Mincho", serif;
+      font-size: clamp(1.45rem, 3vw, 1.9rem);
+      margin-bottom: 0.85rem;
+      letter-spacing: 0.03em;
+    }
+    .day__body { color: var(--ink-soft); max-width: 44rem; }
+    .day__body ul {
+      margin-top: 1rem;
+      padding-left: 1.1rem;
+    }
+    .day__body li { margin-bottom: 0.4rem; }
+    .day__body li::marker { color: var(--accent); }
+    .stay-chip {
+      display: inline-block;
+      margin-top: 0.85rem;
+      font-size: 0.88rem;
+      color: var(--ink);
+      border-left: 2px solid var(--accent);
+      padding-left: 0.75rem;
+    }
+
+
+    .timeline {
+      margin-top: 1.15rem;
+      display: grid;
+      gap: 1.15rem;
+    }
+    .slot {
+      display: grid;
+      gap: 0.35rem;
+      padding-left: 0.9rem;
+      border-left: 2px solid var(--line);
+    }
+    .slot__when {
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .slot__title {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.05rem;
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .slot p, .slot li {
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+    }
+    .slot ul {
+      margin-top: 0.35rem;
+      padding-left: 1.1rem;
+    }
+    .slot li { margin-bottom: 0.3rem; }
+    .slot li::marker { color: var(--accent); }
+    .photo-tip {
+      margin-top: 0.55rem;
+      padding: 0.65rem 0.85rem;
+      background: rgba(74, 111, 165, 0.08);
+      color: var(--ink);
+      font-size: 0.9rem;
+      border-left: 2px solid var(--sea);
+    }
+    .photo-tip strong { color: var(--sea); font-weight: 500; }
+
+
+    /* Day header full width */
+    .day.day--full {
+      display: block;
+      max-width: none;
+    }
+    .day.day--full + .day {
+      margin-top: clamp(3.5rem, 8vw, 6rem);
+    }
+    .day-head {
+      margin-bottom: 1.5rem;
+    }
+    .day-head .day__meta { margin-bottom: 0.5rem; }
+    .day-head h3 { margin-bottom: 0.5rem; }
+    .day-head > p {
+      color: var(--ink-soft);
+      max-width: 42rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Route flow strip */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem 0.35rem;
+      margin: 0 0 1.75rem;
+      padding: 1rem 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .flow__node {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.7rem;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--ink);
+      transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+    }
+    .flow__node:hover {
+      border-color: var(--accent);
+      color: var(--accent-deep);
+    }
+    .flow__node i {
+      font-style: normal;
+      font-size: 0.7rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .flow__arrow {
+      font-size: 0.75rem;
+      color: var(--sea);
+      letter-spacing: 0;
+      max-width: 7.5rem;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    /* Spot cards */
+    .spots {
+      display: grid;
+      gap: 2rem;
+    }
+    .spot {
+      display: grid;
+      gap: 1.1rem;
+      align-items: start;
+    }
+    @media (min-width: 720px) {
+      .spot {
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
+        gap: 1.75rem;
+      }
+      .spot:nth-child(even) .spot__media { order: 2; }
+    }
+    .spot__media {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      background: var(--mist);
+    }
+    .spot__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .spot__badge {
+      position: absolute;
+      left: 0.75rem;
+      top: 0.75rem;
+      background: rgba(20, 24, 32, 0.82);
+      color: #fff;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      padding: 0.35rem 0.55rem;
+      font-weight: 500;
+    }
+    .spot__body h4 {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.25rem;
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.03em;
+    }
+    .spot__when {
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 0.35rem;
+    }
+    .transit {
+      display: grid;
+      gap: 0.25rem;
+      margin: 0.65rem 0 0.75rem;
+      padding: 0.7rem 0.85rem;
+      background: rgba(74, 111, 165, 0.08);
+      border-left: 2px solid var(--sea);
+      font-size: 0.9rem;
+      color: var(--ink);
+    }
+    .transit strong {
+      color: var(--sea);
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+    }
+    .spot__body > p {
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      margin-bottom: 0.65rem;
+    }
+    .spot__body ul {
+      margin: 0 0 0.85rem;
+      padding-left: 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+    .spot__body li { margin-bottom: 0.28rem; }
+    .spot__body li::marker { color: var(--accent); }
+
+    /* Hide old day two-col visual on full days */
+    .day--full .day__visual { display: none; }
+
+    .eat {
+      margin-top: 1.35rem;
+      padding-top: 1.2rem;
+      border-top: 1px dashed var(--line);
+    }
+    .eat__label {
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      color: var(--sea);
+      font-weight: 500;
+      margin-bottom: 0.65rem;
+    }
+    .eat-list {
+      list-style: none;
+      display: grid;
+      gap: 0.85rem;
+    }
+    .eat-list li { display: grid; gap: 0.2rem; }
+    .eat-list strong {
+      color: var(--ink);
+      font-weight: 500;
+      font-size: 0.98rem;
+    }
+    .eat-list span {
+      color: var(--ink-soft);
+      font-size: 0.88rem;
+    }
+    .eat-list .link-row { margin-top: 0.35rem; }
+    .day-book { margin-top: 1rem; }
+
+    @media (min-width: 860px) {
+      .day:not(.day--full) {
+        grid-template-columns: 1.15fr 1fr;
+        gap: 2.75rem;
+        align-items: center;
+      }
+      .day:not(.day--full):nth-child(even) .day__visual { order: 2; }
+    }
+
+    .usj {
+      background: var(--ink);
+      color: #f2f5f8;
+    }
+    .usj .section-kicker { color: #f0a8b0; }
+    .usj .section-desc { color: rgba(242, 245, 248, 0.72); }
+    .usj-grid { display: grid; gap: 2rem; }
+    @media (min-width: 800px) {
+      .usj-grid { grid-template-columns: 1.2fr 1fr; align-items: start; }
+    }
+    .usj-visual {
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+    }
+    .usj-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .usj-list {
+      list-style: none;
+      display: grid;
+      gap: 1.1rem;
+    }
+    .usj-list li {
+      padding-bottom: 1.1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .usj-list strong {
+      display: block;
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+      color: #fff;
+    }
+    .usj-list span { color: rgba(242, 245, 248, 0.7); font-size: 0.95rem; }
+    .usj .link-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.22);
+      color: #fff;
+    }
+    .usj .link-pill:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: #f0a8b0;
+      color: #fff;
+    }
+    .usj .link-pill--accent {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .usj .day-book { margin-top: 1.5rem; }
+
+    .practice-list { display: grid; gap: 1.5rem; }
+    @media (min-width: 700px) {
+      .practice-list { grid-template-columns: 1fr 1fr; gap: 2rem 3rem; }
+    }
+    .practice-item h4 {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.15rem;
+      margin-bottom: 0.4rem;
+    }
+    .practice-item p { color: var(--ink-soft); font-size: 0.98rem; }
+
+    .budget {
+      border-top: 1px solid var(--line);
+      padding-top: 2rem;
+      margin-top: 2.5rem;
+      color: var(--ink-soft);
+    }
+    .budget strong { color: var(--ink); }
+    .note {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+      max-width: 42rem;
+    }
+
+    footer {
+      padding: 2.5rem 0 3.5rem;
+      border-top: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__media" aria-hidden="true">
+      <img
+        src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=2000&q=80"
+        alt=""
+        width="2000"
+        height="1333"
+      />
+      <div class="hero__shade"></div>
+    </div>
+    <div class="hero__inner">
+      <p class="hero__dates">2026.10.25 — 11.01</p>
+      <h1 class="hero__brand">东京 · 京都<br />大阪</h1>
+      <p class="hero__lead">按你的携程订单写细：浅草寺、台场数码宝贝同款取景、京都两晚，10 月 31 日万圣节日本环球影城。</p>
+      <a class="hero__cta" href="#days">看打卡点与地图 <span aria-hidden="true">↓</span></a>
+    </div>
+  </header>
+
+  <section class="route" id="overview" aria-labelledby="overview-title">
+    <div class="wrap">
+      <p class="section-kicker">日历</p>
+      <h2 class="section-title" id="overview-title">八天怎么走</h2>
+      <p class="section-desc">东京住两晚（含浅草寺 + 台场数码宝贝同款取景）→ 京都住两晚 → 大阪住到返程。10 月 31 日万圣节去日本环球影城。新干线分段买票即可，一般不必买全国通票。</p>
+      <div class="route-rail">
+        <div class="route-item"><strong>10/25</strong><p><em>抵达东京</em> · 香港飞成田，入住东京王子大饭店，傍晚看东京塔</p></div>
+        <div class="route-item"><strong>10/26</strong><p><em>东京全日</em> · 浅草寺 + ひむろ拉面 → 台场数码宝贝 → 18:00 银座丸牛烧肉（已订）</p></div>
+        <div class="route-item"><strong>10/27</strong><p><em>东京转京都</em> · 上午涩谷一带，下午新干线，入住四条里士满</p></div>
+        <div class="route-item"><strong>10/28</strong><p><em>京都全日</em> · 伏见稻荷、清水寺、祇园</p></div>
+        <div class="route-item"><strong>10/29</strong><p><em>京都转大阪</em> · 转住洲至奢选大阪丽嘉皇家酒店</p></div>
+        <div class="route-item"><strong>10/30</strong><p><em>大阪闲逛</em> · 心斋桥、道顿堀，为明天环球养足体力</p></div>
+        <div class="route-item"><strong>10/31</strong><p><em>日本环球影城</em> · 万圣节全日（已订）</p></div>
+        <div class="route-item"><strong>11/01</strong><p><em>返回香港</em> · 关西机场下午 15:15 起飞</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="book" id="confirmed" aria-labelledby="confirmed-title">
+    <div class="wrap">
+      <p class="section-kicker">订单</p>
+      <h2 class="section-title" id="confirmed-title">已订好的行程</h2>
+      <p class="section-desc">以下来自携程与谷歌订座：机票已出票、酒店预订成功；10 月 26 日晚饭烧肉已订；日本环球影城是 10 月 31 日万圣节当天。</p>
+
+      <div class="book-block">
+        <h3>机票</h3>
+        <p class="status">已出票</p>
+        <div class="flight-line">
+          <strong>10 月 25 日去程 · 香港快运航空 UO646</strong>
+          <span>香港国际机场 2 号航站楼 13:00 起飞 → 东京成田机场 2 号航站楼 18:05 到达（约 4 小时 5 分）· 两位</span>
+        </div>
+        <div class="flight-line">
+          <strong>11 月 1 日回程 · 香港快运航空 UO851</strong>
+          <span>大阪关西国际机场 1 号航站楼 15:15 起飞 → 香港国际机场 1 号航站楼 18:55 到达（约 4 小时 40 分）· 两位</span>
+        </div>
+        <div class="link-row">
+          <a class="link-pill" href="https://flights.ctrip.com/international/search" target="_blank" rel="noopener noreferrer">携程查航班</a>
+          <a class="link-pill" href="https://www.fliggy.com/ijipiao/" target="_blank" rel="noopener noreferrer">飞猪查航班</a>
+        </div>
+      </div>
+
+      <div class="book-block">
+        <h3>酒店</h3>
+        <p class="status">预订成功</p>
+        <div class="stay-line">
+          <strong>东京王子大饭店</strong>
+          <span>10 月 25 日–27 日 · 2 晚 · 高级双人床房（上层）1 间 · 芝公园 / 东京塔旁边</span>
+        </div>
+        <div class="stay-line">
+          <strong>京都四条里士满高级酒店</strong>
+          <span>10 月 27 日–29 日 · 2 晚 · 中型双人床房 1 间 · 四条大宫附近</span>
+        </div>
+        <div class="stay-line">
+          <strong>洲至奢选大阪丽嘉皇家酒店</strong>
+          <span>行程页从 10 月 29 日起；订单明细常见 10 月 30 日–11 月 1 日（2 晚）· 无烟大床房 1 间 · 中之岛</span>
+        </div>
+        <div class="link-row">
+          <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotels/688271.html" target="_blank" rel="noopener noreferrer">携程 · 东京王子</a>
+          <a class="link-pill link-pill--accent" href="https://m.ctrip.com/html5/hotel/hoteldetail/86134094.html" target="_blank" rel="noopener noreferrer">携程 · 京都里士满</a>
+          <a class="link-pill link-pill--accent" href="https://hotels.ctrip.com/hotels/688103.html" target="_blank" rel="noopener noreferrer">携程 · 大阪丽嘉皇家</a>
+        </div>
+      </div>
+
+      <div class="book-block">
+        <h3>餐厅</h3>
+        <p class="status">已确认订座 / 已收藏</p>
+        <div class="stay-line">
+          <strong>Maruushi meat（烧肉丸牛 · 银座二丁目）</strong>
+          <span>10 月 26 日（周一）18:00 · 2 位 · 谷歌订座已确认 · 东银座站步行约 1 分钟</span>
+        </div>
+        <div class="stay-line">
+          <strong>北海道拉面 ひむろ 浅草店</strong>
+          <span>10 月 26 日午饭 · 雷门通附近（地图已收藏）· 人均约 1000–2000 日元 · 约 22:45 打烊</span>
+        </div>
+        <div class="link-row">
+          <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=YAKINIKU%20MARUUSHI%20%E9%8A%80%E5%BA%A72%E4%B8%81%E7%9B%AE" target="_blank" rel="noopener noreferrer">地图 · 丸牛烧肉</a>
+          <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E3%81%B2%E3%82%80%E3%82%8D%20%E6%B5%85%E8%8D%89%E5%BA%97" target="_blank" rel="noopener noreferrer">地图 · ひむろ浅草</a>
+          <a class="link-pill" href="https://www.maruushi.com/" target="_blank" rel="noopener noreferrer">丸牛官网</a>
+        </div>
+      </div>
+
+      <div class="book-block">
+        <h3>门票 · 还可补订</h3>
+        <p>日本环球影城万圣节已订。若还想补「teamLab 无星」数字艺术展、涩谷天空展望台、或东京到京都的新干线指定席，可用下面入口。</p>
+        <div class="link-row">
+          <a class="link-pill link-pill--accent" href="https://you.ctrip.com/sight/osaka293/22197.html" target="_blank" rel="noopener noreferrer">携程 · 日本环球影城</a>
+          <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer">飞猪 · 日本环球影城</a>
+          <a class="link-pill" href="https://you.ctrip.com/sight/tokyo294/5538361.html" target="_blank" rel="noopener noreferrer">携程 · teamLab 行星</a>
+          <a class="link-pill" href="https://you.ctrip.com/sight/tokyo294/136018827.html" target="_blank" rel="noopener noreferrer">携程 · 涩谷天空</a>
+          <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%96%B0%E5%B9%B2%E7%BA%BF%E4%B8%9C%E4%BA%AC%E4%BA%AC%E9%83%BD" target="_blank" rel="noopener noreferrer">飞猪 · 东京到京都新干线</a>
+        </div>
+      </div>
+
+      <p class="note">大阪丽嘉皇家：行程列表挂在 10 月 29 日，订单卡有时显示 10 月 30 日–11 月 1 日共 2 晚。出发前打开携程确认函核对入住日；10 月 29 日京都退房后直接去大阪即可。</p>
+    </div>
+  </section>
+
+  <section id="days" aria-labelledby="days-title">
+    <div class="wrap">
+      <p class="section-kicker">逐日打卡</p>
+      <h2 class="section-title" id="days-title">每个点怎么去 · 拍什么</h2>
+      <p class="section-desc">每个打卡点都配了景色图、交通方式，以及谷歌地图。上面的流转条可点开地图；卡片里可「从上一点导航」。</p>
+
+      <!-- DAY 10/25 -->
+      <article class="day day--full is-in">
+        <div class="day-head">
+          <div class="day__meta"><span class="day__num">10 月 25 日 · 周日</span><span class="day__city">香港 → 东京</span></div>
+          <h3>抵达 · 东京塔一带</h3>
+          <p>航班傍晚到。先入住，再在酒店步行圈内看东京塔与增上寺。</p>
+          <p class="stay-chip">今晚住 · 东京王子大饭店（芝公园）</p>
+        </div>
+        <div class="flow" aria-label="当日路线流转">
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%88%90%E7%94%B0%E5%9B%BD%E9%99%85%E6%9C%BA%E5%9C%BA%E7%AC%AC2%E8%88%AA%E7%AB%99%E6%A5%BC" target="_blank" rel="noopener noreferrer"><i>01</i>成田机场2号航站楼</a>
+      <span class="flow__arrow">京成城市天空线 → 日暮里 → 山手线</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%9C%E4%BA%AC%E7%8E%8B%E5%AD%90%E5%A4%A7%E9%A5%AD%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>02</i>东京王子大饭店</a>
+      <span class="flow__arrow">步行约8分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%9C%E4%BA%AC%E5%A1%94" target="_blank" rel="noopener noreferrer"><i>03</i>东京塔</a>
+      <span class="flow__arrow">步行</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E5%A2%9E%E4%B8%8A%E5%AF%BA" target="_blank" rel="noopener noreferrer"><i>04</i>增上寺</a>
+      </div>
+        <div class="spots">
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80" alt="成田机场方向" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 01</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">下午 18:05 抵达</p>
+          <h4>成田国际机场 · 2号航站楼</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>航空 — 香港快运 UO646，香港国际机场2号航站楼 13:00 起飞 → 成田2号航站楼 18:05 到达</span>
+          </div>
+          <p>出关取行李后进城。手机开通 Suica（苹果钱包或谷歌钱包），之后地铁巴士都刷它。</p>
+          <ul>
+              <li>出关后跟随「火车 / Train」指示牌</li>
+              <li>京成电铁「城市天空线」到日暮里，再转山手线到滨松町</li>
+              <li>也可坐机场利木津巴士，省心但略慢</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>落地别赶夜景远门，行李放好再出门。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E6%88%90%E7%94%B0%E5%9B%BD%E9%99%85%E6%9C%BA%E5%9C%BA%E7%AC%AC2%E8%88%AA%E7%AB%99%E6%A5%BC" target="_blank" rel="noopener noreferrer">打开地图</a>
+            
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80" alt="酒店外观氛围" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 02</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">傍晚 · 入住</p>
+          <h4>东京王子大饭店</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>电车约 70–90 分钟 — 成田 → 日暮里（城市天空线）→ 滨松町（山手线）→ 步行或打车到芝公园酒店</span>
+          </div>
+          <p>酒店在芝公园，上层房型更容易看到东京塔。放下行李即可出门。</p>
+          <ul>
+              <li>前台可问东京塔步行路线</li>
+              <li>大件行李先放房里，只带手机出门</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%9C%E4%BA%AC%E7%8E%8B%E5%AD%90%E5%A4%A7%E9%A5%AD%E5%BA%97" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%88%90%E7%94%B0%E5%9B%BD%E9%99%85%E6%9C%BA%E5%9C%BA%E7%AC%AC2%E8%88%AA%E7%AB%99%E6%A5%BC&destination=%E4%B8%9C%E4%BA%AC%E7%8E%8B%E5%AD%90%E5%A4%A7%E9%A5%AD%E5%BA%97&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?auto=format&fit=crop&w=1200&q=80" alt="东京塔夜景" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 03</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">晚上 · 打卡</p>
+          <h4>东京塔</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行约 8–10 分钟 — 酒店出门沿芝公园方向走即可看到铁塔</span>
+          </div>
+          <p>数码宝贝里也曾出现东京塔一带。落地夜景够用，不用登塔（登塔要另买票、排队）。</p>
+          <ul>
+              <li>芝公园草坪或增上寺山门方向构图</li>
+              <li>约 18:30 后灯会亮，夜景更好</li>
+              <li>晚饭就在滨松町 / 芝公园解决</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>低机位仰拍铁塔；或把增上寺屋顶和铁塔叠在同一画面。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%9C%E4%BA%AC%E5%A1%94" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%B8%9C%E4%BA%AC%E7%8E%8B%E5%AD%90%E5%A4%A7%E9%A5%AD%E5%BA%97&destination=%E4%B8%9C%E4%BA%AC%E5%A1%94&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&w=1200&q=80" alt="增上寺一带" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 04</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">晚上 · 轻逛</p>
+          <h4>增上寺</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行约 5 分钟 — 东京塔旁，与芝公园相连</span>
+          </div>
+          <p>德川家菩提寺，夜景安静。绕外围一圈即可，别进太多殿堂。</p>
+          <ul>
+              <li>山门与东京塔同框是经典拍法</li>
+              <li>保持安静，不要用闪光灯对着参拜者</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%A2%9E%E4%B8%8A%E5%AF%BA" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%B8%9C%E4%BA%AC%E5%A1%94&destination=%E5%A2%9E%E4%B8%8A%E5%AF%BA&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+        </div>
+      </article>
+
+      <!-- DAY 10/26 -->
+      <article class="day day--full">
+        <div class="day-head">
+          <div class="day__meta"><span class="day__num">10 月 26 日 · 周一</span><span class="day__city">东京全日</span></div>
+          <h3>浅草寺 + 台场数码宝贝 · 晚上烧肉订座</h3>
+          <p>上午浅草（午饭：北海道拉面ひむろ），下午台场拍数码宝贝同款。请在 <strong>16:30 前后离开台场</strong>，赶 18:00 银座 Maruushi meat 烧肉订座（2 位，已确认）。</p>
+          <p class="stay-chip">今晚住 · 东京王子大饭店</p>
+        </div>
+        <div class="flow" aria-label="当日路线流转">
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%9C%E4%BA%AC%E7%8E%8B%E5%AD%90%E5%A4%A7%E9%A5%AD%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>01</i>东京王子大饭店</a>
+      <span class="flow__arrow">浅草线 / 银座线约30分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%B5%85%E8%8D%89%E9%9B%B7%E9%97%A8" target="_blank" rel="noopener noreferrer"><i>02</i>雷门</a>
+      <span class="flow__arrow">步行</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%B5%85%E8%8D%89%E5%AF%BA" target="_blank" rel="noopener noreferrer"><i>03</i>浅草寺</a>
+      <span class="flow__arrow">步行约5分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E3%81%B2%E3%82%80%E3%82%8D%20%E6%B5%85%E8%8D%89%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>04</i>ひむろ拉面</a>
+      <span class="flow__arrow">水上巴士或地铁+百合海鸥号</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E5%8F%B0%E5%9C%BA%E6%B5%B7%E6%BB%A8%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener noreferrer"><i>05</i>台场海滨公园</a>
+      <span class="flow__arrow">步行</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E5%AF%8C%E5%A3%AB%E7%94%B5%E8%A7%86%E5%8F%B0%E5%8F%B0%E5%9C%BA" target="_blank" rel="noopener noreferrer"><i>06</i>富士电视台</a>
+      <span class="flow__arrow">可选 · 赶晚饭可跳过</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%9C%E4%BA%AC%E5%9B%BD%E9%99%85%E5%B1%95%E7%A4%BA%E5%9C%BA" target="_blank" rel="noopener noreferrer"><i>07</i>大锯子</a>
+      <span class="flow__arrow">百合海鸥号→新桥→银座 · 约40分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=YAKINIKU%20MARUUSHI%20%E9%8A%80%E5%BA%A72%E4%B8%81%E7%9B%AE" target="_blank" rel="noopener noreferrer"><i>08</i>丸牛烧肉 18:00</a>
+      </div>
+        <div class="spots">
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?auto=format&fit=crop&w=1200&q=80" alt="浅草雷门" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 01</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">上午 8:30–9:30</p>
+          <h4>雷门</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>地铁约 25–35 分钟 — 酒店附近大门站 / 御成门站坐都营浅草线，或转银座线到「浅草」站，8 号出口出站即到雷门</span>
+          </div>
+          <p>浅草标志：巨大红灯笼。建议 9 点前到，人少好拍正面。</p>
+          <ul>
+              <li>正面拍灯笼上的「雷门」二字</li>
+              <li>人多就侧拍或仰拍，避开举手机的人群</li>
+              <li>灯笼后方即为仲见世商店街入口</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>竖构图拍满灯笼；或退后把整座门楼拍全。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E6%B5%85%E8%8D%89%E9%9B%B7%E9%97%A8" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%B8%9C%E4%BA%AC%E7%8E%8B%E5%AD%90%E5%A4%A7%E9%A5%AD%E5%BA%97&destination=%E6%B5%85%E8%8D%89%E9%9B%B7%E9%97%A8&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=1200&q=80" alt="仲见世商店街" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 02</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">上午 9:30–11:30</p>
+          <h4>浅草寺本堂 · 仲见世通</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行 3–8 分钟 — 从雷门沿仲见世商店街一直走到本堂</span>
+          </div>
+          <p>东京必去寺庙。仲见世可买人形烧、扇子，别花太久。本堂参拜后可走到后院或隅田公园看晴空塔。</p>
+          <ul>
+              <li>本堂前有香炉，按当地人方式参拜即可</li>
+              <li>想拍晴空塔：走到吾妻桥或隅田公园河岸</li>
+              <li>午饭去「ひむろ」北海道拉面（见下一打卡点），再去台场</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>仲见世通低机位拍灯笼阵列更有纵深；吾妻桥可拍晴空塔+河面。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E6%B5%85%E8%8D%89%E5%AF%BA" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B5%85%E8%8D%89%E9%9B%B7%E9%97%A8&destination=%E6%B5%85%E8%8D%89%E5%AF%BA&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          <div class="eat"><p class="eat__label">午饭</p><ul class="eat-list"><li><strong>下一站：北海道拉面 ひむろ 浅草店</strong><span>雷门通附近，已收藏。见下方打卡点。</span></li></ul></div>
+        </div>
+      </article>
+          
+
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1557872943-16a5ac26437e?auto=format&fit=crop&w=1200&q=80" alt="日式拉面" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 03 · 午饭</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">中午约 11:30–12:30</p>
+          <h4>北海道拉面 ひむろ 浅草店</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行约 5 分钟 — 浅草寺 / 雷门通一带，谷歌地图搜「ひむろ 浅草店」。你已在地图里收藏。</span>
+          </div>
+          <p>北海道风味拉面。评分约 4.2（800+ 条点评），人均约 1000–2000 日元，大约营业至 22:45。适合作浅草参拜后的午饭。</p>
+          <ul>
+              <li>味噌系汤头偏浓郁，可按口味点</li>
+              <li>吃完再坐水上巴士或地铁去台场</li>
+              <li>备选：若排队太长，可改雷门附近其他拉面</li>
+          </ul>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E3%81%B2%E3%82%80%E3%82%8D%20%E6%B5%85%E8%8D%89%E5%BA%97" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B5%85%E8%8D%89%E5%AF%BA&destination=%E3%81%B2%E3%82%80%E3%82%8D%20%E6%B5%85%E8%8D%89%E5%BA%97&travelmode=walking" target="_blank" rel="noopener noreferrer">从浅草寺导航</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?auto=format&fit=crop&w=1200&q=80" alt="水上前往台场" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 03</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">午饭后转场</p>
+          <h4>浅草 → 台场（怎么走）</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>二选一 — ① 东京水上巴士：浅草码头 → 台场海滨公园码头，约 50–65 分钟，成人约 2000 日元，班次有限请先查时刻。② 地铁去新桥，换百合海鸥号到「台场海滨公园」站，约 40–50 分钟。</span>
+          </div>
+          <p>数码宝贝粉更推荐水上巴士：船上能看隅田川与彩虹桥，接近动画里过海的感觉。</p>
+          <ul>
+              <li>水上巴士官网查班次后再决定</li>
+              <li>百合海鸥号不包含在普通东京地铁通票里，刷 Suica 即可</li>
+              <li>坐百合海鸥号尽量坐靠窗，过彩虹桥风景好</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%8F%B0%E5%9C%BA%E6%B5%B7%E6%BB%A8%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E3%81%B2%E3%82%80%E3%82%8D%20%E6%B5%85%E8%8D%89%E5%BA%97&destination=%E5%8F%B0%E5%9C%BA%E6%B5%B7%E6%BB%A8%E5%85%AC%E5%9B%AD&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1554797589-7241bb691973?auto=format&fit=crop&w=1200&q=80" alt="台场海滨与彩虹桥" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 04</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">下午 · 数码宝贝①</p>
+          <h4>台场海滨公园 · 彩虹桥 · 自由女神像</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行 2–5 分钟 — 百合海鸥号「台场海滨公园」站下车，或水上巴士码头步行</span>
+          </div>
+          <p>《数码宝贝大冒险》主舞台：沙滩、彩虹桥、缩小版自由女神像。孩子们海边战斗、回现实世界的经典背景。</p>
+          <ul>
+              <li>先拍彩虹桥全景，再拍沙滩与女神像</li>
+              <li>今天晚上有 18:00 烧肉订座，台场请在 16:00–16:30 前收工</li>
+              <li>动画里的大摩天轮已于 2022 年拆除，不用找</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>横构图拍彩虹桥；女神像与桥同框；站在沙滩低机位更有动画感。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%8F%B0%E5%9C%BA%E6%B5%B7%E6%BB%A8%E5%85%AC%E5%9B%AD" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B5%85%E8%8D%89%E5%AF%BA&destination=%E5%8F%B0%E5%9C%BA%E6%B5%B7%E6%BB%A8%E5%85%AC%E5%9B%AD&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=80" alt="台场现代建筑与球体大楼氛围" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 05</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">下午 · 数码宝贝②</p>
+          <h4>富士电视台（球体大楼）</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行约 5–8 分钟 — 从海滨公园沿海边走到富士电视台；或百合海鸥号「台场」站下车步行约 3 分钟</span>
+          </div>
+          <p>顶着大球的总部大楼，吸血魔兽篇重要场景。外观免费拍；球内「球体展望室」另收费，时间紧可只拍外观。</p>
+          <ul>
+              <li>仰拍球体最像动画构图</li>
+              <li>大楼周边空地可走一圈找干净背景</li>
+              <li>附近有 Aqua City 商场，可休息买水</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>站远一点把整栋楼+球体拍全；阴天也有故事感。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%AF%8C%E5%A3%AB%E7%94%B5%E8%A7%86%E5%8F%B0%20%E5%8F%B0%E5%9C%BA" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E5%8F%B0%E5%9C%BA%E6%B5%B7%E6%BB%A8%E5%85%AC%E5%9B%AD&destination=%E5%AF%8C%E5%A3%AB%E7%94%B5%E8%A7%86%E5%8F%B0%20%E5%8F%B0%E5%9C%BA&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1492571350019-22de08371fd3?auto=format&fit=crop&w=1200&q=80" alt="东京现代建筑外景" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 06</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">下午–傍晚 · 数码宝贝③</p>
+          <h4>东京国际展示场 · 大锯子雕塑</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>百合海鸥号约 5–8 分钟 — 「台场」站坐百合海鸥号到「东京国际展示场 / Big Sight」站，下车步行约 3 分钟到正门</span>
+          </div>
+          <p>正门前的巨型锯子雕塑（Saw, Sawing）：花仙兽进化、人质篇同款地标。展馆本身像「大船」，也很好认。</p>
+          <ul>
+              <li>锯子侧面拍，把锯齿和展馆一起纳入</li>
+              <li>时间紧可跳过锯子，从富士电视台直接去银座赴约</li>
+              <li>16:30 前出发去银座：百合海鸥号到新桥，再转地铁去东银座</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>侧45度拍锯子；人或手办小比例入镜更有巡礼感。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%9C%E4%BA%AC%E5%9B%BD%E9%99%85%E5%B1%95%E7%A4%BA%E5%9C%BA" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E5%AF%8C%E5%A3%AB%E7%94%B5%E8%A7%86%E5%8F%B0%20%E5%8F%B0%E5%9C%BA&destination=%E4%B8%9C%E4%BA%AC%E5%9B%BD%E9%99%85%E5%B1%95%E7%A4%BA%E5%9C%BA&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=1200&q=80" alt="日式烧肉" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">晚饭 · 已订</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">18:00 · 银座 · 2 位已确认</p>
+          <h4>Maruushi meat（烧肉丸牛）</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>约 35–45 分钟 — 台场坐百合海鸥号到「新桥」站 → 地铁日比谷线到「东银座」站，步行约 1 分钟。店在银座 2-11-8 第22中央大厦 B1（YAKINIKU MARUUSHI 银座二丁目）。</span>
+          </div>
+          <p>谷歌订座已确认：10 月 26 日（周一）18:00，2 位。A4/A5 黑毛和牛烧肉，吧台带独立排烟罩。建议提前 10 分钟到。</p>
+          <ul>
+              <li>订座姓名与谷歌账号一致即可；可在确认邮件里改期或取消</li>
+              <li>人均大约 5000–8000 日元量级（视点餐）</li>
+              <li>吃完可坐地铁回芝公园酒店（东银座 / 银座 → 大门或御成门一带）</li>
+          </ul>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=YAKINIKU%20MARUUSHI%20%E9%8A%80%E5%BA%A72%E4%B8%81%E7%9B%AE" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%B8%9C%E4%BA%AC%E5%9B%BD%E9%99%85%E5%B1%95%E7%A4%BA%E5%9C%BA&destination=YAKINIKU%20MARUUSHI%20%E9%8A%80%E5%BA%A72%E4%B8%81%E7%9B%AE&travelmode=transit" target="_blank" rel="noopener noreferrer">从台场导航赴约</a>
+            <a class="link-pill" href="https://www.maruushi.com/" target="_blank" rel="noopener noreferrer">丸牛官网</a>
+          </div>
+        </div>
+      </article>
+
+        </div>
+      </article>
+
+      <!-- DAY 10/27 -->
+      <article class="day day--full">
+        <div class="day-head">
+          <div class="day__meta"><span class="day__num">10 月 27 日 · 周二</span><span class="day__city">东京 → 京都</span></div>
+          <h3>涩谷一圈 · 新干线去京都</h3>
+          <p>上午退房后轻逛明治神宫与涩谷，下午新干线。涩谷在数码宝贝里也出现过街景。</p>
+          <p class="stay-chip">今晚住 · 京都四条里士满高级酒店</p>
+        </div>
+        <div class="flow" aria-label="当日路线流转">
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%9C%E4%BA%AC%E7%8E%8B%E5%AD%90%E5%A4%A7%E9%A5%AD%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>01</i>东京王子大饭店</a>
+      <span class="flow__arrow">地铁 / JR约25分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%98%8E%E6%B2%BB%E7%A5%9E%E5%AE%AB" target="_blank" rel="noopener noreferrer"><i>02</i>明治神宫</a>
+      <span class="flow__arrow">步行经原宿</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%B6%A9%E8%B0%B7%E7%AB%99%E5%89%8D%E5%8D%81%E5%AD%97%E8%B7%AF%E5%8F%A3" target="_blank" rel="noopener noreferrer"><i>03</i>涩谷十字路口</a>
+      <span class="flow__arrow">地铁到东京站或品川</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%9C%E4%BA%AC%E7%AB%99" target="_blank" rel="noopener noreferrer"><i>04</i>新干线</a>
+      <span class="flow__arrow">约2小时10分</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%BA%AC%E9%83%BD%E5%9B%9B%E6%9D%A1%E9%87%8C%E5%A3%AB%E6%BB%A1%E9%AB%98%E7%BA%A7%E9%85%92%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>05</i>京都四条里士满</a>
+      </div>
+        <div class="spots">
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=1200&q=80" alt="东京转场路上" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 01</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">早上 8:00–9:00</p>
+          <h4>退房 · 去原宿</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>行李 — 11:00 前退房。大件可快递到京都酒店，或拖上新干线。先确认东京→京都指定席车票。</span>
+          </div>
+          <p>建议乘坐 13:30–14:30 左右的新干线，上午只逛明治神宫+涩谷。</p>
+          <ul>
+              <li>酒店可暂存行李到中午（若退房后还回来取）</li>
+              <li>或直接带上，中午去东京站 / 品川站寄存</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E6%98%8E%E6%B2%BB%E7%A5%9E%E5%AE%AB" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%B8%9C%E4%BA%AC%E7%8E%8B%E5%AD%90%E5%A4%A7%E9%A5%AD%E5%BA%97&destination=%E6%98%8E%E6%B2%BB%E7%A5%9E%E5%AE%AB&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1200&q=80" alt="明治神宫参道" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 02</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">上午 9:30–11:00</p>
+          <h4>明治神宫</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>JR 山手线 — 到「原宿」站，步行进明治神宫表参道</span>
+          </div>
+          <p>森林里的神社，适合安静拍照。参拜 30–40 分钟够。</p>
+          <ul>
+              <li>表参道鸟居对称拍</li>
+              <li>周末会遇到婚礼拍摄，避开即可</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>逆光时剪影也好看；进本殿前先拍长长的砂石参道。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E6%98%8E%E6%B2%BB%E7%A5%9E%E5%AE%AB" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%B8%9C%E4%BA%AC%E7%8E%8B%E5%AD%90%E5%A4%A7%E9%A5%AD%E5%BA%97&destination=%E6%98%8E%E6%B2%BB%E7%A5%9E%E5%AE%AB&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=1200&q=80" alt="涩谷十字路口" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 03</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">上午 11:00–12:30</p>
+          <h4>涩谷十字路口 · 八公像</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行约 10–15 分钟 — 明治神宫出 → 原宿竹下通可匆匆穿过 → 表参道方向走到涩谷；或原宿站坐一站山手线到涩谷</span>
+          </div>
+          <p>世界著名十字路口。忠犬八公像在涩谷站前。数码宝贝里也有涩谷街景（109、西班牙坂一带）。</p>
+          <ul>
+              <li>八公像合影要错开人群高峰</li>
+              <li>十字路口高机位或侧拍更干净</li>
+              <li>涩谷天空展望台需预约，时间紧可放弃</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>绿灯全亮瞬间拍人潮；晚上霓虹更炫，但你们要赶火车，白天拍即可。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E6%B6%A9%E8%B0%B7%E7%AB%99%E5%89%8D%E5%8D%81%E5%AD%97%E8%B7%AF%E5%8F%A3" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%98%8E%E6%B2%BB%E7%A5%9E%E5%AE%AB&destination=%E6%B6%A9%E8%B0%B7%E7%AB%99%E5%89%8D%E5%8D%81%E5%AD%97%E8%B7%AF%E5%8F%A3&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&w=1200&q=80" alt="新干线列车" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 04</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">下午</p>
+          <h4>新干线 → 京都酒店</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>新干线约 2 小时 10 分 — 涩谷坐地铁到东京站或品川站，乘「希望号」或「光号」到京都站，再地铁/公交到四条大宫附近酒店</span>
+          </div>
+          <p>到京都后傍晚可在四条通、先斗町散步。</p>
+          <ul>
+              <li>指定席比自由席稳，假期建议买指定席</li>
+              <li>车厢有行李空间，大件放门口行李区</li>
+              <li>京都站出站人多，跟着「地铁 / 出租车」指示走</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E4%BA%AC%E9%83%BD%E5%9B%9B%E6%9D%A1%E9%87%8C%E5%A3%AB%E6%BB%A1%E9%AB%98%E7%BA%A7%E9%85%92%E5%BA%97" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B6%A9%E8%B0%B7%E7%AB%99&destination=%E4%BA%AC%E9%83%BD%E5%9B%9B%E6%9D%A1%E9%87%8C%E5%A3%AB%E6%BB%A1%E9%AB%98%E7%BA%A7%E9%85%92%E5%BA%97&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          <div class="eat"><p class="eat__label">午饭建议</p><ul class="eat-list"><li><strong>涩谷 Afuri 或一兰</strong><span>上车前吃饱。</span><div class="link-row"><a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_Afuri%20%E6%B6%A9%E8%B0%B7" target="_blank" rel="noopener noreferrer">大众点评 · Afuri</a></div></li></ul></div>
+        </div>
+      </article>
+        </div>
+      </article>
+
+      <!-- DAY 10/28 -->
+      <article class="day day--full">
+        <div class="day-head">
+          <div class="day__meta"><span class="day__num">10 月 28 日 · 周三</span><span class="day__city">京都全日</span></div>
+          <h3>伏见稻荷 · 清水寺 · 祇园</h3>
+          <p>巴士易堵，优先 JR / 地铁。千本鸟居请尽早。</p>
+          <p class="stay-chip">今晚住 · 京都四条里士满高级酒店</p>
+        </div>
+        <div class="flow" aria-label="当日路线流转">
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%BA%AC%E9%83%BD%E5%9B%9B%E6%9D%A1%E9%87%8C%E5%A3%AB%E6%BB%A1%E9%AB%98%E7%BA%A7%E9%85%92%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>01</i>四条里士满酒店</a>
+      <span class="flow__arrow">JR奈良线约15分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%BC%8F%E8%A7%81%E7%A8%BB%E8%8D%B7%E5%A4%A7%E7%A4%BE" target="_blank" rel="noopener noreferrer"><i>02</i>伏见稻荷</a>
+      <span class="flow__arrow">公交或出租</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%B8%85%E6%B0%B4%E5%AF%BA" target="_blank" rel="noopener noreferrer"><i>03</i>清水寺</a>
+      <span class="flow__arrow">步行下山</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%BA%8C%E5%B9%B4%E5%9D%82" target="_blank" rel="noopener noreferrer"><i>04</i>二年坂三年坂</a>
+      <span class="flow__arrow">步行 / 公交</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E7%A5%87%E5%9B%AD%E4%BA%AC%E9%83%BD" target="_blank" rel="noopener noreferrer"><i>05</i>祇园</a>
+      </div>
+        <div class="spots">
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80" alt="千本鸟居" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 01</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">早上 7:30–10:30</p>
+          <h4>伏见稻荷大社 · 千本鸟居</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>JR 约 15 分钟 — 酒店到京都站附近，乘 JR 奈良线到「稻荷」站，出站即到神社</span>
+          </div>
+          <p>朱红色鸟居隧道。8 点前人少。爬到山顶约 1.5–2 小时，体力一般走到中段折返也够出片。</p>
+          <ul>
+              <li>主线千本鸟居最出片</li>
+              <li>人多就贴边拍局部，不要站路中间挡人</li>
+              <li>穿舒适鞋子，石阶多</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>通道中央对称拍；或侧身拍成红色纵深隧道。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E4%BC%8F%E8%A7%81%E7%A8%BB%E8%8D%B7%E5%A4%A7%E7%A4%BE" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%BA%AC%E9%83%BD%E5%9B%9B%E6%9D%A1%E9%87%8C%E5%A3%AB%E6%BB%A1%E9%AB%98%E7%BA%A7%E9%85%92%E5%BA%97&destination=%E4%BC%8F%E8%A7%81%E7%A8%BB%E8%8D%B7%E5%A4%A7%E7%A4%BE&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?auto=format&fit=crop&w=1200&q=80" alt="清水寺" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 02</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">中午–下午</p>
+          <h4>清水寺</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>公交约 30–40 分钟或出租 — 从伏见稻荷坐公交到清水寺一带（易堵，预留时间）；也可先回京都站再转出</span>
+          </div>
+          <p>清水舞台远眺京都。门票另付。下山进入二年坂、三年坂。</p>
+          <ul>
+              <li>舞台栏杆处可拍远景，不要翻越</li>
+              <li>午饭用坂道小吃即可</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E6%B8%85%E6%B0%B4%E5%AF%BA" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%BC%8F%E8%A7%81%E7%A8%BB%E8%8D%B7%E5%A4%A7%E7%A4%BE&destination=%E6%B8%85%E6%B0%B4%E5%AF%BA&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80" alt="京都坡道街景" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 03</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">下午</p>
+          <h4>二年坂 · 三年坂</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行下山 — 清水寺出口沿人流下山即是</span>
+          </div>
+          <p>石板坡道、传统店面，慢慢拍街景。</p>
+          <ul>
+              <li>坡道有台阶，下雨地滑</li>
+              <li>小吃：米饭豆腐、抹茶甜品</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E4%BA%8C%E5%B9%B4%E5%9D%82" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B8%85%E6%B0%B4%E5%AF%BA&destination=%E4%BA%8C%E5%B9%B4%E5%9D%82&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          <div class="eat"><p class="eat__label">小吃</p><ul class="eat-list"><li><strong>清水坂米饭豆腐 / 抹茶</strong><div class="link-row"><a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_%E6%B8%85%E6%B0%B4%E5%AF%BA%20%E8%B1%86%E8%85%90" target="_blank" rel="noopener noreferrer">大众点评</a></div></li></ul></div>
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1557409518-691ebcd96038?auto=format&fit=crop&w=1200&q=80" alt="祇园夜色" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 04</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">傍晚</p>
+          <h4>祇园 · 八坂神社</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行或公交 — 从清水坂方向走向祇园、八坂神社，再回四条酒店</span>
+          </div>
+          <p>石板路与茶屋街。晚饭回四条或先斗町。</p>
+          <ul>
+              <li>尊重居民与艺伎隐私，不要拦路强拍</li>
+              <li>先斗町河边夜景好看</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E7%A5%87%E5%9B%AD" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%BA%8C%E5%B9%B4%E5%9D%82&destination=%E7%A5%87%E5%9B%AD&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+        </div>
+      </article>
+
+      <!-- DAY 10/29 -->
+      <article class="day day--full">
+        <div class="day-head">
+          <div class="day__meta"><span class="day__num">10 月 29 日 · 周四</span><span class="day__city">京都 → 大阪</span></div>
+          <h3>转住大阪丽嘉皇家</h3>
+          <p>车程不长。打开携程确认函核对入住日。</p>
+          <p class="stay-chip">今晚住 · 洲至奢选大阪丽嘉皇家酒店</p>
+        </div>
+        <div class="flow" aria-label="当日路线流转">
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E4%BA%AC%E9%83%BD%E5%9B%9B%E6%9D%A1%E9%87%8C%E5%A3%AB%E6%BB%A1%E9%AB%98%E7%BA%A7%E9%85%92%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>01</i>四条里士满酒店</a>
+      <span class="flow__arrow">JR新快速约30分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E9%98%AA%E7%AB%99" target="_blank" rel="noopener noreferrer"><i>02</i>大阪站</a>
+      <span class="flow__arrow">酒店接驳巴士或地铁</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>03</i>丽嘉皇家酒店</a>
+      <span class="flow__arrow">可选地铁</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E9%98%AA%E6%A2%85%E7%94%B0" target="_blank" rel="noopener noreferrer"><i>04</i>梅田 / 心斋桥晚饭</a>
+      </div>
+        <div class="spots">
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=1200&q=80" alt="关西电车" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 01</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">上午–下午</p>
+          <h4>京都退房 → 大阪站</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>JR 约 30 分钟 — 京都站乘新快速或特急到大阪站</span>
+          </div>
+          <p>行李不多就自己拖；也可前一晚寄到丽嘉皇家。</p>
+          <ul>
+              <li>大阪站人多，跟着出口指示</li>
+              <li>酒店有从大阪站出发的免费接驳巴士，前台官网可查时刻</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E9%98%AA%E7%AB%99" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%BA%AC%E9%83%BD%E5%9B%9B%E6%9D%A1%E9%87%8C%E5%A3%AB%E6%BB%A1%E9%AB%98%E7%BA%A7%E9%85%92%E5%BA%97&destination=%E5%A4%A7%E9%98%AA%E7%AB%99&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80" alt="大阪酒店氛围" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 02</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">下午 · 入住</p>
+          <h4>洲至奢选大阪丽嘉皇家酒店</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>接驳巴士或地铁 — 大阪站坐酒店巴士；或地铁到渡边桥 / 肥后桥步行</span>
+          </div>
+          <p>中之岛，偏安静。去梅田、心斋桥都方便。</p>
+          <ul>
+              <li>核对入住是 29 日还是 30 日</li>
+              <li>今晚别去环球影城踩点</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E5%A4%A7%E9%98%AA%E7%AB%99&destination=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=1200&q=80" alt="大阪晚饭" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 03</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">晚上可选</p>
+          <h4>梅田或心斋桥晚饭</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>地铁约 10–20 分钟 — 酒店坐地铁到梅田或心斋桥</span>
+          </div>
+          <p>吃一顿就回，22 点前睡觉。</p>
+          <ul>
+              <li>心斋桥可明天再逛，不必今晚走完</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E9%98%AA%E5%BF%83%E6%96%8B%E6%A1%A5" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97&destination=%E5%A4%A7%E9%98%AA%E5%BF%83%E6%96%8B%E6%A1%A5&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+        </div>
+      </article>
+
+      <!-- DAY 10/30 -->
+      <article class="day day--full">
+        <div class="day-head">
+          <div class="day__meta"><span class="day__num">10 月 30 日 · 周五</span><span class="day__city">大阪</span></div>
+          <h3>心斋桥 · 道顿堀（养足明天）</h3>
+          <p>明天万圣节环球影城会很累。今天只逛吃、早睡，确认电子票与官方软件。</p>
+          <p class="stay-chip">今晚住 · 大阪丽嘉皇家</p>
+        </div>
+        <div class="flow" aria-label="当日路线流转">
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>01</i>丽嘉皇家酒店</a>
+      <span class="flow__arrow">地铁御堂筋线</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E5%BF%83%E6%96%8B%E6%A1%A5" target="_blank" rel="noopener noreferrer"><i>02</i>心斋桥商店街</a>
+      <span class="flow__arrow">步行</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E9%81%93%E9%A1%BF%E5%A0%80" target="_blank" rel="noopener noreferrer"><i>03</i>道顿堀</a>
+      <span class="flow__arrow">可选</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E9%BB%91%E9%97%A8%E5%B8%82%E5%9C%BA" target="_blank" rel="noopener noreferrer"><i>04</i>黑门市场</a>
+      </div>
+        <div class="spots">
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1200&q=80" alt="心斋桥商店街" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 01</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">上午–下午</p>
+          <h4>心斋桥商店街</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>地铁约 15–20 分钟 — 酒店坐御堂筋线到「心斋桥」站或「难波」站</span>
+          </div>
+          <p>药妆、杂货、手信今天买一部分。</p>
+          <ul>
+              <li>商店街很长，不必走到头</li>
+              <li>大药妆比价后再买</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%BF%83%E6%96%8B%E6%A1%A5" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97&destination=%E5%BF%83%E6%96%8B%E6%A1%A5&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=1200&q=80" alt="道顿堀霓虹" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 02</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">下午–晚上</p>
+          <h4>道顿堀 · 固力果跑跑人</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行 5–10 分钟 — 从心斋桥南端走到道顿堀桥</span>
+          </div>
+          <p>大阪夜景名片。拍固力果跑跑人、大螃蟹招牌，吃大阪烧或串炸。</p>
+          <ul>
+              <li>晚上霓虹更漂亮</li>
+              <li>桥上拍照别堵路</li>
+              <li>确认明天环球影城电子票、软件绑定、充电宝</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>桥上拍跑跑人招牌；河道霓虹用竖构图。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E9%81%93%E9%A1%BF%E5%A0%80" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E5%BF%83%E6%96%8B%E6%A1%A5&destination=%E9%81%93%E9%A1%BF%E5%A0%80&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          <div class="eat"><p class="eat__label">吃什么</p><ul class="eat-list"><li><strong>千房大阪烧</strong><div class="link-row"><a class="link-pill" href="https://www.dianping.com/shop/kayGZwhwfzUAJg1j" target="_blank" rel="noopener noreferrer">大众点评 · 千房</a></div></li><li><strong>串炸达摩</strong><span>禁止二次蘸酱。</span><div class="link-row"><a class="link-pill" href="https://www.kushikatu-daruma.com/location/doutonbori" target="_blank" rel="noopener noreferrer">达摩官网</a></div></li></ul></div>
+        </div>
+      </article>
+        </div>
+      </article>
+
+      <!-- DAY 10/31 -->
+      <article class="day day--full" id="usj-day">
+        <div class="day-head">
+          <div class="day__meta"><span class="day__num">10 月 31 日 · 周六</span><span class="day__city">日本环球影城 · 万圣节</span></div>
+          <h3>全日环球影城（已订）</h3>
+          <p>开园前 60–90 分钟到。从酒店经 JR 到「环球城」站。</p>
+          <p class="stay-chip">今晚住 · 大阪丽嘉皇家</p>
+        </div>
+        <div class="flow" aria-label="当日路线流转">
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>01</i>丽嘉皇家酒店</a>
+      <span class="flow__arrow">地铁+JR约30–40分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=Universal%20City%20Station%20Osaka" target="_blank" rel="noopener noreferrer"><i>02</i>环球城站</a>
+      <span class="flow__arrow">步行5分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer"><i>03</i>日本环球影城正门</a>
+      <span class="flow__arrow">园内</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer"><i>04</i>任天堂世界 · 哈利波特等</a>
+      </div>
+        <div class="spots">
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1609137144813-7d9921338f24?auto=format&fit=crop&w=1200&q=80" alt="前往环球城站" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 01</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">早上</p>
+          <h4>前往环球城站</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>地铁 + JR 约 30–40 分钟 — 酒店 → 地铁到大阪站 / 西九条方向 → JR 梦咲线到「环球城」站</span>
+          </div>
+          <p>跟着「Universal Studios Japan」指示牌步行到正门。</p>
+          <ul>
+              <li>开园前到达排队</li>
+              <li>手机软件登录并绑定门票</li>
+              <li>充电宝、舒适鞋</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=Universal%20City%20Station%20Osaka" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97&destination=Universal%20City%20Station%20Osaka&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1569288063643-5d29ad64df09?auto=format&fit=crop&w=1200&q=80" alt="日本环球影城氛围" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 02</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">全日</p>
+          <h4>日本环球影城 · 万圣节</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行约 5 分钟 — 环球城站 → 正门</span>
+          </div>
+          <p>优先：超级任天堂世界（马里奥赛车、咚奇刚）、哈利波特禁忌之旅、飞天翼龙。万圣节游行 / 鬼屋量力而行。</p>
+          <ul>
+              <li>任天堂世界可能要整理券或快速通行证预约</li>
+              <li>鬼屋怕吓可只看巡游</li>
+              <li>出园可回心斋桥吃串炸，或直接回酒店</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>园区标志门前合影；哈利波特区霍格沃茨城堡经典机位。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=Universal%20City%20Station%20Osaka&destination=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+        </div>
+      </article>
+
+      <!-- DAY 11/01 -->
+      <article class="day day--full">
+        <div class="day-head">
+          <div class="day__meta"><span class="day__num">11 月 1 日 · 周日</span><span class="day__city">大阪 → 香港</span></div>
+          <h3>退房 · 关西机场返程</h3>
+          <p>UO851 下午 15:15 起飞。建议起飞前 2.5–3 小时到机场。</p>
+        </div>
+        <div class="flow" aria-label="当日路线流转">
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97" target="_blank" rel="noopener noreferrer"><i>01</i>丽嘉皇家酒店</a>
+      <span class="flow__arrow">可选梅田补手信</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E9%9A%BE%E6%B3%A2%E7%AB%99" target="_blank" rel="noopener noreferrer"><i>02</i>南海电铁或JR关空快速</a>
+      <span class="flow__arrow">约45–60分钟</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E5%85%B3%E8%A5%BF%E5%9B%BD%E9%99%85%E6%9C%BA%E5%9C%BA1%E5%8F%B7%E8%88%AA%E7%AB%99%E6%A5%BC" target="_blank" rel="noopener noreferrer"><i>03</i>关西机场1号航站楼</a>
+      <span class="flow__arrow">UO851 15:15</span>
+      <a class="flow__node" href="https://www.google.com/maps/search/?api=1&query=%E9%A6%99%E6%B8%AF%E5%9B%BD%E9%99%85%E6%9C%BA%E5%9C%BA" target="_blank" rel="noopener noreferrer"><i>04</i>香港国际机场</a>
+      </div>
+        <div class="spots">
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80" alt="补手信逛街" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 01</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">早上</p>
+          <h4>退房 · 补手信</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>步行 / 地铁 — 11:00 前退房，行李可暂存。梅田或难波补药妆。</span>
+          </div>
+          <p>液体别超量。中午前结束购物。</p>
+          <ul>
+              <li>留足去机场时间</li>
+              <li>护照机票电子登机牌备好</li>
+          </ul>
+          
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E9%98%AA%E6%A2%85%E7%94%B0" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97&destination=%E5%A4%A7%E9%98%AA%E6%A2%85%E7%94%B0&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+          
+      <article class="spot">
+        <div class="spot__media">
+          <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80" alt="关西机场出发" width="1200" height="900" loading="lazy" />
+          <span class="spot__badge">打卡 02</span>
+        </div>
+        <div class="spot__body">
+          <p class="spot__when">中午</p>
+          <h4>关西国际机场 · 1号航站楼</h4>
+          <div class="transit">
+            <strong>交通</strong>
+            <span>约 45–70 分钟 — 南海电铁「空港急行」从难波出发，或 JR「关空快速」；到关西空港站后进 1 号航站楼</span>
+          </div>
+          <p>香港快运在 1 号航站楼。值机安检预留时间。</p>
+          <ul>
+              <li>对好航站楼再安检</li>
+              <li>机场内解决午饭</li>
+          </ul>
+          <p class="photo-tip"><strong>拍照：</strong>登机口附近即可，不必再拍。</p>
+          <div class="link-row day-book">
+            <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%85%B3%E8%A5%BF%E5%9B%BD%E9%99%85%E6%9C%BA%E5%9C%BA1%E5%8F%B7%E8%88%AA%E7%AB%99%E6%A5%BC" target="_blank" rel="noopener noreferrer">打开地图</a>
+            <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E5%A4%A7%E9%98%AA%E9%9A%BE%E6%B3%A2&destination=%E5%85%B3%E8%A5%BF%E5%9B%BD%E9%99%85%E6%9C%BA%E5%9C%BA1%E5%8F%B7%E8%88%AA%E7%AB%99%E6%A5%BC&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
+          </div>
+          
+        </div>
+      </article>
+        </div>
+      </article>
+    </div>
+  </section>
+
+
+  <section class="usj" id="digimon" aria-labelledby="digimon-title">
+    <div class="wrap usj-grid">
+      <div>
+        <p class="section-kicker">数码宝贝</p>
+        <h2 class="section-title" id="digimon-title">台场同款取景备忘</h2>
+        <p class="section-desc">安排在 10 月 26 日下午。核心就四样：台场海滨公园、彩虹桥、富士电视台球体、东京国际展示场大锯子。动画大摩天轮已拆，不用找。</p>
+        <div class="usj-visual">
+          <img src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80" alt="东京街景与台场氛围" width="1200" height="900" loading="lazy" />
+        </div>
+      </div>
+      <ul class="usj-list">
+        <li>
+          <strong>台场海滨公园</strong>
+          <span>沙滩、自由女神像、彩虹桥全景。被选召的孩子们海边战斗的主舞台。</span>
+        </li>
+        <li>
+          <strong>富士电视台</strong>
+          <span>顶着大球的大楼。吸血魔兽篇重要场景；外观免费拍，球内展望台另收费。</span>
+        </li>
+        <li>
+          <strong>大锯子雕塑</strong>
+          <span>在东京国际展示场正门前。花仙兽进化、人质篇同款地标。</span>
+        </li>
+        <li>
+          <strong>怎么去</strong>
+          <span>浅草结束后天地铁转百合海鸥号，或坐水上巴士到台场，更有「过海」感觉。</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="usj" id="usj" aria-labelledby="usj-title" style="border-top:1px solid rgba(255,255,255,0.08)">
+    <div class="wrap usj-grid">
+      <div>
+        <p class="section-kicker">万圣节</p>
+        <h2 class="section-title" id="usj-title">10 月 31 日 · 日本环球影城</h2>
+        <p class="section-desc">已订万圣节当日。人会比平日更多。超级任天堂世界建议用带园区预约的快速通行证；进园前装好官方软件并登记门票。</p>
+        <div class="usj-visual">
+          <img src="https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=1200&q=80" alt="大阪万圣节夜景" width="1200" height="900" loading="lazy" />
+        </div>
+        <div class="day-book link-row">
+          <a class="link-pill link-pill--accent" href="https://you.ctrip.com/sight/osaka293/22197.html" target="_blank" rel="noopener noreferrer">携程 · 日本环球影城</a>
+          <a class="link-pill" href="https://s.fliggy.com/ticket/search.htm?keyword=%E6%97%A5%E6%9C%AC%E7%8E%AF%E7%90%83%E5%BD%B1%E5%9F%8E" target="_blank" rel="noopener noreferrer">飞猪 · 日本环球影城</a>
+        </div>
+      </div>
+      <ul class="usj-list">
+        <li>
+          <strong>已订日期</strong>
+          <span>2026 年 10 月 31 日（周六）万圣节全日。</span>
+        </li>
+        <li>
+          <strong>票怎么配</strong>
+          <span>入园票 + 快速通行证（尽量含任天堂世界）。腕带可按需买。</span>
+        </li>
+        <li>
+          <strong>怎么去</strong>
+          <span>中之岛丽嘉皇家 → 地铁 / JR 转到「环球城站」，开园前到达。</span>
+        </li>
+        <li>
+          <strong>体力</strong>
+          <span>30 日早睡；万圣节夜场若参加，也要给 11 月 1 日航班留体力。</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="tips" aria-labelledby="tips-title">
+    <div class="wrap">
+      <p class="section-kicker">提醒</p>
+      <h2 class="section-title" id="tips-title">出发前再看一眼</h2>
+      <p class="section-desc">机票酒店已订好。交通卡、新干线、环球影城软件，出发前再核一遍。</p>
+      <div class="practice-list">
+        <div class="practice-item">
+          <h4>交通</h4>
+          <p>手机 Suica 或 ICOCA。东京到京都、京都到大阪分开买新干线指定席。去关西机场预留充足时间。</p>
+        </div>
+        <div class="practice-item">
+          <h4>行李</h4>
+          <p>三城换住：东京王子 → 京都里士满 → 大阪丽嘉。大件可跨城快递，人只带隔夜包。</p>
+        </div>
+        <div class="practice-item">
+          <h4>浅草 + 数码宝贝</h4>
+          <p>挤在 10 月 26 日一天：上午浅草寺，下午台场。大摩天轮已拆，别跑空。</p>
+        </div>
+        <div class="practice-item">
+          <h4>万圣节环球</h4>
+          <p>电子票姓名与护照一致；鬼屋怕吓可只看巡游。充电宝必备。</p>
+        </div>
+      </div>
+      <p class="budget">
+        <strong>已订锚点：</strong>
+        香港快运去程回程 · 东京王子 2 晚 · 京都里士满 2 晚 · 大阪丽嘉至 11 月 1 日 · 日本环球影城 10 月 31 日。
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">2026.10.25–11.01 · 东京浅草与台场 · 京都 · 大阪 · 万圣节日本环球影城</div>
+  </footer>
+
+  <script>
+    const days = document.querySelectorAll(".day");
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add("is-in");
+        });
+      },
+      { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
+    );
+    days.forEach((d) => io.observe(d));
+  </script>
+</body>
+</html>
