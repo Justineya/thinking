@@ -1,5 +1,5 @@
 /* Tokyo–Osaka trip guide — offline cache */
-const CACHE = "trip-guide-v3";
+const CACHE = "trip-guide-v4";
 const PRECACHE = ["./", "./index.html", "./sw.js"];
 
 self.addEventListener("install", (event) => {

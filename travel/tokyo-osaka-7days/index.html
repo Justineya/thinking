@@ -18,6 +18,8 @@
       --accent-deep: #8f0b20;
       --sea: #4a6fa5;
       --ok: #1a7a4c;
+      --warn: #a65c14;
+      --muted: #5a6575;
       --max: 72rem;
       --ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -210,6 +212,62 @@
       color: var(--ok);
       font-weight: 500;
       margin-bottom: 0.85rem;
+    }
+    .status--warn { color: var(--warn); }
+    .status--muted { color: var(--muted); }
+
+    .reserve-day {
+      margin-bottom: 1.75rem;
+      padding-bottom: 1.75rem;
+      border-bottom: 1px dashed var(--line);
+    }
+    .reserve-day:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .reserve-day__head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.5rem 1rem;
+      margin-bottom: 0.85rem;
+    }
+    .reserve-day__head strong {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.04em;
+    }
+    .reserve-day__head span {
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      font-weight: 500;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid currentColor;
+    }
+    .tag--ok { color: var(--ok); }
+    .tag--warn { color: var(--warn); }
+    .tag--muted { color: var(--muted); }
+    .reserve-item {
+      display: grid;
+      gap: 0.4rem;
+      margin-bottom: 1.15rem;
+    }
+    .reserve-item:last-child { margin-bottom: 0; }
+    .reserve-item h4 {
+      font-family: "Shippori Mincho", serif;
+      font-size: 1.02rem;
+      font-weight: 500;
+    }
+    .reserve-item p {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+      max-width: 40rem;
     }
     .flight-line, .stay-line {
       display: grid;
@@ -672,7 +730,7 @@
       <p class="hero__dates">2026.10.25 — 11.01</p>
       <h1 class="hero__brand">东京 · 京都<br />大阪</h1>
       <p class="hero__lead">按你的携程订单写细：浅草寺、台场数码宝贝同款取景、京都两晚，10 月 31 日万圣节日本环球影城。</p>
-      <a class="hero__cta" href="#days">看打卡点与地图 <span aria-hidden="true">↓</span></a>
+      <a class="hero__cta" href="#reserve">餐厅预订清单 <span aria-hidden="true">↓</span></a>
     </div>
   </header>
 
@@ -685,7 +743,7 @@
         <div class="route-item"><strong>10/25</strong><p><em>抵达东京</em> · 香港飞成田，入住东京王子大饭店，傍晚看东京塔</p></div>
         <div class="route-item"><strong>10/26</strong><p><em>东京全日</em> · 浅草寺 + ひむろ拉面 → 台场数码宝贝 → 18:00 银座丸牛烧肉（已订）</p></div>
         <div class="route-item"><strong>10/27</strong><p><em>东京转京都</em> · 上午涩谷一带，下午新干线，入住四条里士满</p></div>
-        <div class="route-item"><strong>10/28</strong><p><em>京都全日</em> · 伏见稻荷 → 清水寺 / 二年坂 → 祇园 · 鸭川傍晚（参考 VIP：寿喜烧可订但馬屋）</p></div>
+        <div class="route-item"><strong>10/28</strong><p><em>京都全日</em> · 伏见稻荷 → 清水寺 / 二年坂 → 祇园 · 鸭川傍晚（但馬屋寿喜烧待订）</p></div>
         <div class="route-item"><strong>10/29</strong><p><em>京都转大阪</em> · 可选奈良喂鹿半日，再入住丽嘉皇家</p></div>
         <div class="route-item"><strong>10/30</strong><p><em>大阪闲逛</em> · 心斋桥、道顿堀、美津大阪烧 / 豪快立寿司，为明天环球养足体力</p></div>
         <div class="route-item"><strong>10/31</strong><p><em>日本环球影城</em> · 万圣节全日（已订）</p></div>
@@ -748,11 +806,11 @@
         </div>
         <div class="stay-line">
           <strong>北海道拉面 ひむろ 浅草店</strong>
-          <span>10 月 26 日午饭 · 雷门通附近（地图已收藏）· 人均约 1000–2000 日元 · 约 22:45 打烊</span>
+          <span>10 月 26 日午饭 · 雷门通附近（地图已收藏）· 人均约 1000–2000 日元 · 免预约</span>
         </div>
         <div class="link-row">
-          <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=YAKINIKU%20MARUUSHI%20%E9%8A%80%E5%BA%A72%E4%B8%81%E7%9B%AE" target="_blank" rel="noopener noreferrer">地图 · 丸牛烧肉</a>
-          <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E3%81%B2%E3%82%80%E3%82%8D%20%E6%B5%85%E8%8D%89%E5%BA%97" target="_blank" rel="noopener noreferrer">地图 · ひむろ浅草</a>
+          <a class="link-pill link-pill--accent" href="#reserve">完整预订清单 ↓</a>
+          <a class="link-pill" href="https://www.google.com/maps/search/?api=1&query=YAKINIKU%20MARUUSHI%20%E9%8A%80%E5%BA%A72%E4%B8%81%E7%9B%AE" target="_blank" rel="noopener noreferrer">地图 · 丸牛烧肉</a>
           <a class="link-pill" href="https://www.maruushi.com/" target="_blank" rel="noopener noreferrer">丸牛官网</a>
         </div>
       </div>
@@ -770,6 +828,193 @@
       </div>
 
       <p class="note">大阪丽嘉皇家：行程列表挂在 10 月 29 日，订单卡有时显示 10 月 30 日–11 月 1 日共 2 晚。出发前打开携程确认函核对入住日；10 月 29 日京都退房后直接去大阪即可。</p>
+    </div>
+  </section>
+
+  <section class="book" id="reserve" aria-labelledby="reserve-title">
+    <div class="wrap">
+      <p class="section-kicker">订座</p>
+      <h2 class="section-title" id="reserve-title">这几天该订的餐厅</h2>
+      <p class="section-desc">按日程排出：橙色「待订」优先点链接约；绿色「已订」只作核对；灰色「免订」可排队或现点。京都 10/28 但馬屋、大阪 10/29 寿司建议尽早订。</p>
+
+      <div class="book-block">
+        <h3>优先待订</h3>
+        <p class="status status--warn">出发前建议先订这两顿</p>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/28 · 京都晚饭</strong>
+            <span class="tag tag--warn">待订</span>
+            <span>建议 18:00 · 2 人</span>
+          </div>
+          <div class="reserve-item">
+            <h4>但馬屋 四条河原町店 · 寿喜烧 / 涮涮锅吃到饱</h4>
+            <p>VIP 团同款晚饭。Hot Pepper 可网约；店家提示勿用 Auto Reserve。备选：同品牌ドンキ河原町店。</p>
+            <div class="link-row">
+              <a class="link-pill link-pill--accent" href="https://www.hotpepper.jp/strJ001176947/" target="_blank" rel="noopener noreferrer">Hot Pepper 预订</a>
+              <a class="link-pill" href="https://tabelog.com/kyoto/A2601/A260201/26029141/" target="_blank" rel="noopener noreferrer">Tabelog · 四条店</a>
+              <a class="link-pill" href="https://tabelog.com/kyoto/A2601/A260202/26034656/" target="_blank" rel="noopener noreferrer">Tabelog · ドンキ店</a>
+              <a class="link-pill" href="https://tajimaya-shijokawaramachi.com/" target="_blank" rel="noopener noreferrer">但馬屋官网</a>
+              <a class="link-pill" href="https://www.google.com/maps/search/?api=1&query=%E4%BD%86%E9%A6%AC%E5%B1%8B%20%E5%9B%9B%E6%9D%A1%E6%B2%B3%E5%8E%9F%E7%94%BA" target="_blank" rel="noopener noreferrer">地图</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/27 · 京都抵达晚饭</strong>
+            <span class="tag tag--warn">待订</span>
+            <span>建议 18:30–19:00 · 四条河原町附近</span>
+          </div>
+          <div class="reserve-item">
+            <h4>焼肉まる富 四条河原町店</h4>
+            <p>河原町花园 8F，酒店步行圈；和 10/28 但馬屋错开菜系。若当晚想轻松，也可改先斗町随便吃、把正式饭留给第二天。</p>
+            <div class="link-row">
+              <a class="link-pill link-pill--accent" href="https://www.hotpepper.jp/strJ001214070/" target="_blank" rel="noopener noreferrer">Hot Pepper 预订</a>
+              <a class="link-pill" href="https://tabelog.com/kyoto/A2601/A260201/26029233/" target="_blank" rel="noopener noreferrer">Tabelog</a>
+              <a class="link-pill" href="https://www.google.com/maps/search/?api=1&query=%E7%84%BC%E8%82%89%E3%81%BE%E3%82%8B%E5%AF%8C%20%E5%9B%9B%E6%9D%A1%E6%B2%B3%E5%8E%9F%E7%94%BA" target="_blank" rel="noopener noreferrer">地图</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/29 · 大阪晚饭（可选升级）</strong>
+            <span class="tag tag--warn">待订 · 可选</span>
+            <span>心斋桥一带 · 想正式吃再订</span>
+          </div>
+          <div class="reserve-item">
+            <h4>鮨大和 · 心斋桥</h4>
+            <p>TableCheck 网约；おまかせ约 ¥4400/人。不想订就酒店附近 / 梅田随便吃。</p>
+            <div class="link-row">
+              <a class="link-pill link-pill--accent" href="https://www.tablecheck.com/ja/shops/sushiyamato1118/reserve" target="_blank" rel="noopener noreferrer">TableCheck 预订</a>
+              <a class="link-pill" href="https://tabelog.com/osaka/A2701/A270201/27155718/" target="_blank" rel="noopener noreferrer">Tabelog · 鮨あまと</a>
+              <a class="link-pill" href="https://www.tablecheck.com/ja/landing/yakiniku-shinsaibashi" target="_blank" rel="noopener noreferrer">心斋桥烧肉备选</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="book-block">
+        <h3>逐日对照</h3>
+        <p class="status">已订 / 待订 / 免订</p>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/25 周日 · 抵东京</strong>
+            <span class="tag tag--muted">免订</span>
+          </div>
+          <div class="reserve-item">
+            <h4>东京王子大饭店步行圈</h4>
+            <p>傍晚到，芝公园 / 东京塔一带随便吃即可，不必提前订。</p>
+          </div>
+        </div>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/26 周一 · 浅草 + 台场 + 银座</strong>
+            <span class="tag tag--ok">已订</span>
+            <span>晚饭 18:00</span>
+          </div>
+          <div class="reserve-item">
+            <h4>ひむろ 浅草店（午饭）</h4>
+            <p>免预约，雷门通附近；建议 11:30–12:30 去，少排队。</p>
+            <div class="link-row">
+              <a class="link-pill" href="https://www.google.com/maps/search/?api=1&query=%E3%81%B2%E3%82%80%E3%82%8D%20%E6%B5%85%E8%8D%89%E5%BA%97" target="_blank" rel="noopener noreferrer">地图 · ひむろ</a>
+            </div>
+          </div>
+          <div class="reserve-item">
+            <h4>Maruushi meat 烧肉丸牛 · 银座二丁目（晚饭）</h4>
+            <p>谷歌订座已确认 · 2 人 · 银座 2-11-8 第22中央ビル B1。台场约 16:30 动身。注意：银座本店 TableCheck 是另一家，不要订错。</p>
+            <div class="link-row">
+              <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=YAKINIKU%20MARUUSHI%20%E9%8A%80%E5%BA%A72%E4%B8%81%E7%9B%AE" target="_blank" rel="noopener noreferrer">地图 · 已订店</a>
+              <a class="link-pill" href="https://www.maruushi.com/" target="_blank" rel="noopener noreferrer">丸牛官网</a>
+              <a class="link-pill" href="https://tabelog.com/tokyo/A1301/A130101/13170856/" target="_blank" rel="noopener noreferrer">Tabelog · 二丁目</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/27 周二 · 东京 → 京都</strong>
+            <span class="tag tag--warn">晚饭待订</span>
+          </div>
+          <div class="reserve-item">
+            <h4>午饭：涩谷 Afuri / 一兰</h4>
+            <p>免预约；新干线上车前吃饱。</p>
+          </div>
+          <div class="reserve-item">
+            <h4>晚饭：焼肉まる富（见上方「优先待订」）</h4>
+            <p>到京都后第一顿；链接在本节最上方。</p>
+          </div>
+        </div>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/28 周三 · 京都全日</strong>
+            <span class="tag tag--warn">晚饭待订</span>
+          </div>
+          <div class="reserve-item">
+            <h4>午饭：伏见稻荷出口一带</h4>
+            <p>鳗鱼 / 拉面 / 咖喱，免预约。</p>
+          </div>
+          <div class="reserve-item">
+            <h4>晚饭：但馬屋（见上方「优先待订」）</h4>
+            <p>Hot Pepper 一键约；备选先斗町随便吃。</p>
+          </div>
+        </div>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/29 周四 · 京都 → 大阪</strong>
+            <span class="tag tag--warn">可选订</span>
+          </div>
+          <div class="reserve-item">
+            <h4>奈良半日则路边便当 / 鹿园附近；晚饭可订鮨大和</h4>
+            <p>不想订：丽嘉皇家 / 梅田随便吃即可。</p>
+          </div>
+        </div>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/30 周五 · 大阪闲逛</strong>
+            <span class="tag tag--muted">免订</span>
+          </div>
+          <div class="reserve-item">
+            <h4>美津大阪烧 · 豪快立寿司 · 宮田麺児 · 鲷烧</h4>
+            <p>街头小吃为主，养体力给明天环球。美津约 11 点开门，早到少排。</p>
+            <div class="link-row">
+              <a class="link-pill" href="https://www.google.com/maps/search/?api=1&query=%E7%BE%8E%E6%B4%A5%20%E5%A4%A7%E9%98%AA%E7%84%BC" target="_blank" rel="noopener noreferrer">地图 · 美津</a>
+              <a class="link-pill" href="https://www.google.com/maps/search/?api=1&query=%E8%B1%AA%E5%BF%AB%E7%AB%8B%E5%AF%BF%E5%8F%B8%20%E9%BB%91%E9%97%A8" target="_blank" rel="noopener noreferrer">地图 · 豪快</a>
+              <a class="link-pill" href="https://www.google.com/maps/search/?api=1&query=%E5%AE%AE%E7%94%B0%E9%BA%BA%E5%85%90%20%E5%BF%83%E6%96%8B%E6%A1%A5" target="_blank" rel="noopener noreferrer">地图 · 宮田麺児</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>10/31 周六 · 日本环球影城</strong>
+            <span class="tag tag--muted">免订</span>
+          </div>
+          <div class="reserve-item">
+            <h4>园内餐饮 / 出园后附近</h4>
+            <p>万圣节全日；门票已订，饭不用提前约。</p>
+          </div>
+        </div>
+
+        <div class="reserve-day">
+          <div class="reserve-day__head">
+            <strong>11/01 周日 · 返港</strong>
+            <span class="tag tag--muted">免订</span>
+          </div>
+          <div class="reserve-item">
+            <h4>关空简餐</h4>
+            <p>建议 12:00–12:30 到机场；UO851 15:15 起飞。</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="note">订座小贴士：Hot Pepper / TableCheck 用手机浏览器即可；到店报姓名与时间。但馬屋勿用 Auto Reserve。丸牛已订的是<strong>银座二丁目</strong>，不是银座本店 TableCheck。</p>
     </div>
   </section>
 
@@ -1274,6 +1519,7 @@
             <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B6%A9%E8%B0%B7%E7%AB%99&destination=%E4%BA%AC%E9%83%BD%E5%9B%9B%E6%9D%A1%E9%87%8C%E5%A3%AB%E6%BB%A1%E9%AB%98%E7%BA%A7%E9%85%92%E5%BA%97&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
           </div>
           <div class="eat"><p class="eat__label">午饭建议</p><ul class="eat-list"><li><strong>涩谷 Afuri 或一兰</strong><span>上车前吃饱。</span><div class="link-row"><a class="link-pill" href="https://www.dianping.com/search/keyword/0/0_Afuri%20%E6%B6%A9%E8%B0%B7" target="_blank" rel="noopener noreferrer">大众点评 · Afuri</a></div></li></ul></div>
+          <div class="eat"><p class="eat__label">晚饭待订</p><ul class="eat-list"><li><strong>焼肉まる富 · 四条河原町</strong><span>河原町花园 8F；建议约 18:30。</span><div class="link-row"><a class="link-pill link-pill--accent" href="https://www.hotpepper.jp/strJ001214070/" target="_blank" rel="noopener noreferrer">Hot Pepper 预订</a><a class="link-pill" href="#reserve">预订清单</a></div></li></ul></div>
         </div>
       </article>
         </div>
@@ -1395,7 +1641,7 @@
           <p>石板茶屋街。傍晚看鸭川日落很加分；天黑后祇园灯火也好看。</p>
           <ul>
               <li>尊重居民与艺伎隐私，不要拦路强拍</li>
-              <li>VIP 晚饭参考：寿喜烧「但馬屋」河原町店（建议提前约 18:00）</li>
+              <li>VIP 晚饭：寿喜烧「但馬屋」河原町店（建议约 18:00，见预订链接）</li>
               <li>也可回四条 / 先斗町随便吃</li>
           </ul>
           
@@ -1403,7 +1649,7 @@
             <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E8%8A%B1%E8%A7%81%E5%B0%8F%E8%B7%AF%20%E4%BA%AC%E9%83%BD" target="_blank" rel="noopener noreferrer">打开地图</a>
             <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E4%BA%8C%E5%B9%B4%E5%9D%82&destination=%E8%8A%B1%E8%A7%81%E5%B0%8F%E8%B7%AF&travelmode=walking" target="_blank" rel="noopener noreferrer">从上一点导航</a>
           </div>
-          <div class="eat"><p class="eat__label">晚饭备选</p><ul class="eat-list"><li><strong>但馬屋 寿喜烧 · 河原町店</strong><span>VIP 团约 18:00；需预约。</span><div class="link-row"><a class="link-pill" href="https://www.google.com/maps/search/?api=1&query=%E4%BD%86%E9%A6%AC%E5%B1%8B%20%E6%B2%B3%E5%8E%9F%E7%94%BA" target="_blank" rel="noopener noreferrer">地图 · 但馬屋</a></div></li></ul></div>
+          <div class="eat"><p class="eat__label">晚饭待订</p><ul class="eat-list"><li><strong>但馬屋 寿喜烧 · 河原町店</strong><span>建议 18:00；Hot Pepper 网约，勿用 Auto Reserve。</span><div class="link-row"><a class="link-pill link-pill--accent" href="https://www.hotpepper.jp/strJ001176947/" target="_blank" rel="noopener noreferrer">Hot Pepper 预订</a><a class="link-pill" href="https://tabelog.com/kyoto/A2601/A260201/26029141/" target="_blank" rel="noopener noreferrer">Tabelog</a><a class="link-pill" href="https://www.google.com/maps/search/?api=1&query=%E4%BD%86%E9%A6%AC%E5%B1%8B%20%E6%B2%B3%E5%8E%9F%E7%94%BA" target="_blank" rel="noopener noreferrer">地图</a></div></li></ul></div>
         </div>
       </article>
         </div>
@@ -1504,7 +1750,7 @@
             <a class="link-pill link-pill--accent" href="https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E9%98%AA%E5%BF%83%E6%96%8B%E6%A1%A5" target="_blank" rel="noopener noreferrer">打开地图</a>
             <a class="link-pill" href="https://www.google.com/maps/dir/?api=1&origin=%E6%B4%B2%E8%87%B3%E5%A5%A2%E9%80%89%E5%A4%A7%E9%98%AA%E4%B8%BD%E5%98%89%E7%9A%87%E5%AE%B6%E9%85%92%E5%BA%97&destination=%E5%A4%A7%E9%98%AA%E5%BF%83%E6%96%8B%E6%A1%A5&travelmode=transit" target="_blank" rel="noopener noreferrer">从上一点导航</a>
           </div>
-          
+          <div class="eat"><p class="eat__label">晚饭可选订</p><ul class="eat-list"><li><strong>鮨大和 · 心斋桥</strong><span>想正式吃再订；约 ¥4400/人おまかせ。</span><div class="link-row"><a class="link-pill link-pill--accent" href="https://www.tablecheck.com/ja/shops/sushiyamato1118/reserve" target="_blank" rel="noopener noreferrer">TableCheck 预订</a><a class="link-pill" href="#reserve">预订清单</a></div></li></ul></div>
         </div>
       </article>
         </div>
@@ -1879,7 +2125,7 @@
   </section>
 
   <footer>
-    <div class="wrap">2026.10.25–11.01 · 东京浅草与台场 · 京都 · 大阪 · 万圣节日本环球影城<br /><span style="opacity:0.75;font-size:0.8rem">已回档你们自己的行程 · 离线缓存已开启 · 更新 10/22</span></div>
+    <div class="wrap">2026.10.25–11.01 · 东京浅草与台场 · 京都 · 大阪 · 万圣节日本环球影城<br /><span style="opacity:0.75;font-size:0.8rem">餐厅预订清单已更新 · 离线缓存 v4 · 更新 10/22</span></div>
   </footer>
 
   <script>
