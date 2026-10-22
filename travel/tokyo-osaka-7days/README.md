@@ -12,8 +12,8 @@
 
 ## 餐厅预订（优先）
 
-- **10/28 但馬屋**（京都寿喜烧）：https://www.hotpepper.jp/strJ001176947/
-- **10/27 焼肉まる富**（京都）：https://www.hotpepper.jp/strJ001214070/
+- **10/28 但馬屋**（京都寿喜烧，还有位，尽快订）：https://www.hotpepper.jp/strJ001176947/
+- **10/27**：まる富已满 → 先斗町轻松吃；备选 [牛角](https://www.hotpepper.jp/strJ001134534/) / [焼肉龍](https://www.hotpepper.jp/strJ003917254/)
 - **10/29 鮨大和**（大阪，可选）：https://www.tablecheck.com/ja/shops/sushiyamato1118/reserve
 - **10/26 丸牛**（银座二丁目）：已订 18:00 · 2 人
 
