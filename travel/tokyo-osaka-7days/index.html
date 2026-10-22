@@ -1862,6 +1862,14 @@
           <h4>万圣节环球</h4>
           <p>电子票姓名与护照一致；鬼屋怕吓可只看巡游。充电宝、转换插头必备。</p>
         </div>
+        <div class="practice-item">
+          <h4>行程页怎么打开（重要）</h4>
+          <p><strong>国内</strong>常打不开 github.io（不是网站挂了）。<strong>到日本后</strong>一般可开。出发前有网时打开一次本页，会自动离线缓存；再点 Safari「分享 → 添加到主屏幕」或「存储到文件」，地铁无信号也能看。</p>
+          <div class="link-row" style="margin-top:0.75rem">
+            <a class="link-pill link-pill--accent" href="https://justineya.github.io/thinking/" target="_blank" rel="noopener noreferrer">主站 · GitHub Pages</a>
+            <a class="link-pill" href="https://docs.google.com/document/d/1dem4eXphelYzI8LYDeAZYwwrGQKVzulZdmoILb3QUlk/edit" target="_blank" rel="noopener noreferrer">备用 · Google 文档（国内也好开）</a>
+          </div>
+        </div>
       </div>
       <p class="budget">
         <strong>已订锚点：</strong>
@@ -1871,7 +1879,7 @@
   </section>
 
   <footer>
-    <div class="wrap">2026.10.25–11.01 · 东京浅草与台场 · 京都 · 大阪 · 万圣节日本环球影城<br /><span style="opacity:0.75;font-size:0.8rem">已回档你们自己的行程 · 更新 10/20 03:22</span></div>
+    <div class="wrap">2026.10.25–11.01 · 东京浅草与台场 · 京都 · 大阪 · 万圣节日本环球影城<br /><span style="opacity:0.75;font-size:0.8rem">已回档你们自己的行程 · 离线缓存已开启 · 更新 10/22</span></div>
   </footer>
 
   <script>
@@ -1885,6 +1893,12 @@
       { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
     );
     days.forEach((d) => io.observe(d));
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>
