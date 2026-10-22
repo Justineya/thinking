@@ -4,7 +4,11 @@
 
 ## 在线地址
 
-**https://justineya.github.io/thinking/**
+**主站：** https://justineya.github.io/thinking/
+
+**备用（Google 文档，国内通常可开）：** https://docs.google.com/document/d/1dem4eXphelYzI8LYDeAZYwwrGQKVzulZdmoILb3QUlk/edit
+
+> 国内常打不开 `github.io`，不是网站挂了。日本一般可开。出发前用手机打开主站一次，会离线缓存；再「添加到主屏幕」或「存储到文件」最稳。
 
 ## 东京重点
 
